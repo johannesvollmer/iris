@@ -16,6 +16,6 @@ impl Scene {
     }
 
     pub fn world_bounds(&self) -> Bounds3f {
-        self.bounds.clone()
+        self.bounds
     }
 }

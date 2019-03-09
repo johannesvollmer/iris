@@ -18,14 +18,19 @@ pub type Point2i = Point2<i32>;
 pub type Point3f = Point3<Float>;
 pub type Point3i = Point3<i32>;
 
-impl<T> Point3<T> {
-    pub fn to_vec(self) -> Vec3<T> {
-        Vec3 { x: self.x, y: self.y, z: self.z }
+impl<T: Copy> Point3<T> {
+    pub fn to_vec(&self) -> Vec3<T> {
+        Vec3 {
+            x: self.x,
+            y: self.y,
+            z: self.z,
+        }
     }
 }
 
 impl<T> std::ops::Sub for Point3<T>
-    where T: std::ops::Sub<T, Output = T> + Copy
+where
+    T: std::ops::Sub<T, Output = T> + Copy,
 {
     type Output = Vec3<T>;
 
@@ -34,14 +39,18 @@ impl<T> std::ops::Sub for Point3<T>
     }
 }
 
-impl<T> Point2<T> {
-    pub fn to_vec(self) -> Vec2<T> {
-        Vec2 { x: self.x, y: self.y }
+impl<T: Copy> Point2<T> {
+    pub fn to_vec(&self) -> Vec2<T> {
+        Vec2 {
+            x: self.x,
+            y: self.y,
+        }
     }
 }
 
 impl<T> std::ops::Sub for Point2<T>
-    where T: std::ops::Sub<T, Output = T> + Copy
+where
+    T: std::ops::Sub<T, Output = T> + Copy,
 {
     type Output = Vec2<T>;
 

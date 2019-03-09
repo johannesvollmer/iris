@@ -1,3 +1,4 @@
-mod camera;
-mod color;
-mod render;
+pub mod camera;
+pub mod color;
+pub mod image;
+pub mod render;

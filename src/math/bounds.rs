@@ -19,7 +19,8 @@ pub type Bounds3i = Bounds3<i32>;
 
 impl<T> Bounds2<T> {
     pub fn diagonal(&self) -> Vec2<T>
-        where T: std::ops::Sub<T, Output = T> + Copy 
+    where
+        T: std::ops::Sub<T, Output = T> + Copy,
     {
         self.max - self.min
     }
@@ -27,7 +28,8 @@ impl<T> Bounds2<T> {
 
 impl<T> Bounds3<T> {
     pub fn diagonal(&self) -> Vec3<T>
-        where T: std::ops::Sub<T, Output = T> + Copy 
+    where
+        T: std::ops::Sub<T, Output = T> + Copy,
     {
         self.max - self.min
     }

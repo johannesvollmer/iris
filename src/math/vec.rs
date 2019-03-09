@@ -20,26 +20,30 @@ pub type Vec3i = Vec3<i32>;
 
 impl<T> Vec3<T> {
     pub fn dot(&self, other: &Self) -> T
-        where T: Copy + std::ops::Mul<T, Output = T> + std::ops::Add<T, Output = T>
+    where
+        T: Copy + std::ops::Mul<T, Output = T> + std::ops::Add<T, Output = T>,
     {
         self.x * other.x + self.y * other.y + self.z * other.z
     }
 
     pub fn length_squared(&self) -> T
-        where T: Copy + std::ops::Mul<T, Output = T> + std::ops::Add<T, Output = T>
+    where
+        T: Copy + std::ops::Mul<T, Output = T> + std::ops::Add<T, Output = T>,
     {
         self.dot(&self)
     }
 
     pub fn length(&self) -> T
-        where T: num::Float
+    where
+        T: num::Float,
     {
         self.length_squared().sqrt()
     }
 }
 
 impl<T> std::ops::Add for Vec2<T>
-    where T: std::ops::Add<T, Output = T> + Copy
+where
+    T: std::ops::Add<T, Output = T> + Copy,
 {
     type Output = Self;
 
@@ -52,7 +56,8 @@ impl<T> std::ops::Add for Vec2<T>
 }
 
 impl<T> std::ops::Add<T> for Vec2<T>
-    where T: std::ops::Add<T, Output = T> + Copy
+where
+    T: std::ops::Add<T, Output = T> + Copy,
 {
     type Output = Self;
 
@@ -62,7 +67,8 @@ impl<T> std::ops::Add<T> for Vec2<T>
 }
 
 impl<T> std::ops::Sub for Vec2<T>
-    where T: std::ops::Sub<T, Output = T> + Copy
+where
+    T: std::ops::Sub<T, Output = T> + Copy,
 {
     type Output = Self;
 
@@ -75,7 +81,8 @@ impl<T> std::ops::Sub for Vec2<T>
 }
 
 impl<T> std::ops::Sub<T> for Vec2<T>
-    where T: std::ops::Sub<T, Output = T> + Copy
+where
+    T: std::ops::Sub<T, Output = T> + Copy,
 {
     type Output = Self;
 
@@ -85,7 +92,8 @@ impl<T> std::ops::Sub<T> for Vec2<T>
 }
 
 impl<T> std::ops::Div<T> for Vec2<T>
-    where T: std::ops::Div<T, Output = T> + Copy
+where
+    T: std::ops::Div<T, Output = T> + Copy,
 {
     type Output = Self;
 
@@ -98,7 +106,8 @@ impl<T> std::ops::Div<T> for Vec2<T>
 }
 
 impl<T> std::ops::Add for Vec3<T>
-    where T: std::ops::Add<T, Output = T> + Copy
+where
+    T: std::ops::Add<T, Output = T> + Copy,
 {
     type Output = Self;
 
@@ -112,17 +121,23 @@ impl<T> std::ops::Add for Vec3<T>
 }
 
 impl<T> std::ops::Add<T> for Vec3<T>
-    where T: std::ops::Add<T, Output = T> + Copy
+where
+    T: std::ops::Add<T, Output = T> + Copy,
 {
     type Output = Self;
 
     fn add(self, other: T) -> Self::Output {
-        self + Self { x: other, y: other, z: other }
+        self + Self {
+            x: other,
+            y: other,
+            z: other,
+        }
     }
 }
 
 impl<T> std::ops::Sub for Vec3<T>
-    where T: std::ops::Sub<T, Output = T> + Copy
+where
+    T: std::ops::Sub<T, Output = T> + Copy,
 {
     type Output = Self;
 
@@ -136,17 +151,23 @@ impl<T> std::ops::Sub for Vec3<T>
 }
 
 impl<T> std::ops::Sub<T> for Vec3<T>
-    where T: std::ops::Sub<T, Output = T> + Copy
+where
+    T: std::ops::Sub<T, Output = T> + Copy,
 {
     type Output = Self;
 
     fn sub(self, other: T) -> Self::Output {
-        self - Self { x: other, y: other, z: other }
+        self - Self {
+            x: other,
+            y: other,
+            z: other,
+        }
     }
 }
 
 impl<T> std::ops::Div<T> for Vec3<T>
-    where T: std::ops::Div<T, Output = T> + Copy
+where
+    T: std::ops::Div<T, Output = T> + Copy,
 {
     type Output = Self;
 
