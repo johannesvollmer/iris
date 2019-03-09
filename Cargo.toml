@@ -1,0 +1,9 @@
+[package]
+authors = ["Matt Taylor <mstaveleytaylor@gmail.com>"]
+edition = "2018"
+name = "rt"
+version = "0.1.0"
+
+[dependencies]
+derive-new = "0.5.6"
+num = "0.2.0"
