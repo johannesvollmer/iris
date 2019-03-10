@@ -5,6 +5,12 @@ use crate::film::image::Image;
 const TILE_SIZE: usize = 16;
 const TILE_AREA: usize = TILE_SIZE * TILE_SIZE;
 
+pub struct ImageSample {
+    x: f32,
+    y: f32,
+    color: Color4f,
+}
+
 #[derive(Clone)]
 pub struct RenderBlock {
     pub pixels: Vec<Color4f>,
@@ -21,19 +27,14 @@ impl RenderBlock {
 pub struct RenderTarget {
     width: usize,
     height: usize,
-    blocks: Vec<Mutex<Option<RenderBlock>>>,
+    blocks: Vec<Mutex<RenderBlock>>,
 }
 
 impl RenderTarget {
     pub fn new(width: usize, height: usize) -> Self {
         assert!(width * height % TILE_SIZE == 0);
         let nblocks = width * height / TILE_AREA;
-
-        let mut blocks = Vec::new();
-
-        for _ in 0..nblocks {
-            blocks.push(Mutex::new(None));
-        }
+        let blocks = (0..nblocks).map(|_| Mutex::new(RenderBlock::new())).collect();
 
         Self {
             width,
@@ -49,15 +50,13 @@ impl RenderTarget {
 
         for block in self.blocks {
             let block = block.lock().unwrap();
-
-            let block = match &*block {
-                None => &default_block,
-                Some(s) => &s
-            };
-
             pixels_flat.extend_from_slice(&block.pixels);
         }
 
         Image::new(pixels_flat, (self.width as u32, self.height as u32))
+    }
+
+    pub fn write(&self, samples: &[ImageSample], region: &Bounds2f) {
+        
     }
 }

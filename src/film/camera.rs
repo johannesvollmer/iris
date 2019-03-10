@@ -1,4 +1,4 @@
-use crate::film::render::RenderTarget;
+use crate::film::render_target::RenderTarget;
 use std::sync::Arc;
 
 pub trait Camera {

@@ -1,4 +1,4 @@
 pub mod camera;
 pub mod color;
 pub mod image;
-pub mod render;
+pub mod render_target;

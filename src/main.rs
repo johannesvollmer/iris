@@ -9,7 +9,7 @@ mod math;
 mod scene;
 
 fn main() {
-    let render_target = film::render::RenderTarget::new(128, 128);
+    let render_target = film::render_target::RenderTarget::new(128, 128);
 
     render_target
         .get_image()
