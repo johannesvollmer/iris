@@ -1,6 +1,6 @@
-use crate::film::render_target::RenderTarget;
+use crate::film::Film;
 use std::sync::Arc;
 
 pub trait Camera {
-    fn get_render_target(&self) -> Arc<RenderTarget>;
+    fn get_film(&self) -> Arc<Film>;
 }
