@@ -28,7 +28,8 @@ impl<T: Copy> Point3<T> {
     }
 
     pub fn ceil(&self) -> Self
-        where T: num::Float
+    where
+        T: num::Float,
     {
         Self {
             x: self.x.ceil(),
@@ -38,7 +39,8 @@ impl<T: Copy> Point3<T> {
     }
 
     pub fn floor(&self) -> Self
-        where T: num::Float
+    where
+        T: num::Float,
     {
         Self {
             x: self.x.floor(),
@@ -71,7 +73,6 @@ where
             y: self.y - other.y,
             z: self.z - other.z,
         }
-
     }
 }
 
@@ -114,7 +115,8 @@ impl<T: Copy> Point2<T> {
     }
 
     pub fn ceil(&self) -> Self
-        where T: num::Float
+    where
+        T: num::Float,
     {
         Self {
             x: self.x.ceil(),
@@ -123,7 +125,8 @@ impl<T: Copy> Point2<T> {
     }
 
     pub fn floor(&self) -> Self
-        where T: num::Float
+    where
+        T: num::Float,
     {
         Self {
             x: self.x.floor(),
@@ -154,7 +157,6 @@ where
             x: self.x - other.x,
             y: self.y - other.y,
         }
-
     }
 }
 
@@ -169,10 +171,8 @@ where
             x: self.x + other.x,
             y: self.y + other.y,
         }
-
     }
 }
-
 
 impl<T> std::ops::Sub<T> for Point2<T>
 where
@@ -185,7 +185,6 @@ where
             x: self.x - other,
             y: self.y - other,
         }
-
     }
 }
 
@@ -200,7 +199,6 @@ where
             x: self.x + other,
             y: self.y + other,
         }
-
     }
 }
 
@@ -209,6 +207,15 @@ impl From<Point2f> for Point2i {
         Point2i {
             x: p.x as i32,
             y: p.y as i32,
+        }
+    }
+}
+
+impl From<Point2i> for Point2f {
+    fn from(p: Point2i) -> Point2f {
+        Point2f {
+            x: p.x as f32,
+            y: p.y as f32,
         }
     }
 }

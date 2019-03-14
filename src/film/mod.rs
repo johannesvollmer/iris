@@ -1,11 +1,11 @@
 pub mod camera;
-pub mod spectrum;
 pub mod filter;
+pub mod spectrum;
 
 use std::sync::Mutex;
 //use crate::film::color::Color4f;
-use crate::film::spectrum::Spectrum;
 use crate::film::filter::Filter;
+use crate::film::spectrum::Spectrum;
 use crate::math::*;
 
 #[derive(Copy, Clone)]
@@ -33,7 +33,13 @@ impl FilmTile {
             bounds,
             filter_width: filter.width(),
             filter,
-            pixels: vec![FilmTilePixel { contrib_sum: Spectrum::new(0.0, 0.0, 0.0), filter_weight_sum: 0.0 }; bounds.area() as usize],
+            pixels: vec![
+                FilmTilePixel {
+                    contrib_sum: Spectrum::new(0.0, 0.0, 0.0),
+                    filter_weight_sum: 0.0
+                };
+                bounds.area() as usize
+            ],
         }
     }
 
@@ -44,26 +50,28 @@ impl FilmTile {
     }
 
     pub fn add_sample(&mut self, point: Point2f, sample: &Spectrum) {
-        let discrete = point - Vec2f::new(0.5, 0.5);     
+        let discrete = point - Vec2f::new(0.5, 0.5);
         let mut p_min: Point2i = (discrete - self.filter_width).ceil().into();
-        let mut p_max: Point2i = Point2i::from((discrete + self.filter_width).floor()) + Vec2i::new(1, 1);
+        let mut p_max: Point2i =
+            Point2i::from((discrete + self.filter_width).floor()) + Vec2i::new(1, 1);
 
         // Clip min and max
-        p_min.x = i32::max(0, p_min.x);
-        p_min.y = i32::max(0, p_min.y);
+        p_min.x = i32::max(self.bounds.min.x, p_min.x);
+        p_min.y = i32::max(self.bounds.min.y, p_min.y);
         p_max.x = i32::min(self.bounds.max.x, p_max.x);
         p_max.y = i32::min(self.bounds.max.y, p_max.y);
 
         let bounds = Bounds2i::new(p_min, p_max);
 
         for point in bounds {
-            let weight = self.filter.evaluate(point.x as f32 - discrete.x, point.y as f32 - discrete.y);
+            let weight = self
+                .filter
+                .evaluate(point.x as f32 - discrete.x, point.y as f32 - discrete.y);
             let pixel = self.get_pixel_mut(point);
             pixel.contrib_sum += sample * weight;
             pixel.filter_weight_sum += weight;
         }
     }
-
 }
 
 pub struct Film {
@@ -77,7 +85,13 @@ impl Film {
         Self {
             width,
             height,
-            pixels: Mutex::new(vec![Pixel { rgb: [0.0, 0.0, 0.0], filter_weight_sum: 0.0 }; width * height]),
+            pixels: Mutex::new(vec![
+                Pixel {
+                    rgb: [0.0, 0.0, 0.0],
+                    filter_weight_sum: 0.0
+                };
+                width * height
+            ]),
         }
     }
 

@@ -1,4 +1,4 @@
-use super::{Float, Point2, Point3, Vec2, Vec3, Point2i};
+use super::{Float, Point2, Point2i, Point3, Vec2, Vec3};
 
 #[derive(new, Copy, Clone, Debug)]
 pub struct Bounds3<T> {
@@ -32,6 +32,13 @@ impl<T> Bounds2<T> {
         let diagonal = self.diagonal();
         diagonal.x * diagonal.y
     }
+
+    /*pub fn contains(&self, point: Point2<T>) -> bool
+        where T: std::ops::Sub<T, Output = T> + PartialOrd + Copy,
+    {
+        (self.bounds.min.x..self.bounds.max.x).contains(&point.x) &&
+        (self.bounds.min.y..self.bounds.max.y).contains(&point.y)
+    }*/
 }
 
 pub struct BoundsIter {
@@ -43,7 +50,7 @@ impl BoundsIter {
     fn new(bounds: Bounds2i) -> Self {
         Self {
             bounds,
-            point: bounds.min
+            point: bounds.min,
         }
     }
 }
@@ -52,7 +59,7 @@ impl Iterator for BoundsIter {
     type Item = Point2i;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.point.x + 1 == self.bounds.max.x && self.point.y + 1 == self.bounds.max.y {
+        if self.point.y >= self.bounds.max.y {
             None
         } else if self.point.x + 1 == self.bounds.max.x {
             let out = Some(self.point);
