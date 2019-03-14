@@ -1,6 +1,5 @@
 use crate::geometry::primitive::Primitive;
 use crate::math::*;
-use std::sync::Arc;
 
 pub struct Scene {
     geometry: Vec<Primitive>,

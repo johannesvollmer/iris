@@ -1,4 +1,4 @@
-use super::{Float, Point2, Point3, Vec2, Vec3};
+use super::{Float, Point2, Point3, Vec2, Vec3, Point2i};
 
 #[derive(new, Copy, Clone, Debug)]
 pub struct Bounds3<T> {
@@ -24,6 +24,56 @@ impl<T> Bounds2<T> {
     {
         self.max - self.min
     }
+
+    pub fn area(&self) -> T
+    where
+        T: std::ops::Sub<T, Output = T> + std::ops::Mul<T, Output = T> + Copy,
+    {
+        let diagonal = self.diagonal();
+        diagonal.x * diagonal.y
+    }
+}
+
+pub struct BoundsIter {
+    bounds: Bounds2i,
+    point: Point2i,
+}
+
+impl BoundsIter {
+    fn new(bounds: Bounds2i) -> Self {
+        Self {
+            bounds,
+            point: bounds.min
+        }
+    }
+}
+
+impl Iterator for BoundsIter {
+    type Item = Point2i;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.point.x + 1 == self.bounds.max.x && self.point.y + 1 == self.bounds.max.y {
+            None
+        } else if self.point.x + 1 == self.bounds.max.x {
+            let out = Some(self.point);
+            self.point.y += 1;
+            self.point.x = self.bounds.min.x;
+            out
+        } else {
+            let out = Some(self.point);
+            self.point.x += 1;
+            out
+        }
+    }
+}
+
+impl IntoIterator for Bounds2i {
+    type Item = <BoundsIter as Iterator>::Item;
+    type IntoIter = BoundsIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        BoundsIter::new(self)
+    }
 }
 
 impl<T> Bounds3<T> {
@@ -32,5 +82,13 @@ impl<T> Bounds3<T> {
         T: std::ops::Sub<T, Output = T> + Copy,
     {
         self.max - self.min
+    }
+
+    pub fn volume(&self) -> T
+    where
+        T: std::ops::Sub<T, Output = T> + std::ops::Mul<T, Output = T> + Copy,
+    {
+        let diagonal = self.diagonal();
+        diagonal.x * diagonal.y * diagonal.z
     }
 }
