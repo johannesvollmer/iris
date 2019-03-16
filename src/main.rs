@@ -7,10 +7,11 @@ mod film;
 mod geometry;
 mod math;
 mod scene;
+mod sampler;
 
 use film::spectrum::Spectrum;
 use math::*;
-use rand::prelude::*;
+use sampler::Sampler;
 use rayon::prelude::*;
 
 const TILE_SIZE: i32 = 16;
@@ -34,6 +35,8 @@ fn render(width: usize, height: usize, filename: &str) {
 
     let ntiles = tile_dims.x * tile_dims.y;
 
+    let sampler = sampler::uniform::UniformSampler::new(1);
+
     (0..ntiles).into_par_iter().for_each(|tile_idx| {
         let horizontal = tile_idx % tile_dims.x;
         let vertical = tile_idx / tile_dims.y;
@@ -47,11 +50,15 @@ fn render(width: usize, height: usize, filename: &str) {
 
         let mut film_tile = film::Film::get_film_tile(bounds);
 
-        let mut rng = rand::thread_rng();
-        let sample = Spectrum::new(rng.gen(), rng.gen(), rng.gen());
+        let mut sampler = sampler.clone_seed(tile_idx as u64);
 
-        for point in bounds {
-            film_tile.add_sample(Point2f::from(point) + Vec2f::new(0.5, 0.5), &sample);
+        for pixel in bounds {
+            sampler.start_pixel(pixel);
+
+            while let Some(_) = sampler.next_sample() {
+                let sample = Spectrum::new(1.0, 0.0, 1.0);
+                film_tile.add_sample(Point2f::from(pixel) + Vec2f::new(0.5, 0.5), &sample);
+            }
         }
 
         film.merge_tile(film_tile);
