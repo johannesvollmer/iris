@@ -2,13 +2,13 @@ use std::ops::Range;
 use crate::math::{Float, Point2f, Ray, RayDifferential, RayDifferentialInfo, Transform};
 use crate::film::Film;
 
-mod orthographic;
+pub mod orthographic;
 
 #[derive(Copy, Clone)]
 pub struct CameraSample {
-    film: Point2f,
-    lens: Point2f,
-    time: Float,
+    pub film: Point2f,
+    pub lens: Point2f,
+    pub time: Float,
 }
 
 pub trait Camera {
@@ -20,21 +20,15 @@ pub trait Camera {
 
     fn generate_ray_differential(&self, sample: &CameraSample) -> Option<(RayDifferential, Float)> {
         if let Some((ray, wt)) = self.generate_ray(sample) {
-            let mut sample_shifted = sample;
+            let mut sample_shifted = sample.clone();
             sample_shifted.film.x += 1.0;
 
-            let rx = match self.generate_ray(&sample_shifted) {
-                Some((rx, _)) => rx,
-                None => return None,
-            };
+            let rx = self.generate_ray(&sample_shifted).map(|(rx, _)| rx)?;
 
             sample_shifted.film.x -= 1.0;
             sample_shifted.film.y += 1.0;
 
-            let ry = match self.generate_ray(&sample_shifted) {
-                Some((ry, _)) => ry,
-                None => return None,
-            };
+            let ry = self.generate_ray(&sample_shifted).map(|(ry, _)| ry)?;
 
             let rd = RayDifferential {
                 ray,

@@ -74,22 +74,20 @@ impl FilmTile {
 }
 
 pub struct Film {
-    width: usize,
-    height: usize,
+    pub full_resolution: Point2i,
     pixels: Mutex<Vec<Pixel>>,
 }
 
 impl Film {
-    pub fn new(width: usize, height: usize) -> Self {
+    pub fn new(width: i32, height: i32) -> Self {
         Self {
-            width,
-            height,
+            full_resolution: Point2i::new(width, height),
             pixels: Mutex::new(vec![
                 Pixel {
                     rgb: [0.0, 0.0, 0.0],
                     filter_weight_sum: 0.0
                 };
-                width * height
+                (width * height) as usize
             ]),
         }
     }
@@ -102,7 +100,7 @@ impl Film {
         let mut pixels = self.pixels.lock().unwrap();
         for point in tile.bounds {
             let tile_pixel = tile.get_pixel_mut(point);
-            let film_pixel = &mut pixels[(point.y * self.width as i32 + point.x) as usize];
+            let film_pixel = &mut pixels[(point.y * self.full_resolution.x + point.x) as usize];
 
             let rgb = tile_pixel.contrib_sum.rgb();
             film_pixel.rgb[0] += rgb[0];
@@ -112,14 +110,14 @@ impl Film {
         }
     }
 
-    pub fn write_to_file(self, filename: &str) -> std::io::Result<()> {
-        let mut imgbuf = image::ImageBuffer::new(self.width as u32, self.height as u32);
+    pub fn write_to_file(&self, filename: &str) -> std::io::Result<()> {
+        let mut imgbuf = image::ImageBuffer::new(self.full_resolution.x as u32, self.full_resolution.y as u32);
 
         let pixels = self.pixels.lock().unwrap();
 
-        for x in 0..self.width {
-            for y in 0..self.height {
-                let pixel_in = pixels[y * self.width + x];
+        for x in 0..self.full_resolution.x {
+            for y in 0..self.full_resolution.y {
+                let pixel_in = pixels[(y * self.full_resolution.x + x) as usize];
                 let pixel_out = imgbuf.get_pixel_mut(x as u32, y as u32);
 
                 let weight = 1.0 / pixel_in.filter_weight_sum;

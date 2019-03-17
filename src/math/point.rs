@@ -121,6 +121,19 @@ where
     }
 }
 
+impl<T> From<Vec3<T>> for Point3<T>
+where
+    T: Copy
+{
+    fn from(other: Vec3<T>) -> Self {
+        Self {
+            x: other.x,
+            y: other.y,
+            z: other.z
+        }
+    }
+}
+
 impl<T: Copy> Point2<T> {
     pub fn to_vec(&self) -> Vec2<T> {
         Vec2 {

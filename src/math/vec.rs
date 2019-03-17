@@ -1,3 +1,4 @@
+use crate::math::point::Point3;
 use super::{misc, Float};
 
 #[derive(new, Copy, Clone, Debug)]
@@ -38,6 +39,13 @@ impl<T> Vec3<T> {
         T: num::Float,
     {
         self.length_squared().sqrt()
+    }
+
+    pub fn normalize(&self) -> Self
+    where
+        T: num::Float
+    {
+        *self / self.length()
     }
 
     pub fn from_spherical(sin_theta: T, cos_theta: T, phi: T) -> Self
@@ -254,6 +262,19 @@ where
             x: self.x * other,
             y: self.y * other,
             z: self.z * other,
+        }
+    }
+}
+
+impl<T> From<Point3<T>> for Vec3<T>
+where
+    T: Copy
+{
+    fn from(other: Point3<T>) -> Self {
+        Self {
+            x: other.x,
+            y: other.y,
+            z: other.z
         }
     }
 }

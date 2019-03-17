@@ -32,6 +32,10 @@ impl Sampler for UniformSampler {
         self.samples_taken = 0;
     }
 
+    fn samples_per_pixel(&self) -> u32 {
+        self.spp
+    }
+
     fn clone_seed(&self, seed: u64) -> Box<dyn Sampler> {
         Box::new(UniformSampler {
             rng: SeedableRng::seed_from_u64(seed),
@@ -40,6 +44,14 @@ impl Sampler for UniformSampler {
             spp: self.spp,
             samples_taken: 0,
         })
+    }
+
+    fn get_1d(&mut self) -> Float {
+        self.rng.gen()
+    }
+
+    fn get_2d(&mut self) -> Vec2f {
+        Vec2f::new(self.rng.gen(), self.rng.gen())
     }
 
     fn next_sample(&mut self) -> Option<f32> {

@@ -20,11 +20,12 @@ pub struct OrthographicCamera {
 }
 
 impl OrthographicCamera {
-    fn new(camera_to_world: Transform, screen_window: Bounds2f, lens_radius: Float, focal_distance: Float, film: Arc<Film>) -> Self {
+    pub fn new(camera_to_world: Transform, screen_window: Bounds2f, lens_radius: Float, focal_distance: Float, film: Arc<Film>) -> Self {
+        assert!(lens_radius == 0.0);
         let camera_to_screen = Transform::orthographic(0.0, 1.0);
 
-        let screen_to_raster = Transform::scale(film.resolution().x, film.resolution().y, 1.0)
-                                * Transform::scale(1.0 / (screen_window.max.x - screen_window.min.x), 1 / (screen_window.max.y - screen_window.min.y), 1.0)
+        let screen_to_raster = Transform::scale(film.full_resolution.x as f32, film.full_resolution.y as f32, 1.0)
+                                * Transform::scale(1.0 / (screen_window.max.x - screen_window.min.x), 1.0 / (screen_window.max.y - screen_window.min.y), 1.0)
                                 * Transform::translate(Vec3f::new(-screen_window.min.x, -screen_window.max.y, 0.0));
 
         let raster_to_screen = screen_to_raster.inverse();
@@ -34,6 +35,8 @@ impl OrthographicCamera {
         let dx_camera = raster_to_camera.apply(Vec3f::new(1.0, 0.0, 0.0));
         let dy_camera = raster_to_camera.apply(Vec3f::new(0.0, 1.0, 0.0));
 
+        let shutter_open = std::ops::Range { start: 0.0, end: 0.0001 };
+
         Self {
             camera_to_screen,
             raster_to_camera,
@@ -42,6 +45,7 @@ impl OrthographicCamera {
             camera_to_world,
             dx_camera,
             dy_camera,
+            shutter_open,
             lens_radius,
             focal_distance,
             film,
@@ -51,7 +55,7 @@ impl OrthographicCamera {
 
 impl Camera for OrthographicCamera {
     fn shutter_open(&self) -> Range<Float> {
-        self.shutter_open
+        self.shutter_open.clone()
     }
 
     fn get_film(&self) -> &Film {
@@ -62,7 +66,16 @@ impl Camera for OrthographicCamera {
         &self.camera_to_world
     }
 
-    fn generate_ray(&self, camera_sample: &CameraSample) -> Option<(Ray, Float)> {
-        None
+    fn generate_ray(&self, sample: &CameraSample) -> Option<(Ray, Float)> {
+        let v_film = Vec3f::new(sample.film.x, sample.film.y, 0.0);
+        let v_camera = self.raster_to_camera.apply(v_film);
+
+        let mut ray = Ray::new(v_camera.into(), Vec3f::new(0.0, 0.0, 1.0));
+        // DoF
+        ray.time = lerp(sample.time, self.shutter_open.start, self.shutter_open.end);
+        ray.o = self.camera_to_world.apply(ray.o.into()).into();
+        ray.d = self.camera_to_world.apply(ray.d);
+
+        Some((ray, 1.0))
     }
 }
