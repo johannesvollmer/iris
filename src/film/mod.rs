@@ -111,7 +111,8 @@ impl Film {
     }
 
     pub fn write_to_file(&self, filename: &str) -> std::io::Result<()> {
-        let mut imgbuf = image::ImageBuffer::new(self.full_resolution.x as u32, self.full_resolution.y as u32);
+        let mut imgbuf =
+            image::ImageBuffer::new(self.full_resolution.x as u32, self.full_resolution.y as u32);
 
         let pixels = self.pixels.lock().unwrap();
 

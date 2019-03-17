@@ -5,19 +5,19 @@ extern crate derive_new;
 
 extern crate nalgebra as na;
 
+mod camera;
 mod film;
 mod geometry;
 mod math;
 mod sampler;
 mod scene;
-mod camera;
 
 use crate::camera::Camera;
 use film::spectrum::Spectrum;
 use math::*;
 use rayon::prelude::*;
-use std::sync::Arc;
 use sampler::Sampler;
+use std::sync::Arc;
 
 const TILE_SIZE: i32 = 16;
 
@@ -71,10 +71,13 @@ fn render(width: i32, height: i32, filename: &str) {
             while let Some(_) = sampler.next_sample() {
                 let camera_sample = sampler.get_camera_sample(pixel);
 
-                if let Some((mut ray_diff, weight)) = camera.generate_ray_differential(&camera_sample) {
+                if let Some((mut ray_diff, weight)) =
+                    camera.generate_ray_differential(&camera_sample)
+                {
                     ray_diff.scale_differentials(1.0 / (sampler.samples_per_pixel() as f32).sqrt());
 
-                    let sample = Spectrum::new(sampler.get_1d(), sampler.get_1d(), sampler.get_1d()); // Li
+                    let sample =
+                        Spectrum::new(sampler.get_1d(), sampler.get_1d(), sampler.get_1d()); // Li
 
                     film_tile.add_sample(Point2f::from(pixel) + Vec2f::new(0.5, 0.5), &sample);
                 }

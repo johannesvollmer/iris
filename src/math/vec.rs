@@ -1,5 +1,5 @@
-use crate::math::point::Point3;
 use super::{misc, Float};
+use crate::math::point::Point3;
 
 #[derive(new, Copy, Clone, Debug)]
 pub struct Vec3<T> {
@@ -43,7 +43,7 @@ impl<T> Vec3<T> {
 
     pub fn normalize(&self) -> Self
     where
-        T: num::Float
+        T: num::Float,
     {
         *self / self.length()
     }
@@ -268,13 +268,13 @@ where
 
 impl<T> From<Point3<T>> for Vec3<T>
 where
-    T: Copy
+    T: Copy,
 {
     fn from(other: Point3<T>) -> Self {
         Self {
             x: other.x,
             y: other.y,
-            z: other.z
+            z: other.z,
         }
     }
 }

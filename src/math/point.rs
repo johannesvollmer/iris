@@ -123,13 +123,13 @@ where
 
 impl<T> From<Vec3<T>> for Point3<T>
 where
-    T: Copy
+    T: Copy,
 {
     fn from(other: Vec3<T>) -> Self {
         Self {
             x: other.x,
             y: other.y,
-            z: other.z
+            z: other.z,
         }
     }
 }

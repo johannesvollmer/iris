@@ -1,6 +1,6 @@
-use std::ops::Range;
-use crate::math::{Float, Point2f, Ray, RayDifferential, RayDifferentialInfo, Transform};
 use crate::film::Film;
+use crate::math::{Float, Point2f, Ray, RayDifferential, RayDifferentialInfo, Transform};
+use std::ops::Range;
 
 pub mod orthographic;
 
@@ -37,7 +37,7 @@ pub trait Camera {
                     rx_direction: rx.d,
                     ry_origin: ry.o,
                     ry_direction: ry.d,
-                })
+                }),
             };
 
             Some((rd, wt))
