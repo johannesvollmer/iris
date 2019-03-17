@@ -1,4 +1,4 @@
-use super::Float;
+use super::{misc, Float};
 
 #[derive(new, Copy, Clone, Debug)]
 pub struct Vec3<T> {
@@ -38,6 +38,55 @@ impl<T> Vec3<T> {
         T: num::Float,
     {
         self.length_squared().sqrt()
+    }
+
+    pub fn from_spherical(sin_theta: T, cos_theta: T, phi: T) -> Self
+    where
+        T: Copy + std::ops::Mul<T, Output = T> + num::Float,
+    {
+        Self {
+            x: sin_theta * phi.cos(),
+            y: cos_theta * phi.cos(),
+            z: cos_theta,
+        }
+    }
+
+    pub fn from_spherical_frame(
+        sin_theta: T,
+        cos_theta: T,
+        phi: T,
+        x: Self,
+        y: Self,
+        z: Self,
+    ) -> Self
+    where
+        T: Copy + std::ops::Mul<T, Output = T> + num::Float,
+    {
+        x * sin_theta * phi.cos() + y * cos_theta * phi.cos() + z * cos_theta
+    }
+
+    pub fn spherical_theta(&self) -> T
+    where
+        T: Copy + num::Float + num::FromPrimitive,
+    {
+        misc::clamp(
+            self.z,
+            T::from_f32(-1.0).unwrap(),
+            T::from_f32(1.0).unwrap(),
+        )
+        .acos()
+    }
+
+    pub fn spherical_phi(&self) -> T
+    where
+        T: Copy + num::Float + num::FromPrimitive,
+    {
+        let p = num::Float::atan2(self.y, self.x);
+        if p < T::zero() {
+            p + T::from_f32(2.0 * std::f32::consts::PI).unwrap()
+        } else {
+            p
+        }
     }
 }
 
@@ -101,6 +150,20 @@ where
         Self::Output {
             x: self.x / other,
             y: self.y / other,
+        }
+    }
+}
+
+impl<T> std::ops::Mul<T> for Vec2<T>
+where
+    T: std::ops::Mul<T, Output = T> + Copy,
+{
+    type Output = Self;
+
+    fn mul(self, other: T) -> Self::Output {
+        Self::Output {
+            x: self.x * other,
+            y: self.y * other,
         }
     }
 }
@@ -176,6 +239,21 @@ where
             x: self.x / other,
             y: self.y / other,
             z: self.z / other,
+        }
+    }
+}
+
+impl<T> std::ops::Mul<T> for Vec3<T>
+where
+    T: std::ops::Mul<T, Output = T> + Copy,
+{
+    type Output = Self;
+
+    fn mul(self, other: T) -> Self::Output {
+        Self::Output {
+            x: self.x * other,
+            y: self.y * other,
+            z: self.z * other,
         }
     }
 }

@@ -3,16 +3,19 @@
 #[macro_use]
 extern crate derive_new;
 
+extern crate nalgebra as na;
+
 mod film;
 mod geometry;
 mod math;
-mod scene;
 mod sampler;
+mod scene;
+mod camera;
 
 use film::spectrum::Spectrum;
 use math::*;
-use sampler::Sampler;
 use rayon::prelude::*;
+use sampler::Sampler;
 
 const TILE_SIZE: i32 = 16;
 

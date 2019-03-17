@@ -106,6 +106,21 @@ where
     }
 }
 
+impl<T> std::ops::Add<Vec3<T>> for Point3<T>
+where
+    T: std::ops::Add<T, Output = T> + Copy,
+{
+    type Output = Point3<T>;
+
+    fn add(self, other: Vec3<T>) -> Self::Output {
+        Point3 {
+            x: self.x + other.x,
+            y: self.y + other.y,
+            z: self.z + other.z,
+        }
+    }
+}
+
 impl<T: Copy> Point2<T> {
     pub fn to_vec(&self) -> Vec2<T> {
         Vec2 {

@@ -1,6 +1,6 @@
-use rand::{Rng, SeedableRng, rngs::StdRng};
 use crate::math::*;
 use crate::sampler::Sampler;
+use rand::{rngs::StdRng, Rng, SeedableRng};
 
 pub struct UniformSampler {
     rng: StdRng,
@@ -28,7 +28,7 @@ impl Sampler for UniformSampler {
     }
 
     fn start_pixel(&mut self, pixel: Point2i) {
-        self.pixel = pixel; 
+        self.pixel = pixel;
         self.samples_taken = 0;
     }
 
