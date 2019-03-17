@@ -11,6 +11,7 @@ mod geometry;
 mod math;
 mod sampler;
 mod scene;
+mod integrator;
 
 use crate::camera::Camera;
 use film::spectrum::Spectrum;

@@ -1,6 +1,6 @@
 pub type Spectrum = RGBSpectrum;
 
-#[derive(new, Clone)]
+#[derive(new, Default, Clone)]
 pub struct RGBSpectrum {
     r: f32,
     g: f32,
