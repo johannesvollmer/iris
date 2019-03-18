@@ -24,7 +24,7 @@ use std::sync::Arc;
 const TILE_SIZE: i32 = 16;
 
 fn main() {
-    render(100, 100, "out.png", 1);
+    render(500, 500, "out.png", 1);
 }
 
 fn render(width: i32, height: i32, filename: &str, spp: i32) {
@@ -58,7 +58,7 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
 
     bar.set_style(
         indicatif::ProgressStyle::default_bar()
-            .template("{wide_bar} {pos}/{len} [{elapsed} - ETA {eta}]")
+            .template("{wide_bar} {pos}/{len} [{elapsed} - ETA {eta}]"),
     );
 
     (0..ntiles).into_par_iter().for_each(|tile_idx| {
@@ -85,7 +85,8 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
                 if let Some((mut ray_diff, weight)) =
                     camera.generate_ray_differential(&camera_sample)
                 {
-                    ray_diff.scale_differentials(1.0 / (sampler.samples_per_pixel() as f32).sqrt());
+                    ray_diff
+                        .scale_differentials(1.0 / (sampler.samples_per_pixel() as Float).sqrt());
 
                     let sample =
                         Spectrum::new(sampler.get_1d(), sampler.get_1d(), sampler.get_1d()); // Li

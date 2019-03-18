@@ -1,6 +1,8 @@
+use crate::math::Float;
+
 pub trait Filter {
-    fn evaluate(&self, x: f32, y: f32) -> f32;
-    fn width(&self) -> f32;
+    fn evaluate(&self, x: Float, y: Float) -> Float;
+    fn width(&self) -> Float;
 }
 
 mod triangle;

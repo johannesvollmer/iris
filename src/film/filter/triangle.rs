@@ -1,16 +1,17 @@
 use super::Filter;
+use crate::math::Float;
 
 #[derive(new, Copy, Clone)]
 pub struct Triangle {
-    width: f32,
+    width: Float,
 }
 
 impl Filter for Triangle {
-    fn evaluate(&self, x: f32, y: f32) -> f32 {
-        f32::max(0.0, 1.0 - x.abs()) * f32::max(0.0, 1.0 - y.abs())
+    fn evaluate(&self, x: Float, y: Float) -> Float {
+        Float::max(0.0, 1.0 - x.abs()) * Float::max(0.0, 1.0 - y.abs())
     }
 
-    fn width(&self) -> f32 {
+    fn width(&self) -> Float {
         self.width
     }
 }

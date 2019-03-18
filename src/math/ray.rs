@@ -1,4 +1,5 @@
 use crate::math::{Float, Point3f, Vec3f};
+use num::Float as _;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Ray {
@@ -14,7 +15,7 @@ impl Ray {
         Self {
             o,
             d,
-            t_max: std::f32::INFINITY,
+            t_max: Float::infinity(),
             time: 0.0,
         }
     }

@@ -3,7 +3,7 @@ use crate::math::*;
 
 #[derive(new, Copy, Clone)]
 pub struct Sphere {
-    radius: f32,
+    radius: Float,
 }
 
 impl Geometry for Sphere {
@@ -28,7 +28,7 @@ impl Geometry for Sphere {
         }
 
         ray.t_max = t0;
-        
+
         let point = ray.at(t0);
         let normal = Vec3f::new(point.x, point.y, point.z);
 

@@ -32,8 +32,8 @@ impl OrthographicCamera {
 
         let screen_to_raster =
             Transform::scale(
-                film.full_resolution.x as f32,
-                film.full_resolution.y as f32,
+                film.full_resolution.x as Float,
+                film.full_resolution.y as Float,
                 1.0,
             ) * Transform::scale(
                 1.0 / (screen_window.max.x - screen_window.min.x),

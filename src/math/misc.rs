@@ -5,7 +5,11 @@ pub fn lerp<T: num::Float>(param: T, min: T, max: T) -> T {
 }
 
 pub fn solve_quadratic<T: num::Float + num::FromPrimitive>(a: T, b: T, c: T) -> Option<(T, T)> {
-    let (a, b, c) = (a.to_f64().unwrap(), b.to_f64().unwrap(), c.to_f64().unwrap());
+    let (a, b, c) = (
+        a.to_f64().unwrap(),
+        b.to_f64().unwrap(),
+        c.to_f64().unwrap(),
+    );
 
     let discrim = b * b - 4.0 * a * c;
     if discrim < 0.0 {

@@ -242,8 +242,8 @@ impl From<Point2f> for Point2i {
 impl From<Point2i> for Point2f {
     fn from(p: Point2i) -> Point2f {
         Point2f {
-            x: p.x as f32,
-            y: p.y as f32,
+            x: p.x as Float,
+            y: p.y as Float,
         }
     }
 }

@@ -1,4 +1,4 @@
-use super::{SurfaceInteraction, receiver};
+use super::{receiver, SurfaceInteraction};
 use crate::math::*;
 use bvh::aabb::{Bounded, AABB};
 use bvh::bounding_hierarchy::BHShape;

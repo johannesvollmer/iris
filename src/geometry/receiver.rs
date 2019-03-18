@@ -1,5 +1,5 @@
+use super::{Geometry, SurfaceInteraction};
 use crate::math::*;
-use super::{SurfaceInteraction, Geometry};
 use std::sync::Arc;
 
 #[derive(new, Clone)]

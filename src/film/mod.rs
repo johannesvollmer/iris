@@ -9,20 +9,20 @@ use crate::math::*;
 
 #[derive(Copy, Clone)]
 pub struct Pixel {
-    pub rgb: [f32; 3],
-    pub filter_weight_sum: f32,
+    pub rgb: [Float; 3],
+    pub filter_weight_sum: Float,
 }
 
 #[derive(Clone)]
 pub struct FilmTilePixel {
     pub contrib_sum: Spectrum,
-    pub filter_weight_sum: f32,
+    pub filter_weight_sum: Float,
 }
 
 pub struct FilmTile {
     bounds: Bounds2i,
     filter: Box<dyn Filter>,
-    filter_width: f32,
+    filter_width: Float,
     pixels: Vec<FilmTilePixel>,
 }
 
@@ -65,7 +65,7 @@ impl FilmTile {
         for point in bounds {
             let weight = self
                 .filter
-                .evaluate(point.x as f32 - discrete.x, point.y as f32 - discrete.y);
+                .evaluate(point.x as Float - discrete.x, point.y as Float - discrete.y);
             let pixel = self.get_pixel_mut(point);
             pixel.contrib_sum += sample * weight;
             pixel.filter_weight_sum += weight;
