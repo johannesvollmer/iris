@@ -1,4 +1,5 @@
 #![feature(const_fn)]
+#![feature(duration_float)]
 
 #[macro_use]
 extern crate derive_new;
@@ -8,10 +9,10 @@ extern crate nalgebra as na;
 mod camera;
 mod film;
 mod geometry;
+mod integrator;
 mod math;
 mod sampler;
 mod scene;
-mod integrator;
 
 use crate::camera::Camera;
 use film::spectrum::Spectrum;
@@ -23,10 +24,12 @@ use std::sync::Arc;
 const TILE_SIZE: i32 = 16;
 
 fn main() {
-    render(100, 100, "out.png");
+    render(100, 100, "out.png", 1);
 }
 
-fn render(width: i32, height: i32, filename: &str) {
+fn render(width: i32, height: i32, filename: &str, spp: i32) {
+    let start = std::time::SystemTime::now();
+
     let film = Arc::new(film::Film::new(width, height));
 
     let resolution = Bounds2i::new(
@@ -41,7 +44,7 @@ fn render(width: i32, height: i32, filename: &str) {
 
     let ntiles = tile_dims.x * tile_dims.y;
 
-    let sampler = sampler::uniform::UniformSampler::new(1);
+    let sampler = sampler::uniform::UniformSampler::new(spp as u32);
 
     let camera = camera::orthographic::OrthographicCamera::new(
         Transform::new(na::Projective3::identity()),
@@ -49,6 +52,13 @@ fn render(width: i32, height: i32, filename: &str) {
         0.0,
         0.0,
         film.clone(),
+    );
+
+    let bar = indicatif::ProgressBar::new(ntiles as u64);
+
+    bar.set_style(
+        indicatif::ProgressStyle::default_bar()
+            .template("{wide_bar} {pos}/{len} [{elapsed} - ETA {eta}]")
     );
 
     (0..ntiles).into_par_iter().for_each(|tile_idx| {
@@ -86,7 +96,14 @@ fn render(width: i32, height: i32, filename: &str) {
         }
 
         film.merge_tile(film_tile);
+        bar.inc(1);
     });
 
     film.write_to_file(filename).unwrap();
+
+    bar.finish_and_clear();
+
+    let end = std::time::SystemTime::now();
+    let duration = end.duration_since(start).unwrap();
+    println!("Rendered in {}s", duration.as_float_secs());
 }

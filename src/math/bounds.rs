@@ -1,4 +1,6 @@
 use super::{Float, Point2, Point2i, Point3, Vec2, Vec3};
+use bvh::aabb::AABB;
+use num::ToPrimitive;
 
 #[derive(new, Copy, Clone, Debug)]
 pub struct Bounds3<T> {
@@ -97,5 +99,23 @@ impl<T> Bounds3<T> {
     {
         let diagonal = self.diagonal();
         diagonal.x * diagonal.y * diagonal.z
+    }
+
+    pub fn to_aabb(self) -> AABB
+    where
+        T: num::Float,
+    {
+        AABB::with_bounds(
+            na::Point3::new(
+                self.min.x.to_f32().unwrap(),
+                self.min.y.to_f32().unwrap(),
+                self.min.z.to_f32().unwrap(),
+            ),
+            na::Point3::new(
+                self.max.x.to_f32().unwrap(),
+                self.max.y.to_f32().unwrap(),
+                self.max.z.to_f32().unwrap(),
+            ),
+        )
     }
 }
