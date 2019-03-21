@@ -1,20 +1,37 @@
-use crate::geometry::primitive::Primitive;
+use crate::geometry::primitive::{BVHPrimitive, Primitive};
+use crate::geometry::HitInfo;
 use crate::math::*;
+use bvh::bvh::BVH;
 
 pub struct Scene {
-    geometry: Vec<Primitive>,
-    bounds: Bounds3f,
+    bvh: BVH,
+    geometry: Vec<BVHPrimitive>,
 }
 
 impl Scene {
     pub fn new(geometry: Vec<Primitive>) -> Self {
+        assert!(geometry.len() > 0);
+        let mut geometry: Vec<_> = geometry.into_iter().map(BVHPrimitive::new).collect();
+
+        let bvh = BVH::build(&mut geometry);
+
         Self {
+            bvh,
             geometry,
-            bounds: Bounds3f::new(Point3f::new(0.0, 0.0, 0.0), Point3f::new(1.0, 1.0, 1.0)),
         }
     }
 
-    pub fn world_bounds(&self) -> Bounds3f {
-        self.bounds
+    pub fn intersect(&self, ray: &mut Ray) -> Option<HitInfo> {
+        let bvh_ray = bvh::ray::Ray::new(
+            na::Point3::new(ray.o.x, ray.o.y, ray.o.z),
+            na::Vector3::new(ray.d.x, ray.d.y, ray.d.z),
+        );
+
+        let hits = self.bvh.traverse(&bvh_ray, &self.geometry);
+
+        hits.iter()
+            .filter_map(|hit| hit.intersect(ray).map(|isect| (ray.t_max, isect)))
+            .min_by_key(|(t, _)| ordered_float::NotNan::new(*t).unwrap())
+            .map(|(_, i)| i)
     }
 }

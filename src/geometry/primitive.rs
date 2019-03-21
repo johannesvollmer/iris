@@ -1,5 +1,6 @@
-use super::{receiver, SurfaceInteraction};
+use super::{receiver, HitInfo};
 use crate::math::*;
+use crate::geometry::Geometry;
 use bvh::aabb::{Bounded, AABB};
 use bvh::bounding_hierarchy::BHShape;
 
@@ -7,15 +8,15 @@ pub enum Primitive {
     Receiver(receiver::Receiver),
 }
 
-impl Primitive {
-    pub fn aabb(&self) -> Bounds3f {
+impl Geometry for Primitive {
+    fn aabb(&self) -> Bounds3f {
         match self {
             //Primitive::Emitter(e) => e.aabb(),
             Primitive::Receiver(r) => r.aabb(),
         }
     }
 
-    pub fn intersect(&self, ray: &mut Ray) -> Option<SurfaceInteraction> {
+    fn intersect(&self, ray: &mut Ray) -> Option<HitInfo> {
         match self {
             //Primitive::Emitter(e) => e.intersect(ray),
             Primitive::Receiver(r) => r.intersect(ray),
@@ -36,7 +37,7 @@ impl BVHPrimitive {
         }
     }
 
-    pub fn intersect(&self, ray: &mut Ray) -> Option<SurfaceInteraction> {
+    pub fn intersect(&self, ray: &mut Ray) -> Option<HitInfo> {
         self.primitive.intersect(ray)
     }
 }

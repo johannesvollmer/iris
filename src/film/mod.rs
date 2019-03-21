@@ -34,7 +34,7 @@ impl FilmTile {
             filter,
             pixels: vec![
                 FilmTilePixel {
-                    contrib_sum: Spectrum::new(0.0, 0.0, 0.0),
+                    contrib_sum: Spectrum::from_rgb(0.0, 0.0, 0.0),
                     filter_weight_sum: 0.0
                 };
                 bounds.area() as usize
@@ -67,7 +67,7 @@ impl FilmTile {
                 .filter
                 .evaluate(point.x as Float - discrete.x, point.y as Float - discrete.y);
             let pixel = self.get_pixel_mut(point);
-            pixel.contrib_sum += sample * weight;
+            pixel.contrib_sum += sample.clone() * weight;
             pixel.filter_weight_sum += weight;
         }
     }

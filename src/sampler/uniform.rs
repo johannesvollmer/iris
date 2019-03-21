@@ -36,7 +36,7 @@ impl Sampler for UniformSampler {
         self.spp
     }
 
-    fn clone_seed(&self, seed: u64) -> Box<dyn Sampler> {
+    fn clone_seed(&self, seed: u64) -> Box<dyn Sampler + Send + Sync> {
         Box::new(UniformSampler {
             rng: SeedableRng::seed_from_u64(seed),
             pixel: Point2i::new(0, 0),

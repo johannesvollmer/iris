@@ -2,7 +2,7 @@ use crate::math::Float;
 
 pub type Spectrum = RGBSpectrum;
 
-#[derive(new, Default, Clone)]
+#[derive(Default, Clone)]
 pub struct RGBSpectrum {
     r: Float,
     g: Float,
@@ -10,6 +10,10 @@ pub struct RGBSpectrum {
 }
 
 impl RGBSpectrum {
+    pub fn from_rgb(r: Float, g: Float, b: Float) -> Self {
+        Self { r, g, b }
+    }
+
     pub fn rgb(&self) -> [Float; 3] {
         [self.r, self.g, self.b]
     }
@@ -23,7 +27,7 @@ impl std::ops::AddAssign for RGBSpectrum {
     }
 }
 
-impl std::ops::Mul<Float> for &RGBSpectrum {
+impl std::ops::Mul<Float> for RGBSpectrum {
     type Output = RGBSpectrum;
 
     fn mul(self, other: Float) -> Self::Output {

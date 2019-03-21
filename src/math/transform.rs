@@ -1,5 +1,4 @@
-use crate::math::vec::Vec3f;
-use crate::math::Float;
+use crate::math::{Float, Point3f, Vec3f, Ray};
 use nalgebra::{Matrix4, Orthographic3, Projective3, Vector3};
 
 #[derive(Copy, Clone)]
@@ -21,6 +20,24 @@ impl Transform {
     pub fn apply(&self, vec: Vec3f) -> Vec3f {
         let v = self.m * Vector3::new(vec.x, vec.y, vec.z);
         Vec3f::new(v.x, v.y, v.z)
+    }
+
+    pub fn apply_point(&self, point: Point3f) -> Point3f {
+        let p = self.m * na::Point3::new(point.x, point.y, point.z);
+        Point3f::new(p.x, p.y, p.z)
+    }
+
+    pub fn apply_ray(&self, ray: &Ray) -> Ray {
+        let mut r = ray.clone();
+        r.o = self.apply_point(ray.o);
+        r.d = self.apply(ray.d);
+        r
+    }
+
+    pub fn identity() -> Self {
+        Self {
+            m: Projective3::identity()
+        }
     }
 
     pub fn orthographic(z_near: Float, z_far: Float) -> Self {

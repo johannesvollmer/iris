@@ -16,6 +16,7 @@ mod scene;
 
 use crate::camera::Camera;
 use film::spectrum::Spectrum;
+use integrator::Integrator;
 use math::*;
 use rayon::prelude::*;
 use sampler::Sampler;
@@ -24,7 +25,7 @@ use std::sync::Arc;
 const TILE_SIZE: i32 = 16;
 
 fn main() {
-    render(500, 500, "out.png", 1);
+    render(100, 100, "out.png", 1);
 }
 
 fn render(width: i32, height: i32, filename: &str, spp: i32) {
@@ -46,6 +47,10 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
 
     let sampler = sampler::uniform::UniformSampler::new(spp as u32);
 
+    let scene = test_scene();
+
+    let whitted = integrator::whitted::Whitted::new(10);
+
     let camera = camera::orthographic::OrthographicCamera::new(
         Transform::new(na::Projective3::identity()),
         Bounds2f::new(Point2f::new(0.0, 0.0), Point2f::new(1.0, 1.0)),
@@ -61,9 +66,9 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
             .template("{wide_bar} {pos}/{len} [{elapsed} - ETA {eta}]"),
     );
 
-    (0..ntiles).into_par_iter().for_each(|tile_idx| {
+    let thread_work = |tile_idx: i32| {
         let horizontal = tile_idx % tile_dims.x;
-        let vertical = tile_idx / tile_dims.y;
+        let vertical = tile_idx / tile_dims.x;
         let bounds = Bounds2i::new(
             Point2i::new(horizontal * TILE_SIZE, vertical * TILE_SIZE),
             Point2i::new(
@@ -88,8 +93,7 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
                     ray_diff
                         .scale_differentials(1.0 / (sampler.samples_per_pixel() as Float).sqrt());
 
-                    let sample =
-                        Spectrum::new(sampler.get_1d(), sampler.get_1d(), sampler.get_1d()); // Li
+                    let sample = whitted.radiance(&mut ray_diff.ray, &scene, &sampler, 0);
 
                     film_tile.add_sample(Point2f::from(pixel) + Vec2f::new(0.5, 0.5), &sample);
                 }
@@ -98,7 +102,12 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
 
         film.merge_tile(film_tile);
         bar.inc(1);
-    });
+    };
+
+    match std::env::var("THREADS") {
+        Ok(_) => (0..ntiles).for_each(thread_work),
+        Err(_) => (0..ntiles).into_par_iter().for_each(thread_work),
+    }
 
     film.write_to_file(filename).unwrap();
 
@@ -107,4 +116,21 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
     let end = std::time::SystemTime::now();
     let duration = end.duration_since(start).unwrap();
     println!("Rendered in {}s", duration.as_float_secs());
+}
+
+fn test_scene() -> scene::Scene {
+    use geometry::{primitive::Primitive, sphere::Sphere, receiver::Receiver};
+
+    let mut geometry = Vec::new();
+
+    geometry.push(
+        Primitive::Receiver(
+            Receiver::new(
+                Arc::new(Sphere::new(0.3)),
+                Transform::translate(Vec3f::new(0.5, 0.5, 5.0))
+            )
+        )
+    );
+
+    scene::Scene::new(geometry)
 }

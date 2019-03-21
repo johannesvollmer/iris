@@ -1,4 +1,4 @@
-use super::{Geometry, SurfaceInteraction};
+use super::{Geometry, HitInfo};
 use crate::math::*;
 
 #[derive(new, Copy, Clone)]
@@ -14,12 +14,12 @@ impl Geometry for Sphere {
         )
     }
 
-    fn intersect(&self, ray: &mut Ray) -> Option<SurfaceInteraction> {
+    fn intersect(&self, ray: &mut Ray) -> Option<HitInfo> {
         let ray_origin: Vec3f = ray.o.into();
 
         let a = ray.d.length_squared();
         let b = 2.0 * ray.d.dot(&ray_origin);
-        let c = ray_origin.dot(&ray_origin);
+        let c = ray_origin.dot(&ray_origin) - self.radius * self.radius;
 
         let (t0, _) = solve_quadratic(a, b, c)?;
 
@@ -32,7 +32,7 @@ impl Geometry for Sphere {
         let point = ray.at(t0);
         let normal = Vec3f::new(point.x, point.y, point.z);
 
-        Some(SurfaceInteraction {
+        Some(HitInfo {
             point,
             normal,
             time: ray.time,
