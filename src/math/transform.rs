@@ -34,12 +34,6 @@ impl Transform {
         r
     }
 
-    pub fn identity() -> Self {
-        Self {
-            m: Projective3::identity()
-        }
-    }
-
     pub fn orthographic(z_near: Float, z_far: Float) -> Self {
         Self {
             m: Orthographic3::new(-1.0, 1.0, -1.0, 1.0, z_near, z_far).to_projective(),

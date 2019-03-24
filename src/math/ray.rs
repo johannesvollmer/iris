@@ -40,10 +40,6 @@ pub struct RayDifferential {
 }
 
 impl RayDifferential {
-    pub fn new(ray: Ray) -> Self {
-        Self { ray, info: None }
-    }
-
     pub fn scale_differentials(&mut self, s: Float) {
         if let Some(info) = &mut self.info {
             self.info = Some(RayDifferentialInfo {

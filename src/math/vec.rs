@@ -1,4 +1,5 @@
-use super::{misc, Float};
+use crate::math::normal::Normal3f;
+use super::Float;
 use crate::math::point::Point3;
 
 #[derive(new, Copy, Clone, Debug)]
@@ -17,7 +18,6 @@ pub struct Vec2<T> {
 pub type Vec2f = Vec2<Float>;
 pub type Vec2i = Vec2<i32>;
 pub type Vec3f = Vec3<Float>;
-pub type Vec3i = Vec3<i32>;
 
 impl<T> Vec3<T> {
     pub fn dot(&self, other: &Self) -> T
@@ -34,7 +34,7 @@ impl<T> Vec3<T> {
         self.dot(&self)
     }
 
-    pub fn length(&self) -> T
+    /*pub fn length(&self) -> T
     where
         T: num::Float,
     {
@@ -95,7 +95,7 @@ impl<T> Vec3<T> {
         } else {
             p
         }
-    }
+    }*/
 }
 
 impl<T> std::ops::Add for Vec2<T>
@@ -275,6 +275,16 @@ where
             x: other.x,
             y: other.y,
             z: other.z,
+        }
+    }
+}
+
+impl From<Normal3f> for Vec3f {
+    fn from(n: Normal3f) -> Self {
+        Self {
+            x: n.x,
+            y: n.y,
+            z: n.z,
         }
     }
 }

@@ -2,7 +2,7 @@ use crate::math::*;
 use crate::sampler::Sampler;
 use rand::{rngs::StdRng, Rng, SeedableRng};
 
-pub struct UniformSampler {
+pub struct RandomSampler {
     rng: StdRng,
     pixel: Point2i,
     bounds: Bounds2i,
@@ -10,9 +10,9 @@ pub struct UniformSampler {
     samples_taken: u32,
 }
 
-impl UniformSampler {
+impl RandomSampler {
     pub fn new(spp: u32) -> Self {
-        UniformSampler {
+        RandomSampler {
             rng: SeedableRng::seed_from_u64(0),
             pixel: Point2i::new(0, 0),
             bounds: Bounds2i::new(Point2i::new(0, 0), Point2i::new(0, 0)),
@@ -22,7 +22,7 @@ impl UniformSampler {
     }
 }
 
-impl Sampler for UniformSampler {
+impl Sampler for RandomSampler {
     fn get_bounds(&self) -> Bounds2i {
         self.bounds
     }
@@ -37,7 +37,7 @@ impl Sampler for UniformSampler {
     }
 
     fn clone_seed(&self, seed: u64) -> Box<dyn Sampler + Send + Sync> {
-        Box::new(UniformSampler {
+        Box::new(RandomSampler {
             rng: SeedableRng::seed_from_u64(seed),
             pixel: Point2i::new(0, 0),
             bounds: Bounds2i::new(Point2i::new(0, 0), Point2i::new(0, 0)),

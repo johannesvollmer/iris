@@ -6,16 +6,16 @@ use std::ops::Range;
 use std::sync::Arc;
 
 pub struct OrthographicCamera {
-    camera_to_screen: Transform,
+    _camera_to_screen: Transform,
     raster_to_camera: Transform,
-    screen_to_raster: Transform,
-    raster_to_screen: Transform,
+    _screen_to_raster: Transform,
+    _raster_to_screen: Transform,
     camera_to_world: Transform,
-    dx_camera: Vec3f,
-    dy_camera: Vec3f,
+    _dx_camera: Vec3f,
+    _dy_camera: Vec3f,
     shutter_open: Range<Float>,
-    lens_radius: Float,
-    focal_distance: Float,
+    _lens_radius: Float,
+    _focal_distance: Float,
     film: Arc<Film>,
 }
 
@@ -54,16 +54,16 @@ impl OrthographicCamera {
         };
 
         Self {
-            camera_to_screen,
+            _camera_to_screen: camera_to_screen,
             raster_to_camera,
-            screen_to_raster,
-            raster_to_screen,
+            _screen_to_raster: screen_to_raster,
+            _raster_to_screen: raster_to_screen,
             camera_to_world,
-            dx_camera,
-            dy_camera,
+            _dx_camera: dx_camera,
+            _dy_camera: dy_camera,
             shutter_open,
-            lens_radius,
-            focal_distance,
+            _lens_radius: lens_radius,
+            _focal_distance: focal_distance,
             film,
         }
     }

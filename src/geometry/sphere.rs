@@ -1,4 +1,4 @@
-use super::{Geometry, HitInfo};
+use super::{Geometry, GeometryHitInfo, AABB};
 use crate::math::*;
 
 #[derive(new, Copy, Clone)]
@@ -6,15 +6,17 @@ pub struct Sphere {
     radius: Float,
 }
 
-impl Geometry for Sphere {
+impl AABB for Sphere {
     fn aabb(&self) -> Bounds3f {
         Bounds3f::new(
             Point3f::new(-self.radius, -self.radius, -self.radius),
             Point3f::new(self.radius, self.radius, self.radius),
         )
     }
+}
 
-    fn intersect(&self, ray: &mut Ray) -> Option<HitInfo> {
+impl Geometry for Sphere {
+    fn intersect_geometry(&self, ray: &Ray) -> Option<GeometryHitInfo> {
         let ray_origin: Vec3f = ray.o.into();
 
         let a = ray.d.length_squared();
@@ -27,15 +29,15 @@ impl Geometry for Sphere {
             return None;
         }
 
-        ray.t_max = t0;
-
         let point = ray.at(t0);
-        let normal = Vec3f::new(point.x, point.y, point.z);
+        let normal = Normal3f::new(point.x, point.y, point.z);
 
-        Some(HitInfo {
+        Some(GeometryHitInfo {
             point,
-            normal,
+            ns: normal,
+            ng: normal,
             time: ray.time,
+            t: t0,
         })
     }
 }

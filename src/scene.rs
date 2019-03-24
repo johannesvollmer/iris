@@ -21,7 +21,7 @@ impl Scene {
         }
     }
 
-    pub fn intersect(&self, ray: &mut Ray) -> Option<HitInfo> {
+    pub fn intersect(&self, ray: &Ray) -> Option<HitInfo> {
         let bvh_ray = bvh::ray::Ray::new(
             na::Point3::new(ray.o.x, ray.o.y, ray.o.z),
             na::Vector3::new(ray.d.x, ray.d.y, ray.d.z),

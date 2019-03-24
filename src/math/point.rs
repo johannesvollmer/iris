@@ -16,37 +16,10 @@ pub struct Point2<T> {
 pub type Point2f = Point2<Float>;
 pub type Point2i = Point2<i32>;
 pub type Point3f = Point3<Float>;
-pub type Point3i = Point3<i32>;
 
 impl<T: Copy> Point3<T> {
     pub fn to_vec(&self) -> Vec3<T> {
-        Vec3 {
-            x: self.x,
-            y: self.y,
-            z: self.z,
-        }
-    }
-
-    pub fn ceil(&self) -> Self
-    where
-        T: num::Float,
-    {
-        Self {
-            x: self.x.ceil(),
-            y: self.y.ceil(),
-            z: self.z.ceil(),
-        }
-    }
-
-    pub fn floor(&self) -> Self
-    where
-        T: num::Float,
-    {
-        Self {
-            x: self.x.floor(),
-            y: self.y.floor(),
-            z: self.z.floor(),
-        }
+        Vec3::from(*self)
     }
 }
 

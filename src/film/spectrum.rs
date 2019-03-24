@@ -10,12 +10,24 @@ pub struct RGBSpectrum {
 }
 
 impl RGBSpectrum {
-    pub fn from_rgb(r: Float, g: Float, b: Float) -> Self {
+    pub const fn from_rgb(r: Float, g: Float, b: Float) -> Self {
         Self { r, g, b }
+    }
+
+    pub const fn black() -> Self {
+        Self::from_rgb(0.0, 0.0, 0.0)
     }
 
     pub fn rgb(&self) -> [Float; 3] {
         [self.r, self.g, self.b]
+    }
+
+    pub fn has_nans(&self) -> bool {
+        self.r.is_nan() || self.g.is_nan() || self.b.is_nan()
+    }
+
+    pub fn has_infs(&self) -> bool {
+        self.r.is_infinite() || self.g.is_infinite() || self.b.is_infinite()
     }
 }
 

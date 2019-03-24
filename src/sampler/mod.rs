@@ -1,7 +1,7 @@
 use crate::camera::CameraSample;
 use crate::math::*;
 
-pub mod uniform;
+pub mod random;
 
 pub trait Sampler {
     fn get_bounds(&self) -> Bounds2i;

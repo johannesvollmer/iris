@@ -13,11 +13,14 @@ mod integrator;
 mod math;
 mod sampler;
 mod scene;
+mod bxdf;
+mod material;
 
-use crate::camera::Camera;
+use camera::Camera;
 use film::spectrum::Spectrum;
 use integrator::Integrator;
 use math::*;
+use bumpalo::Bump;
 use rayon::prelude::*;
 use sampler::Sampler;
 use std::sync::Arc;
@@ -45,7 +48,7 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
 
     let ntiles = tile_dims.x * tile_dims.y;
 
-    let sampler = sampler::uniform::UniformSampler::new(spp as u32);
+    let sampler = sampler::random::RandomSampler::new(spp as u32);
 
     let scene = test_scene();
 
@@ -66,6 +69,8 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
             .template("{wide_bar} {pos}/{len} [{elapsed} - ETA {eta}]"),
     );
 
+    bar.tick();
+
     let thread_work = |tile_idx: i32| {
         let horizontal = tile_idx % tile_dims.x;
         let vertical = tile_idx / tile_dims.x;
@@ -81,19 +86,30 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
 
         let mut sampler = sampler.clone_seed(tile_idx as u64);
 
+        let arena = Bump::new();
+
         for pixel in bounds {
             sampler.start_pixel(pixel);
 
             while let Some(_) = sampler.next_sample() {
                 let camera_sample = sampler.get_camera_sample(pixel);
 
-                if let Some((mut ray_diff, weight)) =
+                if let Some((mut ray_diff, _)) =
                     camera.generate_ray_differential(&camera_sample)
                 {
                     ray_diff
                         .scale_differentials(1.0 / (sampler.samples_per_pixel() as Float).sqrt());
 
-                    let sample = whitted.radiance(&mut ray_diff.ray, &scene, &sampler, 0);
+                    let mut sample = whitted.radiance(&ray_diff.ray, &scene, &*sampler, &arena, 0);
+                    if cfg!(dbg) {
+                        if sample.has_nans() {
+                            eprintln!("Sample at pixel {}, {} has NaNs", pixel.x, pixel.y);
+                            sample = Spectrum::black();
+                        } else if sample.has_infs() {
+                            eprintln!("Sample at pixel ({}, {}) has infs", pixel.x, pixel.y);
+                            sample = Spectrum::black();
+                        } // TODO: Check sample.y() < 0
+                    }
 
                     film_tile.add_sample(Point2f::from(pixel) + Vec2f::new(0.5, 0.5), &sample);
                 }
@@ -127,6 +143,7 @@ fn test_scene() -> scene::Scene {
         Primitive::Receiver(
             Receiver::new(
                 Arc::new(Sphere::new(0.3)),
+                Arc::new(material::mirror::Mirror::new()),
                 Transform::translate(Vec3f::new(0.5, 0.5, 5.0))
             )
         )
