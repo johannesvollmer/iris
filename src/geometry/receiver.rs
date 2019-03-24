@@ -1,5 +1,5 @@
+use super::{Geometry, Hit, HitInfo, AABB};
 use crate::material::Material;
-use super::{Geometry, HitInfo, AABB, Hit};
 use crate::math::*;
 use std::sync::Arc;
 
@@ -12,7 +12,11 @@ pub struct Receiver {
 }
 
 impl Receiver {
-    pub fn new(geometry: Arc<dyn Geometry + Send + Sync>, material: Arc<dyn Material + Send + Sync>, transform: Transform) -> Self {
+    pub fn new(
+        geometry: Arc<dyn Geometry + Send + Sync>,
+        material: Arc<dyn Material + Send + Sync>,
+        transform: Transform,
+    ) -> Self {
         Self {
             geometry,
             material,

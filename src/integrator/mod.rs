@@ -1,9 +1,9 @@
-use bumpalo::Bump;
 use crate::bxdf::bsdf::BSDF;
 use crate::film::spectrum::Spectrum;
 use crate::math::ray::Ray;
 use crate::sampler::Sampler;
 use crate::scene::Scene;
+use bumpalo::Bump;
 
 pub mod whitted;
 

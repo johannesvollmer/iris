@@ -15,10 +15,7 @@ impl Scene {
 
         let bvh = BVH::build(&mut geometry);
 
-        Self {
-            bvh,
-            geometry,
-        }
+        Self { bvh, geometry }
     }
 
     pub fn intersect(&self, ray: &Ray) -> Option<HitInfo> {

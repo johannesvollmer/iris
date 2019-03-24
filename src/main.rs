@@ -6,21 +6,21 @@ extern crate derive_new;
 
 extern crate nalgebra as na;
 
+mod bxdf;
 mod camera;
 mod film;
 mod geometry;
 mod integrator;
+mod material;
 mod math;
 mod sampler;
 mod scene;
-mod bxdf;
-mod material;
 
+use bumpalo::Bump;
 use camera::Camera;
 use film::spectrum::Spectrum;
 use integrator::Integrator;
 use math::*;
-use bumpalo::Bump;
 use rayon::prelude::*;
 use sampler::Sampler;
 use std::sync::Arc;
@@ -94,9 +94,7 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
             while let Some(_) = sampler.next_sample() {
                 let camera_sample = sampler.get_camera_sample(pixel);
 
-                if let Some((mut ray_diff, _)) =
-                    camera.generate_ray_differential(&camera_sample)
-                {
+                if let Some((mut ray_diff, _)) = camera.generate_ray_differential(&camera_sample) {
                     ray_diff
                         .scale_differentials(1.0 / (sampler.samples_per_pixel() as Float).sqrt());
 
@@ -135,19 +133,15 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
 }
 
 fn test_scene() -> scene::Scene {
-    use geometry::{primitive::Primitive, sphere::Sphere, receiver::Receiver};
+    use geometry::{primitive::Primitive, receiver::Receiver, sphere::Sphere};
 
     let mut geometry = Vec::new();
 
-    geometry.push(
-        Primitive::Receiver(
-            Receiver::new(
-                Arc::new(Sphere::new(0.3)),
-                Arc::new(material::mirror::Mirror::new()),
-                Transform::translate(Vec3f::new(0.5, 0.5, 5.0))
-            )
-        )
-    );
+    geometry.push(Primitive::Receiver(Receiver::new(
+        Arc::new(Sphere::new(0.3)),
+        Arc::new(material::mirror::Mirror::new()),
+        Transform::translate(Vec3f::new(0.5, 0.5, 5.0)),
+    )));
 
     scene::Scene::new(geometry)
 }

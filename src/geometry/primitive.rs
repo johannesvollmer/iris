@@ -1,5 +1,5 @@
-use crate::geometry::{AABB, Hit};
 use super::{receiver, HitInfo};
+use crate::geometry::{Hit, AABB};
 use crate::math::*;
 use bvh::aabb::Bounded;
 use bvh::bounding_hierarchy::BHShape;

@@ -1,7 +1,7 @@
-use bumpalo::Bump;
 use crate::bxdf::bsdf::BSDF;
-use crate::material::Material;
 use crate::geometry::GeometryHitInfo;
+use crate::material::Material;
+use bumpalo::Bump;
 
 #[derive(new)]
 pub struct Mirror {}

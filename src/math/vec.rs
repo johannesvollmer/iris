@@ -1,5 +1,5 @@
-use crate::math::normal::Normal3f;
 use super::Float;
+use crate::math::normal::Normal3f;
 use crate::math::point::Point3;
 
 #[derive(new, Copy, Clone, Debug)]

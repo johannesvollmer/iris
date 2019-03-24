@@ -1,4 +1,4 @@
-use crate::math::{Float, Point3f, Vec3f, Ray};
+use crate::math::{Float, Point3f, Ray, Vec3f};
 use nalgebra::{Matrix4, Orthographic3, Projective3, Vector3};
 
 #[derive(Copy, Clone)]

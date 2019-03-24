@@ -1,9 +1,9 @@
-use bumpalo::Bump;
 use super::Integrator;
 use crate::film::spectrum::Spectrum;
 use crate::math::*;
 use crate::sampler::Sampler;
 use crate::scene::Scene;
+use bumpalo::Bump;
 
 #[derive(new)]
 pub struct Whitted {
@@ -31,7 +31,6 @@ impl Integrator for Whitted {
             // Evaluate contribution from lights
 
             // Evaluate specular contribution
-
         }
 
         out

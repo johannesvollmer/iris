@@ -1,5 +1,3 @@
 pub mod bsdf;
 
-pub trait BxDF {
-    
-}
+pub trait BxDF {}

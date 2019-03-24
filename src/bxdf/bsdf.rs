@@ -1,7 +1,7 @@
-use bumpalo::Bump;
-use crate::geometry::GeometryHitInfo;
 use super::BxDF;
+use crate::geometry::GeometryHitInfo;
 use crate::math::*;
+use bumpalo::Bump;
 
 use arrayvec::ArrayVec;
 
@@ -18,7 +18,7 @@ impl<'a> BSDF<'a> {
             p: hit.point,
             ns: hit.ns,
             ng: hit.ng,
-            bxdfs: ArrayVec::new()
+            bxdfs: ArrayVec::new(),
         }
     }
 
