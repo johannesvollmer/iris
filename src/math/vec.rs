@@ -22,16 +22,59 @@ pub type Vec3f = Vec3<Float>;
 impl<T> Vec3<T> {
     pub fn dot(&self, other: &Self) -> T
     where
-        T: Copy + std::ops::Mul<T, Output = T> + std::ops::Add<T, Output = T>,
+        T: Copy + std::ops::Mul<Output = T> + std::ops::Add<Output = T>,
     {
         self.x * other.x + self.y * other.y + self.z * other.z
     }
 
     pub fn length_squared(&self) -> T
     where
-        T: Copy + std::ops::Mul<T, Output = T> + std::ops::Add<T, Output = T>,
+        T: Copy + std::ops::Mul<Output = T> + std::ops::Add<Output = T>,
     {
         self.dot(&self)
+    }
+
+    // TODO: Separate type for this vector
+    pub fn cos_theta(&self) -> T
+    where
+        T: Copy
+    {
+        self.z
+    }
+
+    pub fn cos_squared_theta(&self) -> T
+    where
+        T: std::ops::Mul<Output = T> + Copy
+    {
+        self.cos_theta() * self.cos_theta()
+    }
+
+    pub fn abs_cos_theta(&self) -> T
+    where
+        T: num::Float
+    {
+        self.z.abs()
+    }
+
+    pub fn sin_squared_theta(&self) -> T
+    where
+        T: num::Float
+    {
+        (T::one() - self.cos_squared_theta()).max(T::zero())
+    }
+
+    pub fn sin_theta(&self) -> T
+    where
+        T: num::Float
+    {
+        self.sin_squared_theta().sqrt()
+    }
+
+    pub fn same_hemisphere(&self, other: &Self) -> bool
+    where
+        T: num::Float
+    {
+        self.z * other.z > T::zero()
     }
 
     /*pub fn length(&self) -> T

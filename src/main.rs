@@ -4,6 +4,9 @@
 #[macro_use]
 extern crate derive_new;
 
+#[macro_use]
+extern crate bitflags;
+
 extern crate nalgebra as na;
 
 mod bxdf;

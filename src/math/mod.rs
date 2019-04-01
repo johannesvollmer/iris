@@ -18,5 +18,7 @@ pub use normal::*;
 pub mod transform;
 pub use transform::*;
 
+pub mod sample;
+
 pub mod misc;
 pub use misc::*;
