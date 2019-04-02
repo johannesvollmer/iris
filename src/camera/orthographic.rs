@@ -87,6 +87,7 @@ impl Camera for OrthographicCamera {
         let v_camera = self.raster_to_camera.apply(v_film);
 
         let mut ray = Ray::new(v_camera.into(), Vec3f::new(0.0, 0.0, 1.0));
+
         // DoF
         ray.time = lerp(sample.time, self.shutter_open.start, self.shutter_open.end);
         ray.o = self.camera_to_world.apply(ray.o.into()).into();

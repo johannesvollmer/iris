@@ -3,9 +3,11 @@ use crate::film::spectrum::Spectrum;
 use num::traits::float::FloatConst;
 
 pub mod bsdf;
+pub mod fresnel;
+pub mod specular_reflection;
 
 bitflags! {
-    struct BxDFType: u8 {
+    pub struct BxDFType: u8 {
         const REFLECTION = 1 << 0;
         const TRANSMISSION = 1 << 1;
         const DIFFUSE = 1 << 2;
@@ -41,5 +43,7 @@ pub trait BxDF {
             0.0
         }
     }
+
+
 }
 
