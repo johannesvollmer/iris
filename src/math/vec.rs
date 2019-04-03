@@ -31,67 +31,67 @@ impl<T> Vec3<T> {
     where
         T: Copy + std::ops::Mul<Output = T> + std::ops::Add<Output = T>,
     {
-        self.dot(&self)
+        self.dot(self)
     }
 
     // TODO: Separate type for this vector
     pub fn cos_theta(&self) -> T
     where
-        T: Copy
+        T: Copy,
     {
         self.z
     }
 
     pub fn cos_squared_theta(&self) -> T
     where
-        T: std::ops::Mul<Output = T> + Copy
+        T: std::ops::Mul<Output = T> + Copy,
     {
         self.cos_theta() * self.cos_theta()
     }
 
     pub fn abs_cos_theta(&self) -> T
     where
-        T: num::Float
+        T: num::Float,
     {
         self.z.abs()
     }
 
     pub fn sin_squared_theta(&self) -> T
     where
-        T: num::Float
+        T: num::Float,
     {
         (T::one() - self.cos_squared_theta()).max(T::zero())
     }
 
     pub fn sin_theta(&self) -> T
     where
-        T: num::Float
+        T: num::Float,
     {
         self.sin_squared_theta().sqrt()
     }
 
     pub fn same_hemisphere(&self, other: &Self) -> bool
     where
-        T: num::Float
+        T: num::Float,
     {
         self.z * other.z > T::zero()
     }
 
-    /*pub fn length(&self) -> T
+    pub fn length(&self) -> T
     where
         T: num::Float,
     {
         self.length_squared().sqrt()
     }
 
-    pub fn normalize(&self) -> Self
+    pub fn normalized(&self) -> Self
     where
         T: num::Float,
     {
         *self / self.length()
     }
 
-    pub fn from_spherical(sin_theta: T, cos_theta: T, phi: T) -> Self
+    /*pub fn from_spherical(sin_theta: T, cos_theta: T, phi: T) -> Self
     where
         T: Copy + std::ops::Mul<T, Output = T> + num::Float,
     {

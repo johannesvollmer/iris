@@ -1,5 +1,5 @@
-use crate::math::*;
 use crate::film::spectrum::Spectrum;
+use crate::math::*;
 use num::traits::float::FloatConst;
 
 pub mod bsdf;
@@ -43,7 +43,4 @@ pub trait BxDF {
             0.0
         }
     }
-
-
 }
-

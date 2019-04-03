@@ -2,7 +2,7 @@ use crate::film::spectrum::Spectrum;
 use crate::math::Float;
 
 fn dielectric(cos_i: Float, eta_i: Float, cos_t: Float, eta_t: Float) -> Float {
-    let r_par = (eta_t * cos_i - eta_i * cos_t) / (eta_t * cos_i + eta_i * cos_t);    
+    let r_par = (eta_t * cos_i - eta_i * cos_t) / (eta_t * cos_i + eta_i * cos_t);
     let r_perp = (eta_i * cos_i - eta_t * cos_t) / (eta_i * cos_i + eta_t * cos_t);
     0.5 * (r_par * r_par + r_perp * r_perp)
 }

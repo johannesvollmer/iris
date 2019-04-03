@@ -15,7 +15,11 @@ impl RGBSpectrum {
     }
 
     pub const fn all(component: Float) -> Self {
-        Self { r: component, g: component, b: component }
+        Self {
+            r: component,
+            g: component,
+            b: component,
+        }
     }
 
     pub const fn black() -> Self {

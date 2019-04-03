@@ -1,4 +1,4 @@
-use super::{Float, Vec3f, Vec2f};
+use super::{Float, Vec2f, Vec3f};
 use num::traits::FloatConst;
 
 pub fn concentric_disk(u: (f32, f32)) -> Vec2f {
@@ -10,7 +10,10 @@ pub fn concentric_disk(u: (f32, f32)) -> Vec2f {
     let (r, theta) = if uoff.0.abs() > uoff.1.abs() {
         (uoff.0, Float::FRAC_PI_4() * (uoff.1 / uoff.0))
     } else {
-        (uoff.1, Float::FRAC_PI_2() - Float::FRAC_PI_4() * (uoff.0 / uoff.1))
+        (
+            uoff.1,
+            Float::FRAC_PI_2() - Float::FRAC_PI_4() * (uoff.0 / uoff.1),
+        )
     };
 
     Vec2f::new(theta.cos(), theta.sin()) * r

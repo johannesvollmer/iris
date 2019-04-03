@@ -9,9 +9,21 @@ pub struct Normal3f {
 }
 
 impl Normal3f {
-    /*pub fn to_vec(&self) -> Vec3f {
+    pub fn to_vec(&self) -> Vec3f {
         Vec3f::from(*self)
-    }*/
+    }
+
+    pub fn cross(&self, other: Vec3f) -> Vec3f {
+        Vec3f::new(
+            self.y * other.z - self.z * other.y,
+            self.z * other.x - self.x * other.z,
+            self.x * other.y - self.y * other.x,
+        )
+    }
+
+    pub fn normalized(&self) -> Vec3f {
+        self.to_vec().normalized()
+    }
 }
 
 impl From<Vec3f> for Normal3f {

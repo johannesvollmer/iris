@@ -15,7 +15,7 @@ impl Integrator for Whitted {
         &self,
         ray: &Ray,
         scene: &Scene,
-        _sampler: &(dyn Sampler + Send + Sync),
+        sampler: &(dyn Sampler + Send + Sync),
         arena: &Bump,
         depth: i32,
     ) -> Spectrum {
@@ -26,11 +26,14 @@ impl Integrator for Whitted {
         let out = Spectrum::black();
 
         if let Some(hit) = scene.intersect(ray) {
-            let _bsdf = hit.material.bsdf(&hit.geometry_hit_info, arena);
+            let bsdf = hit.material.bsdf(&hit.geometry_hit_info, arena);
 
             // Evaluate contribution from lights
 
             // Evaluate specular contribution
+            /*let specular = {
+                let (spectrum, wi, pdf, _types) = bsdf.sample(wo, BxDF::REFLECTION | BxDF::SPECULAR, sampler.get_2d());
+            };*/
         }
 
         out

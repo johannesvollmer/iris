@@ -9,6 +9,9 @@ pub struct GeometryHitInfo {
     pub point: Point3f,
     pub ns: Normal3f,
     pub ng: Normal3f,
+    pub uv: Point2f,
+    pub dpdu: Vec3f,
+    pub dpdv: Vec3f,
     pub time: Float,
     pub t: Float,
 }

@@ -18,6 +18,7 @@ mod material;
 mod math;
 mod sampler;
 mod scene;
+mod texture;
 
 use bumpalo::Bump;
 use camera::Camera;
@@ -102,7 +103,7 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
                         .scale_differentials(1.0 / (sampler.samples_per_pixel() as Float).sqrt());
 
                     let mut sample = whitted.radiance(&ray_diff.ray, &scene, &*sampler, &arena, 0);
-                    if cfg!(dbg) {
+                    if cfg!(debug_assertions) {
                         if sample.has_nans() {
                             eprintln!("Sample at pixel {}, {} has NaNs", pixel.x, pixel.y);
                             sample = Spectrum::black();
@@ -137,12 +138,16 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
 
 fn test_scene() -> scene::Scene {
     use geometry::{primitive::Primitive, receiver::Receiver, sphere::Sphere};
+    use material::mirror::Mirror;
+    use texture::constant::ConstantTexture;
 
     let mut geometry = Vec::new();
 
     geometry.push(Primitive::Receiver(Receiver::new(
         Arc::new(Sphere::new(0.3)),
-        Arc::new(material::mirror::Mirror::new()),
+        Arc::new(Mirror::new(Arc::new(ConstantTexture::new(
+            Spectrum::from_rgb(1.0, 0.0, 0.0),
+        )))),
         Transform::translate(Vec3f::new(0.5, 0.5, 5.0)),
     )));
 
