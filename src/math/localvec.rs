@@ -1,7 +1,5 @@
-use crate::math::vec::Vec3f;
 use super::Float;
 use crate::math::normal::Normal3f;
-use crate::math::point::Point3;
 
 #[derive(new, Copy, Clone, Debug)]
 pub struct LocalVec3f {
@@ -11,24 +9,20 @@ pub struct LocalVec3f {
 }
 
 impl LocalVec3f {
-    pub fn dot(&self, other: &Self) -> Float
-    {
+    pub fn dot(&self, other: &Self) -> Float {
         self.x * other.x + self.y * other.y + self.z * other.z
     }
 
-    pub fn length_squared(&self) -> Float
-    {
+    pub fn length_squared(&self) -> Float {
         self.dot(self)
     }
 
     // FloatODO: Separate type for this vector
-    pub fn cos_theta(&self) -> Float
-    {
+    pub fn cos_theta(&self) -> Float {
         self.z
     }
 
-    pub fn abs_cos_theta(&self) -> Float
-    {
+    pub fn abs_cos_theta(&self) -> Float {
         self.z.abs()
     }
 
@@ -46,28 +40,6 @@ impl LocalVec3f {
         (Float::one() - self.cos_squared_theta()).max(Float::zero())
     }
 
-    pub fn sin_theta(&self) -> Float
-    where
-        Float: num::Float,
-    {
-        self.sin_squared_theta().sqrt()
-    }*/
-
-    pub fn same_hemisphere(&self, other: &Self) -> bool
-    {
-        self.z * other.z > 0.0
-    }
-
-    pub fn length(&self) -> Float
-    {
-        self.length_squared().sqrt()
-    }
-
-    pub fn normalized(&self) -> Self
-    {
-        *self / self.length()
-    }
-
     pub fn cross(&self, other: Self) -> Self
     {
         Self {
@@ -76,10 +48,28 @@ impl LocalVec3f {
             z: self.x * other.y - self.y * other.x,
         }
     }
+
+    pub fn sin_theta(&self) -> Float
+    where
+        Float: num::Float,
+    {
+        self.sin_squared_theta().sqrt()
+    }*/
+
+    pub fn same_hemisphere(&self, other: &Self) -> bool {
+        self.z * other.z > 0.0
+    }
+
+    pub fn length(&self) -> Float {
+        self.length_squared().sqrt()
+    }
+
+    pub fn normalized(&self) -> Self {
+        *self / self.length()
+    }
 }
 
-impl std::ops::Add for LocalVec3f
-{
+impl std::ops::Add for LocalVec3f {
     type Output = Self;
 
     fn add(self, other: Self) -> Self::Output {
@@ -91,8 +81,7 @@ impl std::ops::Add for LocalVec3f
     }
 }
 
-impl std::ops::Add<Float> for LocalVec3f
-{
+impl std::ops::Add<Float> for LocalVec3f {
     type Output = Self;
 
     fn add(self, other: Float) -> Self::Output {
@@ -104,8 +93,7 @@ impl std::ops::Add<Float> for LocalVec3f
     }
 }
 
-impl std::ops::Sub for LocalVec3f
-{
+impl std::ops::Sub for LocalVec3f {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self::Output {
@@ -117,8 +105,7 @@ impl std::ops::Sub for LocalVec3f
     }
 }
 
-impl std::ops::Sub<Float> for LocalVec3f
-{
+impl std::ops::Sub<Float> for LocalVec3f {
     type Output = Self;
 
     fn sub(self, other: Float) -> Self::Output {
@@ -130,8 +117,7 @@ impl std::ops::Sub<Float> for LocalVec3f
     }
 }
 
-impl std::ops::Div<Float> for LocalVec3f
-{
+impl std::ops::Div<Float> for LocalVec3f {
     type Output = Self;
 
     fn div(self, other: Float) -> Self::Output {
@@ -143,8 +129,7 @@ impl std::ops::Div<Float> for LocalVec3f
     }
 }
 
-impl std::ops::Mul<Float> for LocalVec3f
-{
+impl std::ops::Mul<Float> for LocalVec3f {
     type Output = Self;
 
     fn mul(self, other: Float) -> Self::Output {
@@ -156,8 +141,7 @@ impl std::ops::Mul<Float> for LocalVec3f
     }
 }
 
-impl std::ops::Neg for LocalVec3f
-{
+impl std::ops::Neg for LocalVec3f {
     type Output = Self;
 
     fn neg(self) -> Self::Output {

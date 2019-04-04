@@ -1,4 +1,4 @@
-use super::{Float, Vec2f, LocalVec3f};
+use super::{Float, LocalVec3f, Vec2f};
 use num::traits::FloatConst;
 
 pub fn concentric_disk(u: (f32, f32)) -> Vec2f {

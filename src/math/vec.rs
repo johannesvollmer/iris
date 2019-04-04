@@ -50,7 +50,7 @@ impl<T> Vec3<T> {
 
     pub fn cross(&self, other: Self) -> Self
     where
-        T: num::Float
+        T: num::Float,
     {
         Self {
             x: self.y * other.z - self.z * other.y,

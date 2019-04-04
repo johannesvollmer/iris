@@ -1,9 +1,9 @@
 use super::Integrator;
+use crate::bxdf::BxDFType;
 use crate::film::spectrum::Spectrum;
 use crate::math::*;
 use crate::sampler::Sampler;
 use crate::scene::Scene;
-use crate::bxdf::BxDFType;
 use bumpalo::Bump;
 
 #[derive(new)]
@@ -36,7 +36,11 @@ impl Integrator for Whitted {
                 let sample = sampler.get_2d();
                 let ns = hit.geometry_hit_info.ns.to_vec();
                 let wo = -ray.d;
-                let (spectrum, wi, pdf, _types) = bsdf.sample(&wo, BxDFType::REFLECTION | BxDFType::SPECULAR, (sample.x, sample.y));
+                let (spectrum, wi, pdf, _types) = bsdf.sample(
+                    &wo,
+                    BxDFType::REFLECTION | BxDFType::SPECULAR,
+                    (sample.x, sample.y),
+                );
                 spectrum * Spectrum::from_rgb(1.0, 0.0, 0.0) * (wi.dot(&ns).abs() / pdf)
             };
 

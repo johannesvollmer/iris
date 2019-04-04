@@ -36,12 +36,20 @@ impl Geometry for Sphere {
         let phi_max = 2.0 * Float::PI();
         let (theta_min, theta_max) = (0.0, Float::PI());
         let phi = point.y.atan2(point.x);
-        let phi = if phi < 0.0 { phi + 2.0 * Float::PI() } else { phi };
+        let phi = if phi < 0.0 {
+            phi + 2.0 * Float::PI()
+        } else {
+            phi
+        };
         let theta = num::clamp(point.z / self.radius, -1.0, 1.0).acos();
         debug_assert!(phi >= 0.0 && theta >= 0.0);
 
         let dpdu = Vec3f::new(-phi_max * point.y, phi_max * point.x, 0.0);
-        let dpdv = Vec3f::new(point.z * phi.cos(), point.z * phi.sin(), -self.radius * theta.sin()) * (theta_max - theta_min);
+        let dpdv = Vec3f::new(
+            point.z * phi.cos(),
+            point.z * phi.sin(),
+            -self.radius * theta.sin(),
+        ) * (theta_max - theta_min);
 
         let u = phi / phi_max;
         let v = (theta - theta_min) / (theta_max - theta_min);

@@ -1,6 +1,6 @@
 use super::{BxDF, BxDFType};
-use crate::geometry::GeometryHitInfo;
 use crate::film::spectrum::Spectrum;
+use crate::geometry::GeometryHitInfo;
 use crate::math::*;
 use bumpalo::Bump;
 
@@ -58,8 +58,18 @@ impl<'a> BSDF<'a> {
             .expect("BxDF out of bounds")
     }
 
-    pub fn sample(&self, wo: &Vec3f, types: BxDFType, samples: (f32, f32)) -> (Spectrum, Vec3f, Float, BxDFType) {
-        let empty_rv = (Spectrum::all(0.0), Vec3f::new(0.0, 0.0, 0.0), 0.0, BxDFType::empty());
+    pub fn sample(
+        &self,
+        wo: &Vec3f,
+        types: BxDFType,
+        samples: (f32, f32),
+    ) -> (Spectrum, Vec3f, Float, BxDFType) {
+        let empty_rv = (
+            Spectrum::all(0.0),
+            Vec3f::new(0.0, 0.0, 0.0),
+            0.0,
+            BxDFType::empty(),
+        );
 
         let num_matching = self.num_matching(types);
         if num_matching == 0 {
@@ -79,7 +89,8 @@ impl<'a> BSDF<'a> {
         if !bxdf.matches(BxDFType::SPECULAR) {
             if num_matching > 1 {
                 // Compute total PDF
-                pdf += self.bxdfs
+                pdf += self
+                    .bxdfs
                     .iter()
                     .enumerate()
                     .filter(|(i, bxdf)| *i != component && bxdf.matches(types))
@@ -88,12 +99,17 @@ impl<'a> BSDF<'a> {
             }
 
             // Remove appropriate flags if in different hemisphere
-            let flag_to_clear = if wi_local.same_hemisphere(&wo_local) { BxDFType::TRANSMISSION } else { BxDFType::REFLECTION };
+            let flag_to_clear = if wi_local.same_hemisphere(&wo_local) {
+                BxDFType::TRANSMISSION
+            } else {
+                BxDFType::REFLECTION
+            };
             let mut flags = types.clone();
             flags.set(flag_to_clear, false);
 
             // Compute total sample
-            spectrum = self.bxdfs
+            spectrum = self
+                .bxdfs
                 .iter()
                 .filter(|bxdf| bxdf.matches(flags))
                 .map(|bxdf| bxdf.eval(&wo_local, &wi_local))
