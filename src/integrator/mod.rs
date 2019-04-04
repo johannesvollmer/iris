@@ -12,7 +12,7 @@ pub trait Integrator {
         &self,
         ray: &Ray,
         scene: &Scene,
-        sampler: &(dyn Sampler + Send + Sync),
+        sampler: &mut (dyn Sampler + Send + Sync),
         alloc: &Bump,
         depth: i32,
     ) -> Spectrum;

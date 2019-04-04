@@ -21,8 +21,8 @@ impl Normal3f {
         )
     }
 
-    pub fn normalized(&self) -> Vec3f {
-        self.to_vec().normalized()
+    pub fn normalized(&self) -> Self {
+        self.to_vec().normalized().into()
     }
 }
 

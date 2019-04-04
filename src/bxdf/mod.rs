@@ -24,9 +24,9 @@ pub trait BxDF {
         self.get_type().contains(t)
     }
 
-    fn eval(&self, wi: &Vec3f, wo: &Vec3f) -> Spectrum;
+    fn eval(&self, wi: &LocalVec3f, wo: &LocalVec3f) -> Spectrum;
 
-    fn sample(&self, wo: &Vec3f, samples: (f32, f32)) -> (Spectrum, Vec3f, Float) {
+    fn sample(&self, wo: &LocalVec3f, samples: (f32, f32)) -> (Spectrum, LocalVec3f, Float) {
         let mut wi = sample::cos_hemisphere(samples);
 
         if wo.z < 0.0 {
@@ -36,7 +36,7 @@ pub trait BxDF {
         (self.eval(&wi, &wo), wi, self.pdf(&wi, &wo))
     }
 
-    fn pdf(&self, wi: &Vec3f, wo: &Vec3f) -> Float {
+    fn pdf(&self, wi: &LocalVec3f, wo: &LocalVec3f) -> Float {
         if wo.same_hemisphere(wi) {
             wi.abs_cos_theta() * Float::FRAC_1_PI()
         } else {

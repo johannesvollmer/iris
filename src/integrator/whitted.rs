@@ -3,6 +3,7 @@ use crate::film::spectrum::Spectrum;
 use crate::math::*;
 use crate::sampler::Sampler;
 use crate::scene::Scene;
+use crate::bxdf::BxDFType;
 use bumpalo::Bump;
 
 #[derive(new)]
@@ -15,7 +16,7 @@ impl Integrator for Whitted {
         &self,
         ray: &Ray,
         scene: &Scene,
-        sampler: &(dyn Sampler + Send + Sync),
+        sampler: &mut (dyn Sampler + Send + Sync),
         arena: &Bump,
         depth: i32,
     ) -> Spectrum {
@@ -23,7 +24,7 @@ impl Integrator for Whitted {
             return Spectrum::black();
         }
 
-        let out = Spectrum::black();
+        let mut out = Spectrum::black();
 
         if let Some(hit) = scene.intersect(ray) {
             let bsdf = hit.material.bsdf(&hit.geometry_hit_info, arena);
@@ -31,11 +32,17 @@ impl Integrator for Whitted {
             // Evaluate contribution from lights
 
             // Evaluate specular contribution
-            /*let specular = {
-                let (spectrum, wi, pdf, _types) = bsdf.sample(wo, BxDF::REFLECTION | BxDF::SPECULAR, sampler.get_2d());
-            };*/
+            let specular = {
+                let sample = sampler.get_2d();
+                let ns = hit.geometry_hit_info.ns.to_vec();
+                let wo = -ray.d;
+                let (spectrum, wi, pdf, _types) = bsdf.sample(&wo, BxDFType::REFLECTION | BxDFType::SPECULAR, (sample.x, sample.y));
+                spectrum * Spectrum::from_rgb(1.0, 0.0, 0.0) * (wi.dot(&ns).abs() / pdf)
+            };
+
+            out += specular;
         }
 
-        out
+        out.clamp(0.0, 1.0)
     }
 }

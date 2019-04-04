@@ -3,6 +3,9 @@ pub type Float = f32;
 pub mod vec;
 pub use vec::*;
 
+pub mod localvec;
+pub use localvec::*;
+
 pub mod bounds;
 pub use bounds::*;
 

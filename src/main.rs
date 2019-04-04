@@ -32,7 +32,11 @@ use std::sync::Arc;
 const TILE_SIZE: i32 = 16;
 
 fn main() {
-    render(100, 100, "out.png", 1);
+    if cfg!(debug_assertions) {
+        render(100, 100, "out.png", 1);
+    } else {
+        render(500, 500, "out.png", 100);
+    }
 }
 
 fn render(width: i32, height: i32, filename: &str, spp: i32) {
@@ -102,7 +106,7 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
                     ray_diff
                         .scale_differentials(1.0 / (sampler.samples_per_pixel() as Float).sqrt());
 
-                    let mut sample = whitted.radiance(&ray_diff.ray, &scene, &*sampler, &arena, 0);
+                    let mut sample = whitted.radiance(&ray_diff.ray, &scene, sampler.as_mut(), &arena, 0);
                     if cfg!(debug_assertions) {
                         if sample.has_nans() {
                             eprintln!("Sample at pixel {}, {} has NaNs", pixel.x, pixel.y);
