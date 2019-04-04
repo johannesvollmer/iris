@@ -19,6 +19,7 @@ mod math;
 mod sampler;
 mod scene;
 mod texture;
+mod light;
 
 use bumpalo::Bump;
 use camera::Camera;
@@ -143,6 +144,7 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
 
 fn test_scene() -> scene::Scene {
     use geometry::{primitive::Primitive, receiver::Receiver, sphere::Sphere};
+    use light::emitter::Emitter;
     use material::mirror::Mirror;
     use texture::constant::ConstantTexture;
 
@@ -154,6 +156,11 @@ fn test_scene() -> scene::Scene {
             Spectrum::from_rgb(1.0, 0.0, 0.0),
         )))),
         Transform::translate(Vec3f::new(0.5, 0.5, 5.0)),
+    )));
+
+    geometry.push(Primitive::Emitter(Emitter::new_point(
+        Spectrum::from_rgb(1.0, 0.0, 0.0),
+        Transform::translate(Vec3f::new(0.0, 0.0, 0.5)), 
     )));
 
     scene::Scene::new(geometry)

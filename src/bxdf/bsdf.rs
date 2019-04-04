@@ -99,13 +99,7 @@ impl<'a> BSDF<'a> {
             }
 
             // Remove appropriate flags if in different hemisphere
-            let flag_to_clear = if wi_local.same_hemisphere(&wo_local) {
-                BxDFType::TRANSMISSION
-            } else {
-                BxDFType::REFLECTION
-            };
-            let mut flags = types.clone();
-            flags.set(flag_to_clear, false);
+            let flags = types.flags_for_hemisphere(wo_local, wi_local);
 
             // Compute total sample
             spectrum = self
@@ -121,5 +115,19 @@ impl<'a> BSDF<'a> {
         }
 
         (spectrum, wi, pdf, bxdf.get_type())
+    }
+
+    pub fn eval(&self, wo: Vec3f, wi: Vec3f, flags: BxDFType) -> Spectrum {
+        let wo_local = self.to_shading(&wo).normalized();
+        let wi_local = self.to_shading(&wi).normalized();
+
+        let flags = flags.flags_for_hemisphere(wo_local, wi_local);
+
+        self
+            .bxdfs
+            .iter()
+            .filter(|bxdf| bxdf.matches(flags))
+            .map(|bxdf| bxdf.eval(&wo_local, &wi_local))
+            .fold(Spectrum::all(0.0), |x, y| x + y)
     }
 }

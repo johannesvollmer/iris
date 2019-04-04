@@ -1,4 +1,8 @@
+#[cfg(not(use_f64))]
 pub type Float = f32;
+
+#[cfg(use_f64)]
+pub type Float = f64;
 
 pub mod vec;
 pub use vec::*;

@@ -54,8 +54,11 @@ impl Geometry for Sphere {
         let u = phi / phi_max;
         let v = (theta - theta_min) / (theta_max - theta_min);
 
+        let point_error = Vec3f::new(0.0, 0.0, 0.0);
+
         Some(GeometryHitInfo {
             point,
+            point_error,
             ns: normal,
             ng: normal,
             uv: Point2f::new(u, v),

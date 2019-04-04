@@ -1,17 +1,20 @@
 use super::{receiver, HitInfo};
+use crate::light::emitter;
 use crate::geometry::{Hit, AABB};
 use crate::math::*;
 use bvh::aabb::Bounded;
 use bvh::bounding_hierarchy::BHShape;
 
+#[derive(Clone)]
 pub enum Primitive {
     Receiver(receiver::Receiver),
+    Emitter(emitter::Emitter),
 }
 
 impl AABB for Primitive {
     fn aabb(&self) -> Bounds3f {
         match self {
-            //Primitive::Emitter(e) => e.aabb(),
+            Primitive::Emitter(e) => e.aabb(),
             Primitive::Receiver(r) => r.aabb(),
         }
     }
@@ -20,7 +23,7 @@ impl AABB for Primitive {
 impl Hit for Primitive {
     fn intersect(&self, ray: &Ray) -> Option<HitInfo> {
         match self {
-            //Primitive::Emitter(e) => e.intersect(ray),
+            Primitive::Emitter(e) => e.intersect(ray),
             Primitive::Receiver(r) => r.intersect(ray),
         }
     }

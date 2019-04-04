@@ -4,6 +4,10 @@ edition = "2018"
 name = "rt"
 version = "0.1.0"
 
+[features]
+default = []
+use_f64 = []
+
 [dependencies]
 arrayvec = "0.4.10"
 bumpalo = "2.2.2"

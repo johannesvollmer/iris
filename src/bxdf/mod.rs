@@ -17,6 +17,20 @@ bitflags! {
     }
 }
 
+impl BxDFType {
+    pub fn flags_for_hemisphere(&self, wo: LocalVec3f, wi: LocalVec3f) -> Self {
+        let flag_to_clear = if wi.same_hemisphere(&wo) {
+            BxDFType::TRANSMISSION
+        } else {
+            BxDFType::REFLECTION
+        };
+        
+        let mut out = self.clone();
+        out.set(flag_to_clear, false);
+        out
+    }
+}
+
 pub trait BxDF {
     fn get_type(&self) -> BxDFType;
 

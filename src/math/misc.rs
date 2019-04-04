@@ -1,3 +1,7 @@
+use crate::math::normal::Normal3f;
+use crate::math::vec::Vec3f;
+use crate::math::point::Point3f;
+use crate::math::Float;
 pub use num::clamp;
 
 pub fn lerp<T: num::Float>(param: T, min: T, max: T) -> T {
@@ -33,4 +37,77 @@ pub fn solve_quadratic<T: num::Float + num::FromPrimitive>(a: T, b: T, c: T) -> 
     }
 
     Some((T::from_f64(t0).unwrap(), T::from_f64(t1).unwrap()))
+}
+
+#[cfg(not(use_f64))]
+fn float_to_bits(f: Float) -> u32 {
+    unsafe { std::mem::transmute::<Float, u32>(f) }
+}
+
+#[cfg(use_f64)]
+fn float_to_bits(f: Float) -> u64 {
+    unsafe { std::mem::transmute::<Float, u64>(f) }
+}
+
+#[cfg(not(use_f64))]
+fn bits_to_float(u: u32) -> Float {
+    unsafe { std::mem::transmute::<u32, Float>(u) }
+}
+
+#[cfg(use_f64)]
+fn bits_to_float(u: u64) -> Float {
+    unsafe { std::mem::transmute::<u64, Float>(u) }
+}
+
+fn next_float_up(mut f: Float) -> Float {
+    if f.is_infinite() && f > 0.0 {
+        return f;
+    } else if f == -0.0 {
+        f = 0.0;
+    } 
+
+    let ui = float_to_bits(f);
+    if f >= 0.0 {
+        bits_to_float(ui + 1)
+    } else {
+        bits_to_float(ui - 1)
+    }
+}
+
+fn next_float_down(mut f: Float) -> Float {
+    if f.is_infinite() && f < 0.0 {
+        return f;
+    } else if f == 0.0 {
+        f = -0.0;
+    } 
+
+    let ui = float_to_bits(f);
+    if f >= 0.0 {
+        bits_to_float(ui - 1)
+    } else {
+        bits_to_float(ui + 1)
+    }
+}
+
+pub fn offset_ray_origin(p: Point3f, p_err: Vec3f, n: Normal3f, dir: Vec3f) -> Point3f {
+    let n_vec = n.to_vec();
+    let mut d = p_err.dot(&n_vec);
+    if dir.dot(&n_vec) < 0.0 {
+        d = -d;
+    }
+
+    let off = n_vec * d;
+    let po = p + off;
+
+    let adjust = |off: Float, po| {
+        if off < 0.0 {
+            next_float_down(po)
+        } else if off > 0.0 {
+            next_float_up(po)
+        } else {
+            po
+        }
+    };
+
+    Point3f::new(adjust(off.x, po.x), adjust(off.y, po.y), adjust(off.z, po.z))
 }
