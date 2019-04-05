@@ -19,8 +19,8 @@ bitflags! {
 }
 
 impl BxDFType {
-    pub fn for_hemisphere(&self, wo: LocalVec3f, wi: LocalVec3f) -> Self {
-        let flag_to_clear = if wi.same_hemisphere(&wo) {
+    pub fn for_hemisphere(&self, wo: ShadingVec3f, wi: ShadingVec3f) -> Self {
+        let flag_to_clear = if wi.same_hemisphere(wo) {
             BxDFType::TRANSMISSION
         } else {
             BxDFType::REFLECTION
@@ -39,21 +39,21 @@ pub trait BxDF {
         t.contains(self.get_type())
     }
 
-    fn eval(&self, wi: &LocalVec3f, wo: &LocalVec3f) -> Spectrum;
+    fn eval(&self, wi: ShadingVec3f, wo: ShadingVec3f) -> Spectrum;
 
-    fn sample(&self, wo: &LocalVec3f, samples: (f32, f32)) -> (Spectrum, LocalVec3f, Float) {
+    fn sample(&self, wo: ShadingVec3f, samples: (f32, f32)) -> (Spectrum, ShadingVec3f, Float) {
         let mut wi = sample::cos_hemisphere(samples);
 
         if wo.z < 0.0 {
             wi.z *= -1.0;
         }
 
-        (self.eval(&wi, &wo), wi, self.pdf(&wi, &wo))
+        (self.eval(wi, wo), wi, self.pdf(wi, wo))
     }
 
-    fn pdf(&self, wi: &LocalVec3f, wo: &LocalVec3f) -> Float {
+    fn pdf(&self, wi: ShadingVec3f, wo: ShadingVec3f) -> Float {
         if wo.same_hemisphere(wi) {
-            wi.abs_cos_theta() * Float::FRAC_1_PI()
+            wi.cos_theta().abs() * Float::FRAC_1_PI()
         } else {
             0.0
         }

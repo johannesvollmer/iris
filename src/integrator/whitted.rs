@@ -41,7 +41,7 @@ impl Integrator for Whitted {
                 let (li, wi, pdf, vis) = light.sample(&hit, sample);
                 let f = bsdf.eval(wo, wi, BxDFType::ALL);
                 if !li.is_black() && !f.is_black() && vis.visible(scene) {
-                    out += f * li * wi.dot(&bsdf.ns.to_vec()) / pdf;
+                    out += f * li * wi.dot(bsdf.ns.to_vec()) / pdf;
                 }
             }
 

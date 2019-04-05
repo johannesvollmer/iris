@@ -18,11 +18,11 @@ impl AABB for Sphere {
 
 impl Geometry for Sphere {
     fn intersect_geometry(&self, ray: &Ray) -> Option<LocalGeometry> {
-        let ray_origin: Vec3f = ray.o.into();
+        let ray_origin: Vec3f = ray.o.to_vec();
 
         let a = ray.d.length_squared();
-        let b = 2.0 * ray.d.dot(&ray_origin);
-        let c = ray_origin.dot(&ray_origin) - self.radius * self.radius;
+        let b = 2.0 * ray.d.dot(ray_origin);
+        let c = ray_origin.dot(ray_origin) - self.radius * self.radius;
 
         let (t0, _) = solve_quadratic(a, b, c)?;
 

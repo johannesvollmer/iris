@@ -1,4 +1,4 @@
-use super::{Float, Vec2, Vec3};
+use super::{Float, Vec2, Vec3f};
 
 #[derive(new, Copy, Clone, Debug)]
 pub struct Point3<T> {
@@ -17,30 +17,23 @@ pub type Point2f = Point2<Float>;
 pub type Point2i = Point2<i32>;
 pub type Point3f = Point3<Float>;
 
-impl<T: Copy> Point3<T> {
-    pub fn to_vec(&self) -> Vec3<T> {
-        Vec3::from(*self)
+impl Point3f {
+    pub fn to_vec(&self) -> Vec3f {
+        Vec3f::new(self.x, self.y, self.z)
     }
 }
 
-impl<T> std::ops::Sub for Point3<T>
-where
-    T: std::ops::Sub<T, Output = T> + Copy,
-{
-    type Output = Vec3<T>;
-
+impl std::ops::Sub for Point3f {
+    type Output = Vec3f;
     fn sub(self, other: Self) -> Self::Output {
         self.to_vec() - other.to_vec()
     }
 }
 
-impl<T> std::ops::Sub<Vec3<T>> for Point3<T>
-where
-    T: std::ops::Sub<T, Output = T> + Copy,
-{
-    type Output = Point3<T>;
+impl std::ops::Sub<Vec3f> for Point3f {
+    type Output = Point3f;
 
-    fn sub(self, other: Vec3<T>) -> Self::Output {
+    fn sub(self, other: Vec3f) -> Self::Output {
         Point3 {
             x: self.x - other.x,
             y: self.y - other.y,
@@ -79,13 +72,11 @@ where
     }
 }
 
-impl<T> std::ops::Add<Vec3<T>> for Point3<T>
-where
-    T: std::ops::Add<T, Output = T> + Copy,
+impl std::ops::Add<Vec3f> for Point3f
 {
-    type Output = Point3<T>;
+    type Output = Point3f;
 
-    fn add(self, other: Vec3<T>) -> Self::Output {
+    fn add(self, other: Vec3f) -> Self::Output {
         Point3 {
             x: self.x + other.x,
             y: self.y + other.y,
@@ -118,11 +109,9 @@ impl<T> std::ops::IndexMut<usize> for Point3<T> {
     }
 }
 
-impl<T> From<Vec3<T>> for Point3<T>
-where
-    T: Copy,
+impl From<Vec3f> for Point3f
 {
-    fn from(other: Vec3<T>) -> Self {
+    fn from(other: Vec3f) -> Self {
         Self {
             x: other.x,
             y: other.y,

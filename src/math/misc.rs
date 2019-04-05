@@ -1,6 +1,6 @@
 use crate::math::normal::Normal3f;
 use crate::math::point::Point3f;
-use crate::math::vec::Vec3f;
+use crate::math::Vec3f;
 use crate::math::Float;
 pub use num::clamp;
 
@@ -14,11 +14,6 @@ pub fn solve_quadratic<T: num::Float + num::FromPrimitive>(a: T, b: T, c: T) -> 
         b.to_f64().unwrap(),
         c.to_f64().unwrap(),
     );
-
-    // Prevent case where q / a generates NaN
-    if a == 0.0 && b == 0.0 && c != 0.0 {
-        return None;
-    }
 
     let discrim = b * b - 4.0 * a * c;
     if discrim < 0.0 {
@@ -36,9 +31,6 @@ pub fn solve_quadratic<T: num::Float + num::FromPrimitive>(a: T, b: T, c: T) -> 
     };
 
     let mut t0 = q / a;
-    dbg!(t0);
-    dbg!(q);
-    dbg!(a);
     let mut t1 = c / q;
     if t0 > t1 {
         std::mem::swap(&mut t0, &mut t1);
@@ -99,9 +91,9 @@ fn next_float_down(mut f: Float) -> Float {
 
 pub fn offset_ray_origin(p: Point3f, p_err: Vec3f, n: Normal3f, dir: Vec3f) -> Point3f {
     let n_vec = n.to_vec();
-    let d = p_err.dot(&n_vec.abs());
+    let d = p_err.dot(n_vec.abs());
     let mut off = n_vec * d;
-    if dir.dot(&n_vec) < 0.0 {
+    if dir.dot(n_vec) < 0.0 {
         off = -off;
     }
 

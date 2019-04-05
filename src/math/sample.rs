@@ -1,4 +1,4 @@
-use super::{Float, LocalVec3f, Vec2f};
+use super::{Float, ShadingVec3f, Vec2f};
 use num::traits::FloatConst;
 
 pub fn concentric_disk(u: (f32, f32)) -> Vec2f {
@@ -19,8 +19,8 @@ pub fn concentric_disk(u: (f32, f32)) -> Vec2f {
     Vec2f::new(theta.cos(), theta.sin()) * r
 }
 
-pub fn cos_hemisphere(u: (f32, f32)) -> LocalVec3f {
+pub fn cos_hemisphere(u: (f32, f32)) -> ShadingVec3f {
     let d = concentric_disk(u);
     let z = (1.0 - d.x * d.x - d.y * d.y).max(0.0).sqrt();
-    LocalVec3f::new(d.x, d.y, z)
+    ShadingVec3f::new(d.x, d.y, z)
 }

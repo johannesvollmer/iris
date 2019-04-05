@@ -14,7 +14,7 @@ impl BxDF for Lambertian {
         BxDFType::REFLECTION | BxDFType::DIFFUSE
     }
 
-    fn eval(&self, _wi: &LocalVec3f, _wo: &LocalVec3f) -> Spectrum {
+    fn eval(&self, _wi: ShadingVec3f, _wo: ShadingVec3f) -> Spectrum {
         self.r * Float::FRAC_1_PI()
     }
 }

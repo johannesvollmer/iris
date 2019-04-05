@@ -33,12 +33,12 @@ pub trait Integrator {
         let ns = bsdf.ns.to_vec();
         let wo = -ray.d;
         let (f, wi, pdf, _types) = bsdf.sample(
-            &wo,
+            wo,
             BxDFType::REFLECTION | BxDFType::SPECULAR,
             (sample.x, sample.y),
         );
 
-        let n_dot_wi = wi.dot(&ns).abs();
+        let n_dot_wi = wi.dot(ns).abs();
 
         if pdf > 0.0 && !f.is_black() && n_dot_wi != 0.0 {
             let _reflected_ray = hit.spawn_ray(wi);
