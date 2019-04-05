@@ -1,7 +1,7 @@
-use crate::light::Visibility;
-use crate::light::Light;
-use crate::geometry::{AABB, Hit, HitInfo};
 use crate::film::spectrum::Spectrum;
+use crate::geometry::{Hit, HitInfo, AABB};
+use crate::light::Light;
+use crate::light::Visibility;
 use crate::math::*;
 
 #[derive(Clone)]
@@ -37,7 +37,7 @@ impl Light for Emitter {
     fn sample(&self, hit: &HitInfo, _samples: (f32, f32)) -> (Spectrum, Vec3f, Float, Visibility) {
         let pos = self.transform.apply_point(Point3f::new(0.0, 0.0, 0.0));
         let vis = Visibility::new(hit, pos);
-        let d = pos - hit.geometry_hit_info.point;
+        let d = pos - hit.lg.point;
         let radiance = self.emission / d.length_squared();
         (radiance, d.normalized(), 1.0, vis)
     }

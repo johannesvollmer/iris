@@ -1,4 +1,4 @@
-use super::{Geometry, GeometryHitInfo, AABB};
+use super::{Geometry, LocalGeometry, AABB};
 use crate::math::*;
 use num::traits::FloatConst;
 
@@ -17,7 +17,7 @@ impl AABB for Sphere {
 }
 
 impl Geometry for Sphere {
-    fn intersect_geometry(&self, ray: &Ray) -> Option<GeometryHitInfo> {
+    fn intersect_geometry(&self, ray: &Ray) -> Option<LocalGeometry> {
         let ray_origin: Vec3f = ray.o.into();
 
         let a = ray.d.length_squared();
@@ -42,7 +42,8 @@ impl Geometry for Sphere {
             phi
         };
         let theta = num::clamp(point.z / self.radius, -1.0, 1.0).acos();
-        debug_assert!(phi >= 0.0 && theta >= 0.0);
+        debug_assert!(phi >= 0.0 && phi <= 2.0 * Float::PI() + 0.01);
+        debug_assert!(theta >= 0.0 && theta <= Float::PI() + 0.01);
 
         let dpdu = Vec3f::new(-phi_max * point.y, phi_max * point.x, 0.0);
         let dpdv = Vec3f::new(
@@ -56,7 +57,7 @@ impl Geometry for Sphere {
 
         let point_error = Vec3f::new(0.0, 0.0, 0.0);
 
-        Some(GeometryHitInfo {
+        Some(LocalGeometry {
             point,
             point_error,
             ns: normal,

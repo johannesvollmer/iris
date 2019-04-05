@@ -14,12 +14,12 @@ mod camera;
 mod film;
 mod geometry;
 mod integrator;
+mod light;
 mod material;
 mod math;
 mod sampler;
 mod scene;
 mod texture;
-mod light;
 
 use bumpalo::Bump;
 use camera::Camera;
@@ -61,7 +61,8 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
 
     let scene = test_scene();
 
-    let whitted = integrator::whitted::Whitted::new(10);
+    let integrator = integrator::whitted::Whitted::new(10);
+    // let integrator = integrator::normals::Normals::new();
 
     let camera = camera::orthographic::OrthographicCamera::new(
         Transform::new(na::Projective3::identity()),
@@ -108,13 +109,16 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
                         .scale_differentials(1.0 / (sampler.samples_per_pixel() as Float).sqrt());
 
                     let mut sample =
-                        whitted.radiance(&ray_diff.ray, &scene, sampler.as_mut(), &arena, 0);
+                        integrator.radiance(&ray_diff.ray, &scene, sampler.as_mut(), &arena, 0);
                     if cfg!(debug_assertions) {
                         if sample.has_nans() {
                             eprintln!("Sample at pixel {}, {} has NaNs", pixel.x, pixel.y);
                             sample = Spectrum::black();
                         } else if sample.has_infs() {
                             eprintln!("Sample at pixel ({}, {}) has infs", pixel.x, pixel.y);
+                            sample = Spectrum::black();
+                        } else if sample.has_negatives() {
+                            eprintln!("Sample at pixel ({}, {}) has negatives", pixel.x, pixel.y);
                             sample = Spectrum::black();
                         } // TODO: Check sample.y() < 0
                     }
@@ -145,22 +149,23 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
 fn test_scene() -> scene::Scene {
     use geometry::{primitive::Primitive, receiver::Receiver, sphere::Sphere};
     use light::emitter::Emitter;
-    use material::mirror::Mirror;
+    use material::matte::Matte;
     use texture::constant::ConstantTexture;
 
     let mut geometry = Vec::new();
 
     geometry.push(Primitive::Receiver(Receiver::new(
         Arc::new(Sphere::new(0.3)),
-        Arc::new(Mirror::new(Arc::new(ConstantTexture::new(
-            Spectrum::from_rgb(1.0, 0.0, 0.0),
-        )))),
-        Transform::translate(Vec3f::new(0.5, 0.5, 5.0)),
+        Arc::new(Matte::new(
+            Arc::new(ConstantTexture::new(Spectrum::from_rgb(1.0, 1.0, 1.0))),
+            None,
+        )),
+        Transform::translate(Vec3f::new(0.5, 0.5, 2.0)),
     )));
 
     geometry.push(Primitive::Emitter(Emitter::new_point(
-        Spectrum::from_rgb(1.0, 0.0, 0.0),
-        Transform::translate(Vec3f::new(0.0, 0.0, 0.5)), 
+        Spectrum::from_rgb(5.0, 0.0, 0.0),
+        Transform::translate(Vec3f::new(0.0, 0.0, -1.0)),
     )));
 
     scene::Scene::new(geometry)

@@ -1,6 +1,6 @@
 use super::{receiver, HitInfo};
-use crate::light::emitter;
 use crate::geometry::{Hit, AABB};
+use crate::light::emitter;
 use crate::math::*;
 use bvh::aabb::Bounded;
 use bvh::bounding_hierarchy::BHShape;

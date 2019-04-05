@@ -4,6 +4,7 @@ use num::traits::float::FloatConst;
 
 pub mod bsdf;
 pub mod fresnel;
+pub mod lambertian;
 pub mod specular_reflection;
 
 bitflags! {
@@ -18,13 +19,13 @@ bitflags! {
 }
 
 impl BxDFType {
-    pub fn flags_for_hemisphere(&self, wo: LocalVec3f, wi: LocalVec3f) -> Self {
+    pub fn for_hemisphere(&self, wo: LocalVec3f, wi: LocalVec3f) -> Self {
         let flag_to_clear = if wi.same_hemisphere(&wo) {
             BxDFType::TRANSMISSION
         } else {
             BxDFType::REFLECTION
         };
-        
+
         let mut out = self.clone();
         out.set(flag_to_clear, false);
         out
@@ -35,7 +36,7 @@ pub trait BxDF {
     fn get_type(&self) -> BxDFType;
 
     fn matches(&self, t: BxDFType) -> bool {
-        self.get_type().contains(t)
+        t.contains(self.get_type())
     }
 
     fn eval(&self, wi: &LocalVec3f, wo: &LocalVec3f) -> Spectrum;

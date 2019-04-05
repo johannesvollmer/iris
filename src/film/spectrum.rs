@@ -50,12 +50,16 @@ impl RGBSpectrum {
         self.r.is_infinite() || self.g.is_infinite() || self.b.is_infinite()
     }
 
+    pub fn has_negatives(&self) -> bool {
+        self.r < 0.0 || self.g < 0.0 || self.b < 0.0
+    }
+
     pub fn is_valid(&self) -> bool {
         !self.has_nans() && !self.has_infs()
     }
 
     pub fn is_black(&self) -> bool {
-        self.r != 0.0 && self.g != 0.0 && self.b != 0.0
+        self.r == 0.0 && self.g == 0.0 && self.b == 0.0
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::math::{Float, Point3f, Vec3f, Normal3f, misc::offset_ray_origin};
+use crate::math::{misc::offset_ray_origin, Float, Normal3f, Point3f, Vec3f};
 use num::Float as _;
 
 #[derive(Debug, Copy, Clone)]
@@ -26,15 +26,21 @@ impl Ray {
 
     pub fn spawn(point: Point3f, dir: Vec3f, err: Vec3f, normal: Normal3f, time: Float) -> Self {
         Ray {
-            o: offset_ray_origin(point, err, normal, dir),
+            o: offset_ray_origin(point, err + 0.0001, normal, dir),
             d: dir,
             t_max: Float::infinity(),
             time,
         }
     }
 
-    pub fn spawn_to(point: Point3f, other: Point3f, err: Vec3f, normal: Normal3f, time: Float) -> Self {
-        let o = offset_ray_origin(point, err, normal, other - point);
+    pub fn spawn_to(
+        point: Point3f,
+        other: Point3f,
+        err: Vec3f,
+        normal: Normal3f,
+        time: Float,
+    ) -> Self {
+        let o = offset_ray_origin(point, err + 0.0001, normal, other - point);
         let d = point - o;
         Ray {
             o,

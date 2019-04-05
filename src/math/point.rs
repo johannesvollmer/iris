@@ -94,6 +94,30 @@ where
     }
 }
 
+impl<T> std::ops::Index<usize> for Point3<T> {
+    type Output = T;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        match index {
+            0 => &self.x,
+            1 => &self.y,
+            2 => &self.z,
+            _ => panic!("out of bounds for Point3f"),
+        }
+    }
+}
+
+impl<T> std::ops::IndexMut<usize> for Point3<T> {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        match index {
+            0 => &mut self.x,
+            1 => &mut self.y,
+            2 => &mut self.z,
+            _ => panic!("out of bounds for Point3f"),
+        }
+    }
+}
+
 impl<T> From<Vec3<T>> for Point3<T>
 where
     T: Copy,
@@ -103,6 +127,16 @@ where
             x: other.x,
             y: other.y,
             z: other.z,
+        }
+    }
+}
+
+impl<T: Default> Default for Point3<T> {
+    fn default() -> Self {
+        Self {
+            x: T::default(),
+            y: T::default(),
+            z: T::default(),
         }
     }
 }

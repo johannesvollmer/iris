@@ -1,6 +1,6 @@
 use super::{BxDF, BxDFType};
 use crate::film::spectrum::Spectrum;
-use crate::geometry::GeometryHitInfo;
+use crate::geometry::LocalGeometry;
 use crate::math::*;
 use bumpalo::Bump;
 
@@ -16,7 +16,7 @@ pub struct BSDF<'a> {
 }
 
 impl<'a> BSDF<'a> {
-    pub fn new(hit: &GeometryHitInfo) -> Self {
+    pub fn new(hit: &LocalGeometry) -> Self {
         let bitan = hit.dpdu.normalized();
         let tan = hit.ns.cross(bitan);
         let bitan = tan.cross(hit.ns.to_vec());
@@ -99,7 +99,7 @@ impl<'a> BSDF<'a> {
             }
 
             // Remove appropriate flags if in different hemisphere
-            let flags = types.flags_for_hemisphere(wo_local, wi_local);
+            let flags = types.for_hemisphere(wo_local, wi_local);
 
             // Compute total sample
             spectrum = self
@@ -121,10 +121,9 @@ impl<'a> BSDF<'a> {
         let wo_local = self.to_shading(&wo).normalized();
         let wi_local = self.to_shading(&wi).normalized();
 
-        let flags = flags.flags_for_hemisphere(wo_local, wi_local);
+        let flags = flags.for_hemisphere(wo_local, wi_local);
 
-        self
-            .bxdfs
+        self.bxdfs
             .iter()
             .filter(|bxdf| bxdf.matches(flags))
             .map(|bxdf| bxdf.eval(&wo_local, &wi_local))

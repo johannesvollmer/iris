@@ -1,25 +1,29 @@
+use crate::math::normal::Normal3f;
+use crate::math::bounds::Bounds3f;
 use crate::math::{Float, Point3f, Ray, Vec3f};
 use nalgebra::{Matrix4, Orthographic3, Projective3, Vector3};
 
-#[derive(Copy, Clone)]
+#[derive(new, Debug, Copy, Clone)]
 pub struct Transform {
     m: Projective3<Float>,
 }
 
 impl Transform {
-    pub fn new(m: Projective3<Float>) -> Self {
-        Self { m }
-    }
-
     pub fn inverse(&self) -> Self {
         Self {
             m: self.m.inverse(),
         }
     }
 
+    // TODO: Multiply
     pub fn apply(&self, vec: Vec3f) -> Vec3f {
         let v = self.m * Vector3::new(vec.x, vec.y, vec.z);
         Vec3f::new(v.x, v.y, v.z)
+    }
+
+    pub fn apply_normal(&self, normal: Normal3f) -> Normal3f {
+        let n = Projective3::from_matrix_unchecked(self.m.to_homogeneous().transpose()) * Vector3::new(normal.x, normal.y, normal.z);
+        Normal3f::new(n.x, n.y, n.z)
     }
 
     pub fn apply_point(&self, point: Point3f) -> Point3f {
@@ -32,6 +36,30 @@ impl Transform {
         r.o = self.apply_point(ray.o);
         r.d = self.apply(ray.d);
         r
+    }
+
+    pub fn apply_bounds(&self, bounds: Bounds3f) -> Bounds3f {
+        let mut out = Bounds3f::default();
+        for i in 0..3 {
+            out.min[i] = self.m[(3, i)];
+            out.max[i] = self.m[(3, i)];
+        }
+
+        for i in 0..3 {
+            for j in 0..3 {
+                let x = self.m[(j, i)] * bounds.min[j];
+                let y = self.m[(j, i)] * bounds.max[j];
+                if x < y {
+                    out.min[i] += x;
+                    out.max[i] += y;
+                } else {
+                    out.min[i] += y;
+                    out.max[i] += x;
+                }
+            }
+        }
+
+        out
     }
 
     pub fn orthographic(z_near: Float, z_far: Float) -> Self {

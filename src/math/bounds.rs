@@ -102,3 +102,12 @@ impl<T> Bounds3<T> {
         )
     }
 }
+
+impl<T: Default> Default for Bounds3<T> {
+    fn default() -> Self {
+        Self {
+            min: Point3::default(),
+            max: Point3::default(),
+        }
+    }
+}

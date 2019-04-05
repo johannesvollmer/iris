@@ -1,7 +1,7 @@
-use crate::light::emitter::Emitter;
-use crate::light::Light;
 use crate::geometry::primitive::{BVHPrimitive, Primitive};
 use crate::geometry::HitInfo;
+use crate::light::emitter::Emitter;
+use crate::light::Light;
 use crate::math::*;
 use bvh::bvh::BVH;
 
@@ -19,25 +19,27 @@ impl Scene {
 
         let mut bvh_geom = geometry
             .into_iter()
-            .filter_map(|g| {
-                match g {
-                    Primitive::Emitter(ref e) => {
-                        let is_delta = e.is_delta();
-                        lights.push(e.clone());
-                        if !is_delta {
-                            Some(BVHPrimitive::new(g))
-                        } else {
-                            None
-                        }
-                    },
-                    Primitive::Receiver(_) => Some(BVHPrimitive::new(g)),
+            .filter_map(|g| match g {
+                Primitive::Emitter(ref e) => {
+                    let is_delta = e.is_delta();
+                    lights.push(e.clone());
+                    if !is_delta {
+                        Some(BVHPrimitive::new(g))
+                    } else {
+                        None
+                    }
                 }
+                Primitive::Receiver(_) => Some(BVHPrimitive::new(g)),
             })
             .collect::<Vec<BVHPrimitive>>();
 
         let bvh = BVH::build(&mut bvh_geom);
 
-        Self { bvh, geometry: bvh_geom, lights }
+        Self {
+            bvh,
+            geometry: bvh_geom,
+            lights,
+        }
     }
 
     pub fn intersect(&self, ray: &Ray) -> Option<HitInfo> {

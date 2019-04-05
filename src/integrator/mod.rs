@@ -1,12 +1,13 @@
-use crate::geometry::HitInfo;
-use crate::bxdf::{BxDFType, bsdf::BSDF};
+use crate::bxdf::{bsdf::BSDF, BxDFType};
 use crate::film::spectrum::Spectrum;
+use crate::geometry::HitInfo;
 use crate::math::ray::Ray;
 use crate::sampler::Sampler;
 use crate::scene::Scene;
 use bumpalo::Bump;
 
 pub mod whitted;
+pub mod normals;
 
 pub trait Integrator {
     fn radiance(
@@ -21,12 +22,12 @@ pub trait Integrator {
     fn specular_reflection(
         &self,
         ray: &Ray,
-        scene: &Scene,
+        _scene: &Scene,
         sampler: &mut (dyn Sampler + Send + Sync),
-        alloc: &Bump,
+        _alloc: &Bump,
         bsdf: &BSDF,
         hit: &HitInfo,
-        depth: i32,
+        _depth: i32,
     ) -> Spectrum {
         let sample = sampler.get_2d();
         let ns = bsdf.ns.to_vec();

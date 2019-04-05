@@ -1,7 +1,7 @@
-use crate::geometry::HitInfo;
 use crate::film::spectrum::Spectrum;
-use crate::scene::Scene;
+use crate::geometry::HitInfo;
 use crate::math::*;
+use crate::scene::Scene;
 
 pub mod emitter;
 // pub mod point;
@@ -16,7 +16,7 @@ pub struct Visibility {
 
 impl Visibility {
     pub fn new(hit: &HitInfo, point: Point3f) -> Self {
-        let gh = &hit.geometry_hit_info;
+        let gh = &hit.lg;
         Self {
             origin: gh.point,
             point,
@@ -26,7 +26,7 @@ impl Visibility {
         }
     }
 
-    pub fn occluded(&self, scene: &Scene) -> bool {
+    pub fn visible(&self, scene: &Scene) -> bool {
         let ray = Ray::spawn_to(self.origin, self.point, self.err, self.normal, self.time);
         scene.intersect(&ray).is_some()
     }

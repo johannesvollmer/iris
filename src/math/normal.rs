@@ -1,7 +1,7 @@
 use crate::math::vec::Vec3f;
 use crate::math::Float;
 
-#[derive(new, Copy, Clone)]
+#[derive(new, Debug, Copy, Clone)]
 pub struct Normal3f {
     pub x: Float,
     pub y: Float,
