@@ -1,5 +1,5 @@
-use crate::math::normal::Normal3f;
 use crate::math::bounds::Bounds3f;
+use crate::math::normal::Normal3f;
 use crate::math::{Float, Point3f, Ray, Vec3f};
 use nalgebra::{Matrix4, Orthographic3, Projective3, Vector3};
 
@@ -22,7 +22,8 @@ impl Transform {
     }
 
     pub fn apply_normal(&self, normal: Normal3f) -> Normal3f {
-        let n = Projective3::from_matrix_unchecked(self.m.to_homogeneous().transpose()) * Vector3::new(normal.x, normal.y, normal.z);
+        let n = Projective3::from_matrix_unchecked(self.m.to_homogeneous().transpose())
+            * Vector3::new(normal.x, normal.y, normal.z);
         Normal3f::new(n.x, n.y, n.z)
     }
 

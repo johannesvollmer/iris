@@ -1,5 +1,5 @@
-use crate::integrator::Integrator;
 use crate::film::spectrum::Spectrum;
+use crate::integrator::Integrator;
 use crate::math::*;
 use crate::sampler::Sampler;
 use crate::scene::Scene;

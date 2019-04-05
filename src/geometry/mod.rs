@@ -27,7 +27,13 @@ pub struct HitInfo<'a> {
 
 impl<'a> HitInfo<'a> {
     pub fn spawn_ray(&self, dir: Vec3f) -> Ray {
-        Ray::spawn(self.lg.point, dir, self.lg.point_error, self.lg.ng, self.lg.time)
+        Ray::spawn(
+            self.lg.point,
+            dir,
+            self.lg.point_error,
+            self.lg.ng,
+            self.lg.time,
+        )
     }
 
     /*pub fn spawn_ray_to(&self, point: Point3f) -> Ray {

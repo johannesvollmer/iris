@@ -6,8 +6,8 @@ use crate::sampler::Sampler;
 use crate::scene::Scene;
 use bumpalo::Bump;
 
-pub mod whitted;
 pub mod normals;
+pub mod whitted;
 
 pub trait Integrator {
     fn radiance(
