@@ -36,9 +36,6 @@ pub fn solve_quadratic<T: num::Float + num::FromPrimitive>(a: T, b: T, c: T) -> 
     };
 
     let mut t0 = q / a;
-    dbg!(t0);
-    dbg!(q);
-    dbg!(a);
     let mut t1 = c / q;
     if t0 > t1 {
         std::mem::swap(&mut t0, &mut t1);

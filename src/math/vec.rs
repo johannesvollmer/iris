@@ -61,7 +61,7 @@ impl<T> Vec3<T> {
 
     pub fn abs(&self) -> Self
     where
-        T: num::Float
+        T: num::Float,
     {
         Self {
             x: self.x.abs(),

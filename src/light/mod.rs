@@ -7,28 +7,34 @@ pub mod emitter;
 // pub mod point;
 
 pub struct Visibility {
-    origin: Point3f,
-    point: Point3f,
+    hit_point: Point3f,
+    light_point: Point3f,
     normal: Normal3f,
-    err: Vec3f,
+    hit_err: Vec3f,
     time: Float,
 }
 
 impl Visibility {
-    pub fn new(hit: &HitInfo, point: Point3f) -> Self {
+    pub fn new(hit: &HitInfo, light_point: Point3f) -> Self {
         let gh = &hit.lg;
         Self {
-            origin: gh.point,
-            point,
+            hit_point: gh.point,
+            hit_err: gh.point_error,
+            light_point,
             normal: gh.ng,
-            err: gh.point_error,
             time: gh.time,
         }
     }
 
     pub fn visible(&self, scene: &Scene) -> bool {
-        let ray = Ray::spawn_to(self.origin, self.point, self.err, self.normal, self.time);
-        scene.intersect(&ray).is_some()
+        let ray = Ray::spawn_to(
+            self.hit_point,
+            self.light_point,
+            self.hit_err,
+            self.normal,
+            self.time,
+        );
+        scene.intersect(&ray).is_none()
     }
 }
 

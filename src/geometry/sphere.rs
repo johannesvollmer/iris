@@ -26,7 +26,7 @@ impl Geometry for Sphere {
 
         let (t0, _) = solve_quadratic(a, b, c)?;
 
-        if t0 > ray.t_max {
+        if t0 > ray.t_max || t0 < 0.0 {
             return None;
         }
 
@@ -55,7 +55,7 @@ impl Geometry for Sphere {
         let u = phi / phi_max;
         let v = (theta - theta_min) / (theta_max - theta_min);
 
-        let point_error = Vec3f::new(0.00000, 0.00000, 0.00000);
+        let point_error = Vec3f::new(0.0000001, 0.0000001, 0.0000001);
 
         Some(LocalGeometry {
             point,
