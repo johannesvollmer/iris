@@ -41,7 +41,7 @@ impl Ray {
         time: Float,
     ) -> Self {
         let o = offset_ray_origin(point, err, normal, other - point);
-        let d = point - o;
+        let d = other - o;
         Ray {
             o,
             d,
