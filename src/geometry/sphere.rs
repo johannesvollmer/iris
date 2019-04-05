@@ -55,7 +55,7 @@ impl Geometry for Sphere {
         let u = phi / phi_max;
         let v = (theta - theta_min) / (theta_max - theta_min);
 
-        let point_error = Vec3f::new(0.0, 0.0, 0.0);
+        let point_error = Vec3f::new(0.00000, 0.00000, 0.00000);
 
         Some(LocalGeometry {
             point,

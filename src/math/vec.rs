@@ -59,6 +59,17 @@ impl<T> Vec3<T> {
         }
     }
 
+    pub fn abs(&self) -> Self
+    where
+        T: num::Float
+    {
+        Self {
+            x: self.x.abs(),
+            y: self.y.abs(),
+            z: self.z.abs(),
+        }
+    }
+
     /*pub fn from_spherical(sin_theta: T, cos_theta: T, phi: T) -> Self
     where
         T: Copy + std::ops::Mul<T, Output = T> + num::Float,

@@ -165,7 +165,7 @@ fn test_scene() -> scene::Scene {
 
     geometry.push(Primitive::Emitter(Emitter::new_point(
         Spectrum::from_rgb(5.0, 0.0, 0.0),
-        Transform::translate(Vec3f::new(0.0, 0.0, -1.0)),
+        Transform::translate(Vec3f::new(0.0, 0.0, 0.0)),
     )));
 
     scene::Scene::new(geometry)

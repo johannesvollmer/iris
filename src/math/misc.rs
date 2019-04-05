@@ -36,6 +36,9 @@ pub fn solve_quadratic<T: num::Float + num::FromPrimitive>(a: T, b: T, c: T) -> 
     };
 
     let mut t0 = q / a;
+    dbg!(t0);
+    dbg!(q);
+    dbg!(a);
     let mut t1 = c / q;
     if t0 > t1 {
         std::mem::swap(&mut t0, &mut t1);
@@ -96,19 +99,19 @@ fn next_float_down(mut f: Float) -> Float {
 
 pub fn offset_ray_origin(p: Point3f, p_err: Vec3f, n: Normal3f, dir: Vec3f) -> Point3f {
     let n_vec = n.to_vec();
-    let mut d = p_err.dot(&n_vec);
+    let d = p_err.dot(&n_vec.abs());
+    let mut off = n_vec * d;
     if dir.dot(&n_vec) < 0.0 {
-        d = -d;
+        off = -off;
     }
 
-    let off = n_vec * d;
     let po = p + off;
 
     let adjust = |off: Float, po| {
-        if off < 0.0 {
-            next_float_down(po)
-        } else if off > 0.0 {
+        if off > 0.0 {
             next_float_up(po)
+        } else if off < 0.0 {
+            next_float_down(po)
         } else {
             po
         }

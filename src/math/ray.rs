@@ -26,7 +26,7 @@ impl Ray {
 
     pub fn spawn(point: Point3f, dir: Vec3f, err: Vec3f, normal: Normal3f, time: Float) -> Self {
         Ray {
-            o: offset_ray_origin(point, err + 0.0001, normal, dir),
+            o: offset_ray_origin(point, err, normal, dir),
             d: dir,
             t_max: Float::infinity(),
             time,
@@ -40,7 +40,7 @@ impl Ray {
         normal: Normal3f,
         time: Float,
     ) -> Self {
-        let o = offset_ray_origin(point, err + 0.0001, normal, other - point);
+        let o = offset_ray_origin(point, err, normal, other - point);
         let d = point - o;
         Ray {
             o,
