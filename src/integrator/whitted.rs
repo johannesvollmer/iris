@@ -28,7 +28,7 @@ impl Integrator for Whitted {
         let mut out = Spectrum::black();
 
         if let Some(hit) = scene.intersect(ray) {
-            let bsdf = hit.material.bsdf(&hit.lg, arena);
+            let bsdf = hit.material.bsdf(&hit.gg, arena);
 
             let wo = -ray.d;
             let sample = {

@@ -2,7 +2,7 @@ macro_rules! define_vec {
     ($vecbase:ident) => {
         use crate::math::Float;
 
-        #[derive(new, Copy, Clone, Debug)]
+        #[derive(Copy, Clone, Debug)]
         pub struct $vecbase {
             pub x: Float,
             pub y: Float,
@@ -10,10 +10,18 @@ macro_rules! define_vec {
         }
 
         impl $vecbase {
+            #[inline(always)]
+            #[allow(dead_code)]
+            pub fn new(x: Float, y: Float, z: Float) -> Self {
+                $vecbase { x, y, z }
+            }
+
+            #[allow(dead_code)]
             pub fn dot(self, other: Self) -> Float {
                 self.x * other.x + self.y * other.y + self.z * other.z
             }
 
+            #[allow(dead_code)]
             pub fn cross(self, other: Self) -> Self {
                 Self::new(
                     self.y * other.z - self.z * other.y,
@@ -22,22 +30,22 @@ macro_rules! define_vec {
                 )
             }
 
+            #[allow(dead_code)]
             pub fn abs(self) -> Self {
-                Self::new(
-                    self.x.abs(),
-                    self.y.abs(),
-                    self.z.abs(),
-                )
+                Self::new(self.x.abs(), self.y.abs(), self.z.abs())
             }
 
+            #[allow(dead_code)]
             pub fn length_squared(self) -> Float {
                 self.dot(self)
             }
 
+            #[allow(dead_code)]
             pub fn length(self) -> Float {
                 self.length_squared().sqrt()
             }
 
+            #[allow(dead_code)]
             pub fn normalized(self) -> Self {
                 self / self.length()
             }
@@ -71,11 +79,7 @@ macro_rules! define_vec {
             type Output = Self;
 
             fn add(self, other: Self) -> Self {
-                Self::new(
-                    self.x + other.x,
-                    self.y + other.y,
-                    self.z + other.z,
-                )
+                Self::new(self.x + other.x, self.y + other.y, self.z + other.z)
             }
         }
 
@@ -91,11 +95,7 @@ macro_rules! define_vec {
             type Output = Self;
 
             fn add(self, other: Float) -> Self {
-                Self::new(
-                    self.x + other,
-                    self.y + other,
-                    self.z + other,
-                )
+                Self::new(self.x + other, self.y + other, self.z + other)
             }
         }
 
@@ -111,11 +111,7 @@ macro_rules! define_vec {
             type Output = Self;
 
             fn sub(self, other: Self) -> Self {
-                Self::new(
-                    self.x - other.x,
-                    self.y - other.y,
-                    self.z - other.z,
-                )
+                Self::new(self.x - other.x, self.y - other.y, self.z - other.z)
             }
         }
 
@@ -131,11 +127,7 @@ macro_rules! define_vec {
             type Output = Self;
 
             fn sub(self, other: Float) -> Self {
-                Self::new(
-                    self.x - other,
-                    self.y - other,
-                    self.z - other,
-                )
+                Self::new(self.x - other, self.y - other, self.z - other)
             }
         }
 
@@ -151,11 +143,7 @@ macro_rules! define_vec {
             type Output = Self;
 
             fn mul(self, other: Self) -> Self {
-                Self::new(
-                    self.x * other.x,
-                    self.y * other.y,
-                    self.z * other.z,
-                )
+                Self::new(self.x * other.x, self.y * other.y, self.z * other.z)
             }
         }
 
@@ -171,11 +159,7 @@ macro_rules! define_vec {
             type Output = Self;
 
             fn mul(self, other: Float) -> Self {
-                Self::new(
-                    self.x * other,
-                    self.y * other,
-                    self.z * other,
-                )
+                Self::new(self.x * other, self.y * other, self.z * other)
             }
         }
 
@@ -191,11 +175,7 @@ macro_rules! define_vec {
             type Output = Self;
 
             fn div(self, other: Self) -> Self {
-                Self::new(
-                    self.x / other.x,
-                    self.y / other.y,
-                    self.z / other.z,
-                )
+                Self::new(self.x / other.x, self.y / other.y, self.z / other.z)
             }
         }
 
@@ -211,11 +191,7 @@ macro_rules! define_vec {
             type Output = Self;
 
             fn div(self, other: Float) -> Self {
-                Self::new(
-                    self.x / other,
-                    self.y / other,
-                    self.z / other,
-                )
+                Self::new(self.x / other, self.y / other, self.z / other)
             }
         }
 
@@ -231,11 +207,7 @@ macro_rules! define_vec {
             type Output = Self;
 
             fn neg(self) -> Self {
-                Self::new(
-                    -self.x,
-                    -self.y,
-                    -self.z,
-                )
+                Self::new(-self.x, -self.y, -self.z)
             }
         }
     };

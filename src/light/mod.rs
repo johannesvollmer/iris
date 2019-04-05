@@ -16,13 +16,12 @@ pub struct Visibility {
 
 impl Visibility {
     pub fn new(hit: &HitInfo, light_point: Point3f) -> Self {
-        let gh = &hit.lg;
         Self {
-            hit_point: gh.point,
-            hit_err: gh.point_error,
+            hit_point: hit.gg.point,
+            hit_err: hit.gg.point_error,
             light_point,
-            normal: gh.ng,
-            time: gh.time,
+            normal: hit.gg.ng,
+            time: hit.gg.time,
         }
     }
 
@@ -34,7 +33,9 @@ impl Visibility {
             self.normal,
             self.time,
         );
-        scene.intersect(&ray).is_none()
+        if scene.intersect(&ray).is_none() {
+            false
+        } else { unimplemented!() }
     }
 }
 

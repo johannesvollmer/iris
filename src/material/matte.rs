@@ -1,6 +1,6 @@
 use crate::bxdf::{bsdf::BSDF, lambertian::Lambertian};
 use crate::film::spectrum::Spectrum;
-use crate::geometry::LocalGeometry;
+use crate::geometry::GlobalGeometry;
 use crate::material::Material;
 use crate::math::*;
 use crate::texture::Texture;
@@ -14,7 +14,7 @@ pub struct Matte {
 }
 
 impl Material for Matte {
-    fn bsdf<'a>(&self, hit: &LocalGeometry, alloc: &'a Bump) -> BSDF<'a> {
+    fn bsdf<'a>(&self, hit: &GlobalGeometry, alloc: &'a Bump) -> BSDF<'a> {
         let diffuse = self.diffuse.eval(&hit);
         let roughness = self.roughness.as_ref().map(|r| r.eval(&hit)).unwrap_or(0.0);
 

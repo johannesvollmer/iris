@@ -61,8 +61,8 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
 
     let scene = test_scene();
 
-    let integrator = integrator::whitted::Whitted::new(10);
-    // let integrator = integrator::normals::Normals::new();
+    // let integrator = integrator::whitted::Whitted::new(10);
+    let integrator = integrator::normals::Normals::new();
 
     let camera = camera::orthographic::OrthographicCamera::new(
         Transform::new(na::Projective3::identity()),

@@ -1,8 +1,9 @@
 use crate::math::normal::Normal3f;
 use crate::math::point::Point3f;
-use crate::math::Vec3f;
 use crate::math::Float;
+use crate::math::Vec3f;
 pub use num::clamp;
+use num::Float as _;
 
 pub fn lerp<T: num::Float>(param: T, min: T, max: T) -> T {
     min * (T::one() - param) + max * param
@@ -37,6 +38,12 @@ pub fn solve_quadratic<T: num::Float + num::FromPrimitive>(a: T, b: T, c: T) -> 
     }
 
     Some((T::from_f64(t0).unwrap(), T::from_f64(t1).unwrap()))
+}
+
+#[inline(always)]
+pub fn gamma(n: i32) -> Float {
+    let machine_epsilon = Float::epsilon() * 0.5;
+    ((n as Float) * machine_epsilon) / (1.0 - (n as Float) * machine_epsilon)
 }
 
 #[cfg(not(use_f64))]

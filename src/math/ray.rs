@@ -1,4 +1,4 @@
-use crate::math::{misc::offset_ray_origin, Float, Normal3f, Point3f, Vec3f};
+use crate::math::{misc::offset_ray_origin, Float, LocalVec3f, Normal3f, Point3f, Vec3f};
 use num::Float as _;
 
 #[derive(Debug, Copy, Clone)]
@@ -22,6 +22,15 @@ impl Ray {
 
     pub fn at(&self, t: Float) -> Point3f {
         self.o + self.d * t
+    }
+
+    pub fn as_local(&self) -> LocalRay {
+        LocalRay {
+            o: self.o,
+            d: self.d.as_local(),
+            t_max: self.t_max,
+            time: self.time,
+        }
     }
 
     pub fn spawn(point: Point3f, dir: Vec3f, err: Vec3f, normal: Normal3f, time: Float) -> Self {
@@ -48,6 +57,20 @@ impl Ray {
             t_max: 1.0 - 0.001,
             time,
         }
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct LocalRay {
+    pub o: Point3f, // TODO: LocalPoint3f?
+    pub d: LocalVec3f,
+    pub t_max: Float,
+    pub time: Float,
+}
+
+impl LocalRay {
+    pub fn at(&self, t: Float) -> Point3f {
+        self.o + self.d * t
     }
 }
 

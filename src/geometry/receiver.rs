@@ -28,26 +28,18 @@ impl Receiver {
 
 impl AABB for Receiver {
     fn aabb(&self) -> Bounds3f {
-        self.transform.apply_bounds(self.geometry.aabb())
+        self.transform.apply_bounds(self.geometry.local_aabb())
     }
 }
 
 impl Hit for Receiver {
     fn intersect(&self, ray: &Ray) -> Option<HitInfo> {
-        let mut local_ray = self.inv_transform.apply_ray(ray);
+        let mut local_ray = self.inv_transform.apply_ray(ray).as_local();
 
-        let mut hit = self.geometry.intersect_geometry(&mut local_ray)?;
-
-        hit.point = self.transform.apply_point(hit.point);
-        hit.ns = self.transform.apply(hit.ns.to_vec()).into();
-        // hit.ns = self.inv_transform.apply_normal(hit.ns).normalized();
-        hit.ng = self.transform.apply(hit.ng.to_vec()).into();
-        // hit.ng = self.inv_transform.apply_normal(hit.ng).normalized();
-        hit.dpdu = self.transform.apply(hit.dpdu);
-        hit.dpdv = self.transform.apply(hit.dpdv);
+        let lg = self.geometry.local_intersect(&mut local_ray)?;
 
         Some(HitInfo {
-            lg: hit,
+            gg: lg.to_global(&self.transform, &self.inv_transform),
             material: &*self.material,
             geometry: &*self.geometry,
         })

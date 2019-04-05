@@ -1,4 +1,4 @@
-use super::{Float, Vec2, Vec3f};
+use super::{Float, LocalVec3f, Vec2, Vec3f};
 
 #[derive(new, Copy, Clone, Debug)]
 pub struct Point3<T> {
@@ -72,11 +72,22 @@ where
     }
 }
 
-impl std::ops::Add<Vec3f> for Point3f
-{
+impl std::ops::Add<Vec3f> for Point3f {
     type Output = Point3f;
 
     fn add(self, other: Vec3f) -> Self::Output {
+        Point3 {
+            x: self.x + other.x,
+            y: self.y + other.y,
+            z: self.z + other.z,
+        }
+    }
+}
+
+impl std::ops::Add<LocalVec3f> for Point3f {
+    type Output = Point3f;
+
+    fn add(self, other: LocalVec3f) -> Self::Output {
         Point3 {
             x: self.x + other.x,
             y: self.y + other.y,
@@ -109,8 +120,7 @@ impl<T> std::ops::IndexMut<usize> for Point3<T> {
     }
 }
 
-impl From<Vec3f> for Point3f
-{
+impl From<Vec3f> for Point3f {
     fn from(other: Vec3f) -> Self {
         Self {
             x: other.x,

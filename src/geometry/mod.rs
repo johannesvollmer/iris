@@ -8,6 +8,38 @@ pub mod sphere;
 #[derive(Clone)]
 pub struct LocalGeometry {
     pub point: Point3f,
+    pub point_error: LocalVec3f,
+    pub ns: LocalNormal3f,
+    pub ng: LocalNormal3f,
+    pub uv: Point2f,
+    pub dpdu: LocalVec3f,
+    pub dpdv: LocalVec3f,
+    pub time: Float,
+    pub t: Float,
+}
+
+impl LocalGeometry {
+    pub fn to_global(self, m: &Transform, m_inv: &Transform) -> GlobalGeometry {
+        let (p, err) = m.apply_point_with_error(self.point, self.point_error.as_global());
+        GlobalGeometry {
+            point: p,
+            point_error: err,
+            ns: m_inv.apply_normal(self.ns.as_global()).normalized(),
+            ng: m_inv.apply_normal(self.ng.as_global()).normalized(),
+            // ns: m.apply(self.ns.as_global().to_vec()).normalized().into(),
+            // ng: m.apply(self.ng.as_global().to_vec()).normalized().into(),
+            uv: self.uv,
+            dpdu: m.apply(self.dpdu.as_global()),
+            dpdv: m.apply(self.dpdv.as_global()),
+            time: self.time,
+            t: self.t,
+        }
+    }
+}
+
+#[derive(Clone)]
+pub struct GlobalGeometry {
+    pub point: Point3f,
     pub point_error: Vec3f,
     pub ns: Normal3f,
     pub ng: Normal3f,
@@ -20,7 +52,7 @@ pub struct LocalGeometry {
 
 #[derive(Clone)]
 pub struct HitInfo<'a> {
-    pub lg: LocalGeometry,
+    pub gg: GlobalGeometry,
     pub material: &'a dyn Material,
     pub geometry: &'a dyn Geometry,
 }
@@ -28,26 +60,25 @@ pub struct HitInfo<'a> {
 impl<'a> HitInfo<'a> {
     pub fn spawn_ray(&self, dir: Vec3f) -> Ray {
         Ray::spawn(
-            self.lg.point,
+            self.gg.point,
             dir,
-            self.lg.point_error,
-            self.lg.ng,
-            self.lg.time,
+            self.gg.point_error,
+            self.gg.ng,
+            self.gg.time,
         )
     }
+}
 
-    /*pub fn spawn_ray_to(&self, point: Point3f) -> Ray {
-        let gh = &self.geometry_hit_info;
-        Ray::spawn_to(gh.point, point, gh.point_error, gh.ng, gh.time)
-    }*/
+pub trait LocalAABB {
+    fn local_aabb(&self) -> Bounds3f;
+}
+
+pub trait Geometry: LocalAABB {
+    fn local_intersect(&self, ray: &LocalRay) -> Option<LocalGeometry>;
 }
 
 pub trait AABB {
     fn aabb(&self) -> Bounds3f;
-}
-
-pub trait Geometry: AABB {
-    fn intersect_geometry(&self, ray: &Ray) -> Option<LocalGeometry>;
 }
 
 pub trait Hit {

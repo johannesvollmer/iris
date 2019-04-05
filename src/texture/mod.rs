@@ -1,7 +1,7 @@
-use crate::geometry::LocalGeometry;
+use crate::geometry::GlobalGeometry;
 
 pub mod constant;
 
 pub trait Texture<T> {
-    fn eval(&self, dg: &LocalGeometry) -> T;
+    fn eval(&self, gg: &GlobalGeometry) -> T;
 }

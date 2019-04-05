@@ -1,4 +1,5 @@
 use crate::math::bounds::Bounds3f;
+use crate::math::misc::gamma;
 use crate::math::normal::Normal3f;
 use crate::math::{Float, Point3f, Ray, Vec3f};
 use nalgebra::{Matrix4, Orthographic3, Projective3, Vector3};
@@ -61,6 +62,40 @@ impl Transform {
         }
 
         out
+    }
+
+    pub fn apply_point_with_error(&self, p: Point3f, e: Vec3f) -> (Point3f, Vec3f) {
+        let x_abs_err = (gamma(3) + 1.0)
+            * (self.m[(0, 0)].abs() * e.x
+                + self.m[(0, 1)].abs() * e.y
+                + self.m[(0, 2)].abs() * e.z)
+            + gamma(3)
+                * ((self.m[(0, 0)] * p.x).abs()
+                    + (self.m[(0, 1)] * p.y).abs()
+                    + (self.m[(0, 2)] * p.z).abs()
+                    + self.m[(0, 3)].abs());
+
+        let y_abs_err = (gamma(3) + 1.0)
+            * (self.m[(1, 0)].abs() * e.x
+                + self.m[(1, 1)].abs() * e.y
+                + self.m[(1, 2)].abs() * e.z)
+            + gamma(3)
+                * ((self.m[(1, 0)] * p.x).abs()
+                    + (self.m[(1, 1)] * p.y).abs()
+                    + (self.m[(1, 2)] * p.z).abs()
+                    + self.m[(1, 3)].abs());
+
+        let z_abs_err = (gamma(3) + 1.0)
+            * (self.m[(2, 0)].abs() * e.x
+                + self.m[(2, 1)].abs() * e.y
+                + self.m[(2, 2)].abs() * e.z)
+            + gamma(3)
+                * ((self.m[(2, 0)] * p.x).abs()
+                    + (self.m[(2, 1)] * p.y).abs()
+                    + (self.m[(2, 2)] * p.z).abs()
+                    + self.m[(2, 3)].abs());
+
+        (self.apply_point(p), Vec3f::new(x_abs_err, y_abs_err, z_abs_err))
     }
 
     pub fn orthographic(z_near: Float, z_far: Float) -> Self {

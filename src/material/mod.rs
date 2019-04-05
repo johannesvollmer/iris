@@ -1,9 +1,9 @@
 use crate::bxdf::bsdf::BSDF;
-use crate::geometry::LocalGeometry;
+use crate::geometry::GlobalGeometry;
 use bumpalo::Bump;
 
 pub trait Material {
-    fn bsdf<'a>(&self, hit: &LocalGeometry, alloc: &'a Bump) -> BSDF<'a>;
+    fn bsdf<'a>(&self, hit: &GlobalGeometry, alloc: &'a Bump) -> BSDF<'a>;
 }
 
 pub mod matte;

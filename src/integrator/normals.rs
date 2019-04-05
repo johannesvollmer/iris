@@ -18,9 +18,9 @@ impl Integrator for Normals {
         _depth: i32,
     ) -> Spectrum {
         if let Some(hit) = scene.intersect(ray) {
-            let bsdf = hit.material.bsdf(&hit.lg, arena);
-            let ns = bsdf.ns.to_vec().normalized();
-            Spectrum::from_rgb(ns.x, ns.y, ns.z) / 2.0 + 0.5
+            let bsdf = hit.material.bsdf(&hit.gg, arena);
+            let ng = bsdf.ng.normalized();
+            Spectrum::from_rgb(ng.x, ng.y, -ng.z) / 2.0 + 0.5
         } else {
             Spectrum::all(0.0)
         }

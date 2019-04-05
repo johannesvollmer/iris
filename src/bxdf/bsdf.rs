@@ -1,6 +1,6 @@
 use super::{BxDF, BxDFType};
 use crate::film::spectrum::Spectrum;
-use crate::geometry::LocalGeometry;
+use crate::geometry::GlobalGeometry;
 use crate::math::*;
 use bumpalo::Bump;
 
@@ -16,7 +16,7 @@ pub struct BSDF<'a> {
 }
 
 impl<'a> BSDF<'a> {
-    pub fn new(hit: &LocalGeometry) -> Self {
+    pub fn new(hit: &GlobalGeometry) -> Self {
         let bitan = hit.dpdu.normalized();
         let tan = hit.ns.cross(bitan.into());
         let bitan = tan.cross(hit.ns);
