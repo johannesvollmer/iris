@@ -157,13 +157,13 @@ fn test_scene() -> scene::Scene {
         Arc::new(Sphere::new(0.3)),
         Arc::new(Matte::new(
             Arc::new(ConstantTexture::new(Spectrum::from_rgb(1.0, 1.0, 1.0))),
-            None,
+            Some(Arc::new(ConstantTexture::new(0.0))),
         )),
         Transform::translate(Vec3f::new(0.5, 0.5, 2.0)),
     )));
 
     geometry.push(Primitive::Emitter(Emitter::new_point(
-        Spectrum::from_rgb(7.0, 0.0, 0.0),
+        Spectrum::from_rgb(2.0, 0.0, 0.0),
         Transform::translate(Vec3f::new(0.5, 0.5, 0.0)),
     )));
 

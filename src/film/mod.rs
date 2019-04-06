@@ -126,7 +126,8 @@ impl Film {
                 let mut weighted = [0, 0, 0];
 
                 for (i, component) in pixel_in.rgb.iter().enumerate() {
-                    weighted[i] = (component * weight * 255.0).max(0.0) as u8;
+                    let val = (component * weight).powf(1.0/2.2);
+                    weighted[i] = (val * 255.0).max(0.0) as u8;
                 }
 
                 *pixel_out = image::Rgb(weighted);

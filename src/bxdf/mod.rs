@@ -5,6 +5,7 @@ use num::traits::float::FloatConst;
 pub mod bsdf;
 pub mod fresnel;
 pub mod lambertian;
+pub mod oren_nayar;
 pub mod specular_reflection;
 
 bitflags! {

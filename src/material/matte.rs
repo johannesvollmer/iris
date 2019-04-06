@@ -1,4 +1,4 @@
-use crate::bxdf::{bsdf::BSDF, lambertian::Lambertian};
+use crate::bxdf::{bsdf::BSDF, lambertian::Lambertian, oren_nayar::OrenNayar};
 use crate::film::spectrum::Spectrum;
 use crate::geometry::GlobalGeometry;
 use crate::material::Material;
@@ -23,7 +23,7 @@ impl Material for Matte {
         if roughness == 0.0 {
             bsdf.push(alloc, Lambertian::new(diffuse));
         } else {
-            unimplemented!()
+            bsdf.push(alloc, OrenNayar::new(diffuse, roughness))
         }
 
         bsdf
