@@ -21,13 +21,12 @@ pub struct LocalGeometry {
 impl LocalGeometry {
     pub fn to_global(self, m: &Transform, m_inv: &Transform) -> GlobalGeometry {
         let (p, err) = m.apply_point_with_error(self.point, self.point_error.as_global());
+
         GlobalGeometry {
             point: p,
             point_error: err,
             ns: m_inv.apply_normal(self.ns.as_global()).normalized(),
             ng: m_inv.apply_normal(self.ng.as_global()).normalized(),
-            // ns: m.apply(self.ns.as_global().to_vec()).normalized().into(),
-            // ng: m.apply(self.ng.as_global().to_vec()).normalized().into(),
             uv: self.uv,
             dpdu: m.apply(self.dpdu.as_global()),
             dpdv: m.apply(self.dpdv.as_global()),

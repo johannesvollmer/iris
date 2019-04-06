@@ -65,8 +65,7 @@ impl Geometry for Sphere {
             uv: Point2f::new(u, v),
             dpdu,
             dpdv,
-            time: t0,
-            // time: ray.time,
+            time: ray.time,
             t: t0,
         })
     }

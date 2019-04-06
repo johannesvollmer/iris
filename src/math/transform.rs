@@ -24,7 +24,7 @@ impl Transform {
 
     pub fn apply_normal(&self, normal: Normal3f) -> Normal3f {
         let n = Projective3::from_matrix_unchecked(self.m.to_homogeneous().transpose())
-            * Vector3::new(normal.x, normal.y, normal.z);
+            * na::Point3::new(normal.x, normal.y, normal.z);
         Normal3f::new(n.x, n.y, n.z)
     }
 
