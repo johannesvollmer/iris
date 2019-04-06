@@ -2,7 +2,7 @@ macro_rules! define_vec {
     ($vecbase:ident) => {
         use crate::math::Float;
 
-        #[derive(Copy, Clone, Debug)]
+        #[derive(Default, Copy, Clone, Debug)]
         pub struct $vecbase {
             pub x: Float,
             pub y: Float,

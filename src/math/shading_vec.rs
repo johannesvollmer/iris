@@ -1,3 +1,5 @@
+use super::ShadingNormal3f;
+
 define_vec!(ShadingVec3f);
 
 impl ShadingVec3f {
@@ -37,5 +39,9 @@ impl ShadingVec3f {
 
     pub fn same_hemisphere(self, other: Self) -> bool {
         self.z * other.z > 0.0
+    }
+
+    pub fn dot_nrm(self, n: ShadingNormal3f) -> Float {
+        self.dot(Self::new(n.x, n.y, n.z))
     }
 }

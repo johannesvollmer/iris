@@ -1,9 +1,7 @@
-use crate::math::normal::Normal3f;
-use crate::math::point::Point3f;
-use crate::math::Float;
-use crate::math::Vec3f;
-pub use num::clamp;
+use super::{Vec3f, Float, Point3f, Normal3f};
 use num::Float as _;
+
+pub use num::clamp;
 
 pub fn lerp<T: num::Float>(param: T, min: T, max: T) -> T {
     min * (T::one() - param) + max * param

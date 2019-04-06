@@ -18,7 +18,7 @@ impl LocalAABB for Sphere {
 
 impl Geometry for Sphere {
     fn local_intersect(&self, ray: &LocalRay) -> Option<LocalGeometry> {
-        let ray_origin: LocalVec3f = ray.o.to_vec().as_local();
+        let ray_origin: LocalVec3f = ray.o.to_vec();
 
         let a = ray.d.length_squared();
         let b = 2.0 * ray.d.dot(ray_origin);

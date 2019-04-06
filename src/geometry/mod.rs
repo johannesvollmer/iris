@@ -7,7 +7,7 @@ pub mod sphere;
 
 #[derive(Clone)]
 pub struct LocalGeometry {
-    pub point: Point3f,
+    pub point: LocalPoint3f,
     pub point_error: LocalVec3f,
     pub ns: LocalNormal3f,
     pub ng: LocalNormal3f,
@@ -20,7 +20,7 @@ pub struct LocalGeometry {
 
 impl LocalGeometry {
     pub fn to_global(self, m: &Transform, m_inv: &Transform) -> GlobalGeometry {
-        let (p, err) = m.apply_point_with_error(self.point, self.point_error.as_global());
+        let (p, err) = m.apply_point_with_error(self.point.as_global(), self.point_error.as_global());
 
         GlobalGeometry {
             point: p,

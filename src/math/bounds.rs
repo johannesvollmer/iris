@@ -1,10 +1,11 @@
-use super::{Float, Point2, Point2i, Point3, Vec2};
+use super::{Float, Point2, Point2i, Point3f, Vec2};
 use bvh::aabb::AABB;
+use num::traits::ToPrimitive;
 
-#[derive(new, Copy, Clone, Debug)]
-pub struct Bounds3<T> {
-    pub min: Point3<T>,
-    pub max: Point3<T>,
+#[derive(new, Default, Copy, Clone, Debug)]
+pub struct Bounds3f {
+    pub min: Point3f,
+    pub max: Point3f,
 }
 
 #[derive(new, Copy, Clone, Debug)]
@@ -15,7 +16,6 @@ pub struct Bounds2<T> {
 
 pub type Bounds2f = Bounds2<Float>;
 pub type Bounds2i = Bounds2<i32>;
-pub type Bounds3f = Bounds3<Float>;
 
 impl<T> Bounds2<T> {
     pub fn diagonal(&self) -> Vec2<T>
@@ -83,11 +83,8 @@ impl IntoIterator for Bounds2i {
     }
 }
 
-impl<T> Bounds3<T> {
-    pub fn to_aabb(self) -> AABB
-    where
-        T: num::Float,
-    {
+impl Bounds3f {
+    pub fn to_aabb(self) -> AABB {
         AABB::with_bounds(
             na::Point3::new(
                 self.min.x.to_f32().unwrap(),
@@ -100,14 +97,5 @@ impl<T> Bounds3<T> {
                 self.max.z.to_f32().unwrap(),
             ),
         )
-    }
-}
-
-impl<T: Default> Default for Bounds3<T> {
-    fn default() -> Self {
-        Self {
-            min: Point3::default(),
-            max: Point3::default(),
-        }
     }
 }

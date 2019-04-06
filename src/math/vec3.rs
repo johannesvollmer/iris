@@ -1,12 +1,14 @@
-use crate::math::localvec::LocalVec3f;
-use crate::math::normal::Normal3f;
-use crate::math::point::Point3f;
+use super::{LocalVec3f, Normal3f, Point3f};
 
 define_vec!(Vec3f);
 
 impl Vec3f {
     pub fn as_local(self) -> LocalVec3f {
         LocalVec3f::new(self.x, self.y, self.z)
+    }
+
+    pub fn dot_nrm(self, n: Normal3f) -> Float {
+        self.dot(Self::new(n.x, n.y, n.z))
     }
 }
 
