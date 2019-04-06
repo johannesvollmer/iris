@@ -20,7 +20,7 @@ impl Integrator for Normals {
         if let Some(hit) = scene.intersect(ray) {
             let bsdf = hit.material.bsdf(&hit.gg, arena);
             let ng = bsdf.ng.normalized();
-            Spectrum::from_rgb(ng.x, ng.y, -ng.z) / 2.0 + 0.5
+            Spectrum::from_rgb(ng.x, ng.y, ng.z) / 2.0 + 0.5
         } else {
             Spectrum::all(0.0)
         }

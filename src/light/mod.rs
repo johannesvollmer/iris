@@ -33,9 +33,7 @@ impl Visibility {
             self.normal,
             self.time,
         );
-        if scene.intersect(&ray).is_none() {
-            false
-        } else { unimplemented!() }
+        scene.intersect(&ray).is_none()
     }
 }
 

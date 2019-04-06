@@ -22,12 +22,12 @@ pub trait Integrator {
     fn specular_reflection(
         &self,
         ray: &Ray,
-        _scene: &Scene,
+        scene: &Scene,
         sampler: &mut (dyn Sampler + Send + Sync),
-        _alloc: &Bump,
+        alloc: &Bump,
         bsdf: &BSDF,
         hit: &HitInfo,
-        _depth: i32,
+        depth: i32,
     ) -> Spectrum {
         let sample = sampler.get_2d();
         let ns = bsdf.ns.to_vec();
@@ -41,9 +41,9 @@ pub trait Integrator {
         let n_dot_wi = wi.dot(ns).abs();
 
         if pdf > 0.0 && !f.is_black() && n_dot_wi != 0.0 {
-            let _reflected_ray = hit.spawn_ray(wi);
-            //let li = self.radiance(&reflected_ray, scene, sampler, alloc, depth + 1);
-            let li = Spectrum::from_rgb(1.0, 0.0, 0.0);
+            let reflected_ray = hit.spawn_ray(wi);
+            let li = self.radiance(&reflected_ray, scene, sampler, alloc, depth + 1);
+            // let li = Spectrum::from_rgb(1.0, 0.0, 0.0);
             f * li * n_dot_wi / pdf
         } else {
             Spectrum::all(0.0)
