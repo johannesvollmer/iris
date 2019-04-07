@@ -1,4 +1,4 @@
-use super::{Vec3f, Float, Point3f, Normal3f};
+use super::{Float, Normal3f, Point3f, Vec3f};
 use num::Float as _;
 
 pub use num::clamp;
@@ -44,22 +44,22 @@ pub fn gamma(n: i32) -> Float {
     ((n as Float) * machine_epsilon) / (1.0 - (n as Float) * machine_epsilon)
 }
 
-#[cfg(not(use_f64))]
+#[cfg(not(feature = "use_f64"))]
 fn float_to_bits(f: Float) -> u32 {
     unsafe { std::mem::transmute::<Float, u32>(f) }
 }
 
-#[cfg(use_f64)]
+#[cfg(feature = "use_f64")]
 fn float_to_bits(f: Float) -> u64 {
     unsafe { std::mem::transmute::<Float, u64>(f) }
 }
 
-#[cfg(not(use_f64))]
+#[cfg(not(feature = "use_f64"))]
 fn bits_to_float(u: u32) -> Float {
     unsafe { std::mem::transmute::<u32, Float>(u) }
 }
 
-#[cfg(use_f64)]
+#[cfg(feature = "use_f64")]
 fn bits_to_float(u: u64) -> Float {
     unsafe { std::mem::transmute::<u64, Float>(u) }
 }

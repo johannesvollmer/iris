@@ -6,6 +6,7 @@ use crate::scene::Scene;
 use bumpalo::Bump;
 
 #[derive(new)]
+#[allow(dead_code)]
 pub struct Normals;
 
 impl Integrator for Normals {

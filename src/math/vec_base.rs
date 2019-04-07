@@ -51,6 +51,18 @@ macro_rules! define_vec {
             }
         }
 
+        impl std::cmp::PartialEq for $vecbase {
+            fn eq(&self, other: &Self) -> bool {
+                self.x == other.x && self.y == other.y && self.z == other.z
+            }
+        }
+
+        impl std::cmp::PartialEq<Float> for $vecbase {
+            fn eq(&self, other: &Float) -> bool {
+                self.x == *other && self.y == *other && self.z == *other
+            }
+        }
+
         impl std::ops::Index<usize> for $vecbase {
             type Output = Float;
 

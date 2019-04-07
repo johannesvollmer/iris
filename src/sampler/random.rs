@@ -54,7 +54,7 @@ impl Sampler for RandomSampler {
         Vec2f::new(self.rng.gen(), self.rng.gen())
     }
 
-    fn next_sample(&mut self) -> Option<f32> {
+    fn next_sample(&mut self) -> Option<Float> {
         if self.samples_taken == self.spp {
             None
         } else {

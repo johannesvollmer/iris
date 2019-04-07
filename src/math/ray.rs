@@ -1,4 +1,4 @@
-use super::{misc::offset_ray_origin, Float, LocalVec3f, Normal3f, Point3f, Vec3f, LocalPoint3f};
+use super::{misc::offset_ray_origin, Float, LocalPoint3f, LocalVec3f, Normal3f, Point3f, Vec3f};
 use num::Float as _;
 
 #[derive(Debug, Copy, Clone)]
@@ -7,7 +7,7 @@ pub struct Ray {
     pub d: Vec3f,
     pub t_max: Float,
     pub time: Float,
-    // medium
+    // TODO: Medium
 }
 
 impl Ray {

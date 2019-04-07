@@ -7,7 +7,7 @@ pub trait Sampler {
     fn get_bounds(&self) -> Bounds2i;
     fn start_pixel(&mut self, pixel: Point2i);
     fn clone_seed(&self, seed: u64) -> Box<dyn Sampler + Send + Sync>;
-    fn next_sample(&mut self) -> Option<f32>;
+    fn next_sample(&mut self) -> Option<Float>;
     fn samples_per_pixel(&self) -> u32;
 
     fn get_1d(&mut self) -> Float;

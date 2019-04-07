@@ -1,4 +1,4 @@
-use super::{Vec3f, LocalPoint3f};
+use super::{LocalPoint3f, Vec3f};
 
 define_point!(Point3f, Vec3f);
 

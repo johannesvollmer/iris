@@ -95,7 +95,10 @@ impl Transform {
                     + (self.m[(2, 2)] * p.z).abs()
                     + self.m[(2, 3)].abs());
 
-        (self.apply_point(p), Vec3f::new(x_abs_err, y_abs_err, z_abs_err))
+        (
+            self.apply_point(p),
+            Vec3f::new(x_abs_err, y_abs_err, z_abs_err),
+        )
     }
 
     pub fn orthographic(z_near: Float, z_far: Float) -> Self {

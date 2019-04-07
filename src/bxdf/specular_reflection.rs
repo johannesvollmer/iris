@@ -20,7 +20,7 @@ impl BxDF for SpecularReflection {
         Spectrum::all(0.0)
     }
 
-    fn sample(&self, wo: ShadingVec3f, _samples: (f32, f32)) -> (Spectrum, ShadingVec3f, Float) {
+    fn sample(&self, wo: ShadingVec3f, _samples: (Float, Float)) -> (Spectrum, ShadingVec3f, Float) {
         let wi = ShadingVec3f::new(-wo.x, -wo.y, wo.z);
 
         let spectrum = if wi.cos_theta().abs() == 0.0 {

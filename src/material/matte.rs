@@ -8,6 +8,7 @@ use bumpalo::Bump;
 use std::sync::Arc;
 
 #[derive(new)]
+#[allow(dead_code)]
 pub struct Matte {
     diffuse: Arc<dyn Texture<Spectrum> + Send + Sync>,
     roughness: Option<Arc<dyn Texture<Float> + Send + Sync>>,

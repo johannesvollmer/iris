@@ -6,25 +6,41 @@ macro_rules! define_point {
         pub struct $pointbase {
             pub x: Float,
             pub y: Float,
-            pub z: Float
+            pub z: Float,
         }
 
         impl $pointbase {
             #[inline(always)]
+            #[allow(dead_code)]
             pub fn new(x: Float, y: Float, z: Float) -> Self {
                 Self { x, y, z }
             }
 
+            #[allow(dead_code)]
             pub fn distance(self, other: Self) -> Float {
                 self.distance_squared(other).sqrt()
             }
 
+            #[allow(dead_code)]
             pub fn distance_squared(self, other: Self) -> Float {
                 (self - other).length_squared()
             }
 
+            #[allow(dead_code)]
             pub fn to_vec(self) -> $vecbase {
                 $vecbase::new(self.x, self.y, self.z)
+            }
+        }
+
+        impl std::cmp::PartialEq for $pointbase {
+            fn eq(&self, other: &Self) -> bool {
+                self.x == other.x && self.y == other.y && self.z == other.z
+            }
+        }
+
+        impl std::cmp::PartialEq<Float> for $pointbase {
+            fn eq(&self, other: &Float) -> bool {
+                self.x == *other && self.y == *other && self.z == *other
             }
         }
 

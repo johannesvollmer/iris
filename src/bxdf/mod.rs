@@ -5,6 +5,8 @@ use num::traits::float::FloatConst;
 pub mod bsdf;
 pub mod fresnel;
 pub mod lambertian;
+pub mod microfacet;
+pub mod microfacet_reflection;
 pub mod oren_nayar;
 pub mod specular_reflection;
 
@@ -42,7 +44,7 @@ pub trait BxDF {
 
     fn eval(&self, wi: ShadingVec3f, wo: ShadingVec3f) -> Spectrum;
 
-    fn sample(&self, wo: ShadingVec3f, samples: (f32, f32)) -> (Spectrum, ShadingVec3f, Float) {
+    fn sample(&self, wo: ShadingVec3f, samples: (Float, Float)) -> (Spectrum, ShadingVec3f, Float) {
         let mut wi = sample::cos_hemisphere(samples);
 
         if wo.z < 0.0 {

@@ -7,6 +7,7 @@ use bumpalo::Bump;
 use std::sync::Arc;
 
 #[derive(new)]
+#[allow(dead_code)]
 pub struct Mirror {
     kr: Arc<dyn Texture<Spectrum> + Send + Sync>,
 }

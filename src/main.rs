@@ -35,7 +35,7 @@ fn main() {
     if cfg!(debug_assertions) {
         render(100, 100, "out.png", 1);
     } else {
-        render(500, 500, "out.png", 100);
+        render(500, 500, "out.png", 25);
     }
 }
 
@@ -149,21 +149,27 @@ fn test_scene() -> scene::Scene {
     use geometry::{primitive::Primitive, receiver::Receiver, sphere::Sphere};
     use light::emitter::Emitter;
     use material::matte::Matte;
+    use material::plastic::Plastic;
     use texture::constant::ConstantTexture;
 
     let mut geometry = Vec::new();
 
     geometry.push(Primitive::Receiver(Receiver::new(
         Arc::new(Sphere::new(0.3)),
+        // Arc::new(Plastic::new(
+        //     Arc::new(ConstantTexture::new(Spectrum::from_rgb(0.25, 0.25, 0.25))),
+        //     Arc::new(ConstantTexture::new(Spectrum::from_rgb(0.25, 0.25, 0.25))),
+        //     Arc::new(ConstantTexture::new(0.03)),
+        // )),
         Arc::new(Matte::new(
-            Arc::new(ConstantTexture::new(Spectrum::from_rgb(1.0, 1.0, 1.0))),
-            Some(Arc::new(ConstantTexture::new(20.0))),
+            Arc::new(ConstantTexture::new(Spectrum::from_rgb(0.25, 0.25, 0.25))),
+            Some(Arc::new(ConstantTexture::new(0.0))),
         )),
         Transform::translate(Vec3f::new(0.5, 0.5, 2.0)),
     )));
 
     geometry.push(Primitive::Emitter(Emitter::new_point(
-        Spectrum::from_rgb(2.0, 0.0, 0.0),
+        Spectrum::from_rgb(0.0, 1.0, 0.0),
         Transform::translate(Vec3f::new(0.5, 0.5, 0.0)),
     )));
 

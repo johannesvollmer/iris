@@ -4,7 +4,12 @@ use crate::math::*;
 use crate::scene::Scene;
 
 pub mod emitter;
-// pub mod point;
+pub mod point;
+
+#[derive(Clone)]
+pub enum LightType {
+    Point(point::Point),
+}
 
 pub struct Visibility {
     hit_point: Point3f,
@@ -38,7 +43,9 @@ impl Visibility {
 }
 
 pub trait Light {
-    fn sample(&self, hit: &HitInfo, samples: (f32, f32)) -> (Spectrum, Vec3f, Float, Visibility);
-    fn pdf(&self, p: Point3f, wi: Vec3f, time: Float) -> Float;
-    fn is_delta(&self) -> bool;
+    fn sample(&self, samples: (Float, Float)) -> (Spectrum, LocalPoint3f, Float);
+
+    fn pdf(&self, _p: LocalPoint3f, _wi: LocalVec3f) -> Float {
+        unreachable!()
+    }
 }

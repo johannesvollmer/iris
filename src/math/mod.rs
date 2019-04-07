@@ -1,7 +1,7 @@
-#[cfg(not(use_f64))]
+#[cfg(not(feature = "use_f64"))]
 pub type Float = f32;
 
-#[cfg(use_f64)]
+#[cfg(feature = "use_f64")]
 pub type Float = f64;
 
 #[macro_use]

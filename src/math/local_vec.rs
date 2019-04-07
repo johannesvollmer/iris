@@ -1,4 +1,4 @@
-use super::{Vec3f, LocalNormal3f};
+use super::{LocalNormal3f, Vec3f};
 
 define_vec!(LocalVec3f);
 

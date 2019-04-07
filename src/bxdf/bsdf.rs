@@ -62,7 +62,7 @@ impl<'a> BSDF<'a> {
         &self,
         wo: Vec3f,
         types: BxDFType,
-        samples: (f32, f32),
+        samples: (Float, Float),
     ) -> (Spectrum, Vec3f, Float, BxDFType) {
         let empty_rv = (
             Spectrum::all(0.0),
@@ -76,7 +76,7 @@ impl<'a> BSDF<'a> {
             return empty_rv;
         }
 
-        let component = ((samples.0.floor() * num_matching as f32) as usize).min(num_matching - 1);
+        let component = ((samples.0.floor() * num_matching as Float) as usize).min(num_matching - 1);
         let bxdf = self.match_at(types, component);
 
         let wo_local = self.to_shading(wo).normalized();

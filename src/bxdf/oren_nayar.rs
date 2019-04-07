@@ -16,11 +16,7 @@ impl OrenNayar {
         let a = 1.0 - (sigma_2 / (2.0 * (sigma_2 + 0.33)));
         let b = 0.45 * sigma_2 / (sigma_2 + 0.09);
 
-        Self {
-            r,
-            a,
-            b,
-        }
+        Self { r, a, b }
     }
 }
 

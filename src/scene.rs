@@ -1,8 +1,8 @@
 use crate::geometry::primitive::{BVHPrimitive, Primitive};
 use crate::geometry::HitInfo;
 use crate::light::emitter::Emitter;
-use crate::light::Light;
 use crate::math::*;
+use num::traits::ToPrimitive;
 use bvh::bvh::BVH;
 
 pub struct Scene {
@@ -44,8 +44,8 @@ impl Scene {
 
     pub fn intersect(&self, ray: &Ray) -> Option<HitInfo> {
         let bvh_ray = bvh::ray::Ray::new(
-            na::Point3::new(ray.o.x, ray.o.y, ray.o.z),
-            na::Vector3::new(ray.d.x, ray.d.y, ray.d.z),
+            na::Point3::new(ray.o.x.to_f32().unwrap(), ray.o.y.to_f32().unwrap(), ray.o.z.to_f32().unwrap()),
+            na::Vector3::new(ray.d.x.to_f32().unwrap(), ray.d.y.to_f32().unwrap(), ray.d.z.to_f32().unwrap()),
         );
 
         let hits = self.bvh.traverse(&bvh_ray, &self.geometry);
