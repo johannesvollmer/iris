@@ -9,6 +9,35 @@ pub struct RGBSpectrum {
     b: Float,
 }
 
+#[inline(always)]
+#[allow(dead_code)]
+fn rgb_to_xyz(r: Float, g: Float, b: Float) -> [Float; 3] {
+    [
+        0.412453 * r + 0.357580 * g + 0.180423 * b,
+        0.212671 * r + 0.715160 * g + 0.072169 * b,
+        0.019334 * r + 0.119193 * g + 0.950227 * b,
+    ]
+}
+
+#[inline(always)]
+#[allow(dead_code)]
+fn xyz_to_rgb(x: Float, y: Float, z: Float) -> [Float; 3] {
+    [
+        3.240479 * x - 1.537150 * y - 0.498535 * z,
+       -0.212671 * x + 1.875991 * y + 0.041556 * z,
+        0.055648 * x - 0.204043 * y + 1.057311 * z,
+    ]
+}
+
+#[inline(always)]
+pub fn gamma_correct(value: Float) -> Float {
+    if value <= 0.0031308 {
+        value * 12.92
+    } else {
+        1.055 * value.powf(1.0 / 2.4) - 0.055
+    }
+}
+
 impl RGBSpectrum {
     pub fn from_rgb(r: Float, g: Float, b: Float) -> Self {
         let out = Self { r, g, b };
@@ -38,7 +67,7 @@ impl RGBSpectrum {
         }
     }
 
-    pub fn rgb(&self) -> [Float; 3] {
+    pub fn to_rgb(&self) -> [Float; 3] {
         [self.r, self.g, self.b]
     }
 

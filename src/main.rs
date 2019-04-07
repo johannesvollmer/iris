@@ -122,7 +122,7 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
                         } // TODO: Check sample.y() < 0
                     }
 
-                    film_tile.add_sample(Point2f::from(pixel) + Vec2f::new(0.5, 0.5), &sample);
+                    film_tile.add_sample(camera_sample.film, &sample);
                 }
             }
         }
@@ -156,20 +156,20 @@ fn test_scene() -> scene::Scene {
 
     geometry.push(Primitive::Receiver(Receiver::new(
         Arc::new(Sphere::new(0.3)),
-        // Arc::new(Plastic::new(
-        //     Arc::new(ConstantTexture::new(Spectrum::from_rgb(0.25, 0.25, 0.25))),
-        //     Arc::new(ConstantTexture::new(Spectrum::from_rgb(0.25, 0.25, 0.25))),
-        //     Arc::new(ConstantTexture::new(0.03)),
-        // )),
-        Arc::new(Matte::new(
+        Arc::new(Plastic::new(
+            Arc::new(ConstantTexture::new(Spectrum::from_rgb(0.25, 0.25, 0.25))),
+            Arc::new(ConstantTexture::new(Spectrum::from_rgb(0.25, 0.25, 0.25))),
+            Arc::new(ConstantTexture::new(0.20)),
+        )),
+        /*Arc::new(Matte::new(
             Arc::new(ConstantTexture::new(Spectrum::from_rgb(0.25, 0.25, 0.25))),
             Some(Arc::new(ConstantTexture::new(0.0))),
-        )),
+        )),*/
         Transform::translate(Vec3f::new(0.5, 0.5, 2.0)),
     )));
 
     geometry.push(Primitive::Emitter(Emitter::new_point(
-        Spectrum::from_rgb(0.0, 1.0, 0.0),
+        Spectrum::from_rgb(0.0, 2.0, 0.0),
         Transform::translate(Vec3f::new(0.5, 0.5, 0.0)),
     )));
 

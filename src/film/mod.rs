@@ -112,7 +112,7 @@ impl Film {
             let tile_pixel = tile.get_pixel_mut(point);
             let film_pixel = &mut pixels[(point.y * self.full_resolution.x + point.x) as usize];
 
-            let rgb = tile_pixel.contrib_sum.rgb();
+            let rgb = tile_pixel.contrib_sum.to_rgb();
             film_pixel.rgb[0] += rgb[0];
             film_pixel.rgb[1] += rgb[1];
             film_pixel.rgb[2] += rgb[2];
@@ -130,7 +130,7 @@ impl Film {
             let weight = 1.0 / pixel_in.filter_weight_sum;
 
             for (i, component) in pixel_in.rgb.iter().enumerate() {
-                let val = (component * weight).powf(1.0 / 2.2);
+                let val = spectrum::gamma_correct(component * weight);
                 weighted[i] = (val * PIXEL_RANGE).max(0.0) as ImgOut;
             }
 
@@ -153,6 +153,7 @@ impl Film {
     where
         C: std::ops::Deref<Target = [u16]>,
     {
+        // TODO: Do we need this?
         use png::HasParameters;
         use std::iter::once;
         use byteorder::{BigEndian, WriteBytesExt};
