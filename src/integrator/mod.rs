@@ -1,6 +1,6 @@
 use crate::bxdf::{bsdf::BSDF, BxDFType};
 use crate::film::spectrum::Spectrum;
-use crate::geometry::HitInfo;
+use crate::geometry::SurfaceInteraction;
 use crate::math::ray::Ray;
 use crate::sampler::Sampler;
 use crate::scene::Scene;
@@ -27,7 +27,7 @@ pub trait Integrator {
         sampler: &mut (dyn Sampler + Send + Sync),
         alloc: &Bump,
         bsdf: &BSDF,
-        hit: &HitInfo,
+        hit: &SurfaceInteraction,
         depth: i32,
     ) -> Spectrum {
         let sample = sampler.get_2d();
@@ -42,7 +42,7 @@ pub trait Integrator {
         let n_dot_wi = wi.dot(ns).abs();
 
         if pdf > 0.0 && !f.is_black() && n_dot_wi != 0.0 {
-            let reflected_ray = hit.spawn_ray(wi);
+            let reflected_ray = hit.int.spawn_ray(wi);
             let li = self.radiance(&reflected_ray, scene, sampler, alloc, depth + 1);
             // let li = Spectrum::from_rgb(1.0, 0.0, 0.0);
             f * li * n_dot_wi / pdf

@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use crate::film::spectrum::Spectrum;
 use crate::light::Light;
 use crate::math::*;
@@ -14,7 +16,13 @@ pub struct Spot {
 }
 
 impl Spot {
-    pub fn new(intensity: Spectrum, pos: Point3f, dir: Vec3f, theta_start_deg: Float, theta_end_deg: Float) -> Self {
+    pub fn new(
+        intensity: Spectrum,
+        pos: Point3f,
+        dir: Vec3f,
+        theta_start_deg: Float,
+        theta_end_deg: Float,
+    ) -> Self {
         let transform = Transform::look_at(pos, pos + dir, Vec3f::new(0.0, -1.0, 0.0));
         Self {
             world_pos: pos,
@@ -35,7 +43,8 @@ impl Spot {
         } else if cos_theta > self.cos_falloff_start {
             1.0
         } else {
-            ((cos_theta - self.cos_falloff_end) / (self.cos_falloff_start - self.cos_falloff_end)).powi(4)
+            ((cos_theta - self.cos_falloff_end) / (self.cos_falloff_start - self.cos_falloff_end))
+                .powi(4)
         }
     }
 }
@@ -43,7 +52,11 @@ impl Spot {
 impl Light for Spot {
     fn sample(&self, to: Point3f, _samples: (Float, Float)) -> (Spectrum, LocalPoint3f, Float) {
         let dir = self.world_pos - to;
-        (self.intensity * self.falloff(-dir) / dir.length_squared(), LocalPoint3f::default(), 1.0)
+        (
+            self.intensity * self.falloff(-dir) / dir.length_squared(),
+            LocalPoint3f::default(),
+            1.0,
+        )
     }
 
     fn light_to_world(&self) -> &Transform {
@@ -51,6 +64,9 @@ impl Light for Spot {
     }
 
     fn power(&self) -> Spectrum {
-        self.intensity * 2.0 * Float::PI() * (1.0 - 0.5 * (self.cos_falloff_start + self.cos_falloff_end))
+        self.intensity
+            * 2.0
+            * Float::PI()
+            * (1.0 - 0.5 * (self.cos_falloff_start + self.cos_falloff_end))
     }
 }

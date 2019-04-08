@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use crate::film::spectrum::Spectrum;
 use crate::light::Light;
 use crate::math::*;
@@ -23,7 +25,11 @@ impl Point {
 impl Light for Point {
     fn sample(&self, to: Point3f, _samples: (Float, Float)) -> (Spectrum, LocalPoint3f, Float) {
         let dir = self.world_pos - to;
-        (self.intensity / dir.length_squared(), LocalPoint3f::default(), 1.0)
+        (
+            self.intensity / dir.length_squared(),
+            LocalPoint3f::default(),
+            1.0,
+        )
     }
 
     fn power(&self) -> Spectrum {

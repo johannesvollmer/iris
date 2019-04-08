@@ -103,7 +103,7 @@ impl Geometry for Sphere {
             dpdu,
             dpdv,
             time: ray.time,
-            t: t_hit.val(),
+            ray_t: t_hit.val(),
         })
     }
 }

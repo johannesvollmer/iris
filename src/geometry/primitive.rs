@@ -1,4 +1,4 @@
-use super::{receiver, HitInfo};
+use super::{receiver, SurfaceInteraction};
 use crate::geometry::{Hit, AABB};
 use crate::light::emitter;
 use crate::math::*;
@@ -21,7 +21,7 @@ impl AABB for Primitive {
 }
 
 impl Hit for Primitive {
-    fn intersect(&self, ray: &Ray) -> Option<HitInfo> {
+    fn intersect(&self, ray: &Ray) -> Option<SurfaceInteraction> {
         match self {
             Primitive::Emitter(e) => e.intersect(ray),
             Primitive::Receiver(r) => r.intersect(ray),
@@ -42,7 +42,7 @@ impl BVHPrimitive {
         }
     }
 
-    pub fn intersect(&self, ray: &Ray) -> Option<HitInfo> {
+    pub fn intersect(&self, ray: &Ray) -> Option<SurfaceInteraction> {
         self.primitive.intersect(ray)
     }
 }

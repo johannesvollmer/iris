@@ -4,7 +4,7 @@ use crate::bxdf::{
     microfacet_reflection::MicrofacetReflection,
 };
 use crate::film::spectrum::Spectrum;
-use crate::geometry::GlobalGeometry;
+use crate::geometry::SurfaceInteraction;
 use crate::material::Material;
 use crate::math::*;
 use crate::texture::Texture;
@@ -20,7 +20,7 @@ pub struct Plastic {
 }
 
 impl Material for Plastic {
-    fn bsdf<'a>(&self, hit: &GlobalGeometry, alloc: &'a Bump) -> BSDF<'a> {
+    fn bsdf<'a>(&self, hit: &SurfaceInteraction, alloc: &'a Bump) -> BSDF<'a> {
         let mut bsdf = BSDF::new(hit);
 
         let kd = self.kd.eval(hit);

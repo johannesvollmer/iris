@@ -1,6 +1,6 @@
 use super::{BxDF, BxDFType};
 use crate::film::spectrum::Spectrum;
-use crate::geometry::GlobalGeometry;
+use crate::geometry::SurfaceInteraction;
 use crate::math::*;
 use bumpalo::Bump;
 
@@ -16,14 +16,14 @@ pub struct BSDF<'a> {
 }
 
 impl<'a> BSDF<'a> {
-    pub fn new(hit: &GlobalGeometry) -> Self {
-        let bitan = hit.dpdu.normalized();
-        let tan = hit.ns.cross(bitan.into());
-        let bitan = tan.cross(hit.ns);
+    pub fn new(hit: &SurfaceInteraction) -> Self {
+        let bitan = hit.shading.dpdu.normalized();
+        let tan = hit.shading.normal.cross(bitan.into());
+        let bitan = tan.cross(hit.shading.normal);
         Self {
-            p: hit.point,
-            ns: hit.ns,
-            ng: hit.ng,
+            p: hit.int.point,
+            ns: hit.shading.normal,
+            ng: hit.int.normal,
             bitan: bitan.into(),
             tan: tan.into(),
             bxdfs: ArrayVec::new(),

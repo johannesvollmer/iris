@@ -1,5 +1,5 @@
 use crate::geometry::primitive::{BVHPrimitive, Primitive};
-use crate::geometry::HitInfo;
+use crate::geometry::SurfaceInteraction;
 use crate::light::emitter::Emitter;
 use crate::math::*;
 use bvh::bvh::BVH;
@@ -42,7 +42,7 @@ impl Scene {
         }
     }
 
-    pub fn intersect(&self, ray: &Ray) -> Option<HitInfo> {
+    pub fn intersect(&self, ray: &Ray) -> Option<SurfaceInteraction> {
         let bvh_ray = bvh::ray::Ray::new(
             na::Point3::new(
                 ray.o.x.to_f32().unwrap(),
@@ -59,8 +59,7 @@ impl Scene {
         let hits = self.bvh.traverse(&bvh_ray, &self.geometry);
 
         hits.iter()
-            .filter_map(|hit| hit.intersect(ray).map(|isect| (ray.t_max, isect)))
-            .min_by_key(|(t, _)| ordered_float::NotNan::new(*t).unwrap())
-            .map(|(_, i)| i)
+            .filter_map(|hit| hit.intersect(ray))
+            .min_by_key(|isect| ordered_float::NotNan::new(isect.ray_t).unwrap())
     }
 }

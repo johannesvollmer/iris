@@ -166,7 +166,7 @@ impl Transform {
                 &na::Point3::new(pos.x, pos.y, pos.z),
                 &na::Point3::new(look_at.x, look_at.y, look_at.z),
                 &na::Vector3::new(up.x, up.y, up.z),
-            ))
+            )),
         }
     }
 }

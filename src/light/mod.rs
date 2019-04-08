@@ -1,17 +1,20 @@
 use crate::film::spectrum::Spectrum;
-use crate::geometry::HitInfo;
+use crate::geometry::Interaction;
 use crate::math::*;
 use crate::scene::Scene;
 
 pub mod emitter;
 
+pub mod area;
 pub mod point;
 pub mod spot;
 
 #[derive(Debug, Copy, Clone)]
+#[allow(dead_code)]
 pub enum LightType {
     Point,
     Spot,
+    Area,
 }
 
 pub struct Visibility {
@@ -23,13 +26,13 @@ pub struct Visibility {
 }
 
 impl Visibility {
-    pub fn new(hit: &HitInfo, light_point: Point3f) -> Self {
+    pub fn new(int: &Interaction, light_point: Point3f) -> Self {
         Self {
-            hit_point: hit.gg.point,
-            hit_err: hit.gg.point_error,
+            hit_point: int.point,
+            hit_err: int.point_error,
             light_point,
-            normal: hit.gg.ng,
-            time: hit.gg.time,
+            normal: int.normal,
+            time: int.time,
         }
     }
 
@@ -46,13 +49,17 @@ impl Visibility {
 }
 
 pub trait Light {
-    fn sample(&self, world_point: Point3f, samples: (Float, Float)) -> (Spectrum, LocalPoint3f, Float);
+    fn sample(
+        &self,
+        world_point: Point3f,
+        samples: (Float, Float),
+    ) -> (Spectrum, LocalPoint3f, Float);
 
     fn power(&self) -> Spectrum;
 
     fn light_to_world(&self) -> &Transform;
 
     fn pdf(&self, _p: LocalPoint3f, _wi: LocalVec3f) -> Float {
-        unreachable!()
+        unimplemented!()
     }
 }

@@ -1,5 +1,5 @@
 use super::Texture;
-use crate::geometry::GlobalGeometry;
+use crate::geometry::SurfaceInteraction;
 
 #[derive(new, Copy, Clone)]
 pub struct ConstantTexture<T: Copy> {
@@ -7,7 +7,7 @@ pub struct ConstantTexture<T: Copy> {
 }
 
 impl<T: Copy> Texture<T> for ConstantTexture<T> {
-    fn eval(&self, _: &GlobalGeometry) -> T {
+    fn eval(&self, _: &SurfaceInteraction) -> T {
         self.c
     }
 }

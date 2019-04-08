@@ -1,6 +1,6 @@
 use crate::bxdf::{bsdf::BSDF, fresnel, specular_reflection::SpecularReflection};
 use crate::film::spectrum::Spectrum;
-use crate::geometry::GlobalGeometry;
+use crate::geometry::SurfaceInteraction;
 use crate::material::Material;
 use crate::texture::Texture;
 use bumpalo::Bump;
@@ -13,7 +13,7 @@ pub struct Mirror {
 }
 
 impl Material for Mirror {
-    fn bsdf<'a>(&self, hit: &GlobalGeometry, alloc: &'a Bump) -> BSDF<'a> {
+    fn bsdf<'a>(&self, hit: &SurfaceInteraction, alloc: &'a Bump) -> BSDF<'a> {
         let mut bsdf = BSDF::new(hit);
 
         let r = self.kr.eval(hit);

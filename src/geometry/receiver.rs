@@ -1,4 +1,4 @@
-use super::{Geometry, Hit, HitInfo, AABB};
+use super::{Geometry, Hit, SurfaceInteraction, AABB};
 use crate::material::Material;
 use crate::math::*;
 use std::sync::Arc;
@@ -33,7 +33,7 @@ impl AABB for Receiver {
 }
 
 impl Hit for Receiver {
-    fn intersect(&self, ray: &Ray) -> Option<HitInfo> {
+    fn intersect(&self, ray: &Ray) -> Option<SurfaceInteraction> {
         let (local_ray, o_err, d_err) = self.world_to_obj.apply_ray_with_error(ray);
 
         let lg = self.geometry.local_intersect(
@@ -42,10 +42,10 @@ impl Hit for Receiver {
             d_err.as_local(),
         )?;
 
-        Some(HitInfo {
-            gg: lg.into_global(&self.obj_to_world, &self.world_to_obj),
-            material: &*self.material,
-            geometry: &*self.geometry,
-        })
+        let mut si = lg.into_surface_interaction(&self.obj_to_world, &self.world_to_obj, ray);
+        si.material = Some(&*self.material);
+        si.geometry = Some(&*self.geometry);
+
+        Some(si)
     }
 }
