@@ -19,6 +19,7 @@ pub trait Integrator {
         depth: i32,
     ) -> Spectrum;
 
+    #[allow(clippy::too_many_arguments)]
     fn specular_reflection(
         &self,
         ray: &Ray,

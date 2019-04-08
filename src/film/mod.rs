@@ -77,7 +77,7 @@ impl FilmTile {
                 .filter
                 .evaluate(point.x as Float - discrete.x, point.y as Float - discrete.y);
             let pixel = self.get_pixel_mut(point);
-            pixel.contrib_sum += sample.clone() * weight;
+            pixel.contrib_sum += *sample * weight;
             pixel.filter_weight_sum += weight;
         }
     }

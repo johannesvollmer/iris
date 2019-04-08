@@ -13,7 +13,7 @@ pub struct Scene {
 
 impl Scene {
     pub fn new(geometry: Vec<Primitive>) -> Self {
-        assert!(geometry.len() > 0);
+        assert!(!geometry.is_empty());
 
         let mut lights = Vec::new();
 

@@ -43,7 +43,7 @@ impl Hit for Receiver {
         )?;
 
         Some(HitInfo {
-            gg: lg.to_global(&self.obj_to_world, &self.world_to_obj),
+            gg: lg.into_global(&self.obj_to_world, &self.world_to_obj),
             material: &*self.material,
             geometry: &*self.geometry,
         })

@@ -30,11 +30,12 @@ impl Geometry for Sphere {
         let dy = EFloat::new(ray.d.y, d_err.y);
         let dz = EFloat::new(ray.d.z, d_err.z);
 
-        let a = dx * dx + dy * dy + dz * dz;
-        let b = (dx * ox + dy * oy + dz * oz) * 2.0.into();
-        let c = (ox * ox + oy * oy + oz * oz) - self.radius.powi(2).into();
-
-        let (t0, t1) = solve_efloat_quadratic(a, b, c)?;
+        let (t0, t1) = {
+            let a = dx * dx + dy * dy + dz * dz;
+            let b = (dx * ox + dy * oy + dz * oz) * 2.0.into();
+            let c = (ox * ox + oy * oy + oz * oz) - self.radius.powi(2).into();
+            solve_efloat_quadratic(a, b, c)?
+        };
 
         if t0.upper_bound() > ray.t_max || t1.lower_bound() < 0.0 {
             return None;

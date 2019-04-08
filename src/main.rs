@@ -71,14 +71,14 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
         film.clone(),
     );
 
-    let bar = indicatif::ProgressBar::new(ntiles as u64);
+    let progress_bar = indicatif::ProgressBar::new(ntiles as u64);
 
-    bar.set_style(
+    progress_bar.set_style(
         indicatif::ProgressStyle::default_bar()
             .template("{wide_bar} {pos}/{len} [{elapsed} - ETA {eta}]"),
     );
 
-    bar.tick();
+    progress_bar.tick();
 
     let thread_work = |tile_idx: i32| {
         let horizontal = tile_idx % tile_dims.x;
@@ -128,7 +128,7 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
         }
 
         film.merge_tile(film_tile);
-        bar.inc(1);
+        progress_bar.inc(1);
     };
 
     match std::env::var("THREADS") {
@@ -138,7 +138,7 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
 
     film.write_to_file(filename).unwrap();
 
-    bar.finish_and_clear();
+    progress_bar.finish_and_clear();
 
     let end = std::time::SystemTime::now();
     let duration = end.duration_since(start).unwrap();

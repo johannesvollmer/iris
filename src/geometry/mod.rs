@@ -19,7 +19,7 @@ pub struct LocalGeometry {
 }
 
 impl LocalGeometry {
-    pub fn to_global(self, m: &Transform, m_inv: &Transform) -> GlobalGeometry {
+    pub fn into_global(self, m: &Transform, m_inv: &Transform) -> GlobalGeometry {
         let (p, err) =
             m.apply_point_with_error(self.point.as_global(), self.point_error.as_global());
 

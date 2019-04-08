@@ -20,7 +20,7 @@ pub trait Camera {
 
     fn generate_ray_differential(&self, sample: &CameraSample) -> Option<(RayDifferential, Float)> {
         if let Some((ray, wt)) = self.generate_ray(sample) {
-            let mut sample_shifted = sample.clone();
+            let mut sample_shifted = *sample;
             sample_shifted.film.x += 1.0;
 
             let rx = self.generate_ray(&sample_shifted).map(|(rx, _)| rx)?;

@@ -19,5 +19,9 @@ pub trait MicrofacetDistribution {
 
 pub fn roughness_to_alpha(r: Float) -> Float {
     let x = r.max(1e-3).ln();
-    1.62142 + 0.819955 * x + 0.1734 * x.powi(2) + 0.0171201 * x.powi(3) + 0.000640711 * x.powi(4)
+    1.62142
+        + 0.819_955 * x
+        + 0.1734 * x.powi(2)
+        + 0.017_120_1 * x.powi(3)
+        + 0.000_640_711 * x.powi(4)
 }

@@ -34,11 +34,11 @@ impl<'a> BSDF<'a> {
         self.bxdfs.push(alloc.alloc(bxdf));
     }
 
-    fn to_shading(&self, v: Vec3f) -> ShadingVec3f {
+    fn vec_to_shading(&self, v: Vec3f) -> ShadingVec3f {
         ShadingVec3f::new(self.bitan.dot(v), self.tan.dot(v), self.ns.to_vec().dot(v))
     }
 
-    fn from_shading(&self, v: ShadingVec3f) -> Vec3f {
+    fn vec_from_shading(&self, v: ShadingVec3f) -> Vec3f {
         Vec3f::new(
             self.bitan.x * v.x + self.tan.x * v.y + self.ns.x * v.z,
             self.bitan.y * v.x + self.tan.y * v.y + self.ns.y * v.z,
@@ -80,13 +80,13 @@ impl<'a> BSDF<'a> {
             ((samples.0.floor() * num_matching as Float) as usize).min(num_matching - 1);
         let bxdf = self.match_at(types, component);
 
-        let wo_local = self.to_shading(wo).normalized();
+        let wo_local = self.vec_to_shading(wo).normalized();
         let (mut spectrum, wi_local, mut pdf) = bxdf.sample(wo_local, samples);
         if wi_local.length_squared() == 0.0 {
             return empty_rv;
         }
 
-        let wi = self.from_shading(wi_local).normalized();
+        let wi = self.vec_from_shading(wi_local).normalized();
         if !bxdf.matches(BxDFType::SPECULAR) {
             if num_matching > 1 {
                 // Compute total PDF
@@ -119,8 +119,8 @@ impl<'a> BSDF<'a> {
     }
 
     pub fn eval(&self, wo: Vec3f, wi: Vec3f, flags: BxDFType) -> Spectrum {
-        let wo_local = self.to_shading(wo).normalized();
-        let wi_local = self.to_shading(wi).normalized();
+        let wo_local = self.vec_to_shading(wo).normalized();
+        let wi_local = self.vec_to_shading(wi).normalized();
 
         let flags = flags.for_hemisphere(wo_local, wi_local);
 

@@ -9,7 +9,7 @@ pub fn lerp<T: num::Float>(param: T, min: T, max: T) -> T {
 
 #[allow(dead_code)]
 pub fn solve_quadratic(a: Float, b: Float, c: Float) -> Option<(Float, Float)> {
-    let (a, b, c) = (a as f64, b as f64, c as f64);
+    let (a, b, c) = (f64::from(a), f64::from(b), f64::from(c));
 
     let discrim = b * b - 4.0 * a * c;
     if discrim < 0.0 {
@@ -36,7 +36,8 @@ pub fn solve_quadratic(a: Float, b: Float, c: Float) -> Option<(Float, Float)> {
 }
 
 pub fn solve_efloat_quadratic(a: EFloat, b: EFloat, c: EFloat) -> Option<(EFloat, EFloat)> {
-    let discrim = b.val() as f64 * b.val() as f64 - 4.0 * a.val() as f64 * c.val() as f64;
+    let discrim =
+        f64::from(b.val()) * f64::from(b.val()) - 4.0 * f64::from(a.val()) * f64::from(c.val());
     if discrim < 0.0 {
         return None;
     }
@@ -72,22 +73,22 @@ pub fn gamma(n: i32) -> Float {
 
 #[cfg(not(feature = "double_float"))]
 fn float_to_bits(f: Float) -> u32 {
-    unsafe { std::mem::transmute::<Float, u32>(f) }
+    f.to_bits()
 }
 
 #[cfg(feature = "double_float")]
 fn float_to_bits(f: Float) -> u64 {
-    unsafe { std::mem::transmute::<Float, u64>(f) }
+    f.to_bits()
 }
 
 #[cfg(not(feature = "double_float"))]
 fn bits_to_float(u: u32) -> Float {
-    unsafe { std::mem::transmute::<u32, Float>(u) }
+    Float::from_bits(u)
 }
 
 #[cfg(feature = "double_float")]
 fn bits_to_float(u: u64) -> Float {
-    unsafe { std::mem::transmute::<u64, Float>(u) }
+    Float::from_bits(u)
 }
 
 pub fn next_float_up(mut f: Float) -> Float {

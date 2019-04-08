@@ -12,6 +12,7 @@ pub mod specular_reflection;
 
 bitflags! {
     pub struct BxDFType: u8 {
+        #[allow(clippy::identity_op)]
         const REFLECTION = 1 << 0;
         const TRANSMISSION = 1 << 1;
         const DIFFUSE = 1 << 2;
@@ -22,16 +23,15 @@ bitflags! {
 }
 
 impl BxDFType {
-    pub fn for_hemisphere(&self, wo: ShadingVec3f, wi: ShadingVec3f) -> Self {
+    pub fn for_hemisphere(mut self, wo: ShadingVec3f, wi: ShadingVec3f) -> Self {
         let flag_to_clear = if wi.same_hemisphere(wo) {
             BxDFType::TRANSMISSION
         } else {
             BxDFType::REFLECTION
         };
 
-        let mut out = self.clone();
-        out.set(flag_to_clear, false);
-        out
+        self.set(flag_to_clear, false);
+        self
     }
 }
 
