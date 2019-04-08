@@ -4,11 +4,14 @@ use crate::math::*;
 use crate::scene::Scene;
 
 pub mod emitter;
-pub mod point;
 
-#[derive(Clone)]
+pub mod point;
+pub mod spot;
+
+#[derive(Debug, Copy, Clone)]
 pub enum LightType {
-    Point(point::Point),
+    Point,
+    Spot,
 }
 
 pub struct Visibility {
@@ -43,7 +46,11 @@ impl Visibility {
 }
 
 pub trait Light {
-    fn sample(&self, samples: (Float, Float)) -> (Spectrum, LocalPoint3f, Float);
+    fn sample(&self, world_point: Point3f, samples: (Float, Float)) -> (Spectrum, LocalPoint3f, Float);
+
+    fn power(&self) -> Spectrum;
+
+    fn light_to_world(&self) -> &Transform;
 
     fn pdf(&self, _p: LocalPoint3f, _wi: LocalVec3f) -> Float {
         unreachable!()

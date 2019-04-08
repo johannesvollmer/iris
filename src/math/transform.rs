@@ -159,6 +159,16 @@ impl Transform {
             ))),
         }
     }
+
+    pub fn look_at(pos: Point3f, look_at: Point3f, up: Vec3f) -> Self {
+        Self {
+            m: Projective3::from_matrix_unchecked(Matrix4::look_at_lh(
+                &na::Point3::new(pos.x, pos.y, pos.z),
+                &na::Point3::new(look_at.x, look_at.y, look_at.z),
+                &na::Vector3::new(up.x, up.y, up.z),
+            ))
+        }
+    }
 }
 
 impl std::ops::Mul for Transform {
