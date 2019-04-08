@@ -1,5 +1,3 @@
-use super::ShadingNormal3f;
-
 define_vec!(ShadingVec3f);
 
 impl ShadingVec3f {
@@ -57,7 +55,7 @@ impl ShadingVec3f {
         self.z * other.z > 0.0
     }
 
-    pub fn dot_nrm(self, n: ShadingNormal3f) -> Float {
-        self.dot(Self::new(n.x, n.y, n.z))
-    }
+    // pub fn dot_nrm(self, n: ShadingNormal3f) -> Float {
+    //     self.dot(Self::new(n.x, n.y, n.z))
+    // }
 }

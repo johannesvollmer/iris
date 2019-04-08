@@ -1,5 +1,5 @@
-use super::{Float, Normal3f, Point3f, Vec3f};
-use num::Float as _;
+use super::{EFloat, Float, Normal3f, Point3f, Vec3f};
+use num::{Float as _, FromPrimitive};
 
 pub use num::clamp;
 
@@ -7,12 +7,9 @@ pub fn lerp<T: num::Float>(param: T, min: T, max: T) -> T {
     min * (T::one() - param) + max * param
 }
 
-pub fn solve_quadratic<T: num::Float + num::FromPrimitive>(a: T, b: T, c: T) -> Option<(T, T)> {
-    let (a, b, c) = (
-        a.to_f64().unwrap(),
-        b.to_f64().unwrap(),
-        c.to_f64().unwrap(),
-    );
+#[allow(dead_code)]
+pub fn solve_quadratic(a: Float, b: Float, c: Float) -> Option<(Float, Float)> {
+    let (a, b, c) = (a as f64, b as f64, c as f64);
 
     let discrim = b * b - 4.0 * a * c;
     if discrim < 0.0 {
@@ -35,7 +32,36 @@ pub fn solve_quadratic<T: num::Float + num::FromPrimitive>(a: T, b: T, c: T) -> 
         std::mem::swap(&mut t0, &mut t1);
     }
 
-    Some((T::from_f64(t0).unwrap(), T::from_f64(t1).unwrap()))
+    Some((Float::from_f64(t0).unwrap(), Float::from_f64(t1).unwrap()))
+}
+
+pub fn solve_efloat_quadratic(a: EFloat, b: EFloat, c: EFloat) -> Option<(EFloat, EFloat)> {
+    let discrim = b.val() as f64 * b.val() as f64 - 4.0 * a.val() as f64 * c.val() as f64;
+    if discrim < 0.0 {
+        return None;
+    }
+
+    let root_discrim = discrim.sqrt();
+    let root_discrim = EFloat::new(
+        root_discrim as Float,
+        Float::epsilon() * 0.5 * root_discrim as Float,
+    );
+
+    let q = {
+        if b.val() < 0.0 {
+            (b - root_discrim) * (-0.5 as Float).into()
+        } else {
+            (b + root_discrim) * (-0.5 as Float).into()
+        }
+    };
+
+    let mut t0 = q / a;
+    let mut t1 = c / q;
+    if t0.val() > t1.val() {
+        std::mem::swap(&mut t0, &mut t1);
+    }
+
+    Some((t0, t1))
 }
 
 #[inline(always)]
@@ -44,27 +70,27 @@ pub fn gamma(n: i32) -> Float {
     ((n as Float) * machine_epsilon) / (1.0 - (n as Float) * machine_epsilon)
 }
 
-#[cfg(not(feature = "use_f64"))]
+#[cfg(not(feature = "double_float"))]
 fn float_to_bits(f: Float) -> u32 {
     unsafe { std::mem::transmute::<Float, u32>(f) }
 }
 
-#[cfg(feature = "use_f64")]
+#[cfg(feature = "double_float")]
 fn float_to_bits(f: Float) -> u64 {
     unsafe { std::mem::transmute::<Float, u64>(f) }
 }
 
-#[cfg(not(feature = "use_f64"))]
+#[cfg(not(feature = "double_float"))]
 fn bits_to_float(u: u32) -> Float {
     unsafe { std::mem::transmute::<u32, Float>(u) }
 }
 
-#[cfg(feature = "use_f64")]
+#[cfg(feature = "double_float")]
 fn bits_to_float(u: u64) -> Float {
     unsafe { std::mem::transmute::<u64, Float>(u) }
 }
 
-fn next_float_up(mut f: Float) -> Float {
+pub fn next_float_up(mut f: Float) -> Float {
     if f.is_infinite() && f > 0.0 {
         return f;
     } else if f == -0.0 {
@@ -79,7 +105,7 @@ fn next_float_up(mut f: Float) -> Float {
     }
 }
 
-fn next_float_down(mut f: Float) -> Float {
+pub fn next_float_down(mut f: Float) -> Float {
     if f.is_infinite() && f < 0.0 {
         return f;
     } else if f == 0.0 {

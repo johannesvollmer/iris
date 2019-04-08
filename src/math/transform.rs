@@ -33,12 +33,12 @@ impl Transform {
         Point3f::new(p.x, p.y, p.z)
     }
 
-    pub fn apply_ray(&self, ray: &Ray) -> Ray {
-        let mut r = ray.clone();
-        r.o = self.apply_point(ray.o);
-        r.d = self.apply(ray.d);
-        r
-    }
+    // pub fn apply_ray(&self, ray: &Ray) -> Ray {
+    //     let mut r = ray.clone();
+    //     r.o = self.apply_point(ray.o);
+    //     r.d = self.apply(ray.d);
+    //     r
+    // }
 
     pub fn apply_bounds(&self, bounds: Bounds3f) -> Bounds3f {
         let mut out = Bounds3f::default();
@@ -98,6 +98,43 @@ impl Transform {
         (
             self.apply_point(p),
             Vec3f::new(x_abs_err, y_abs_err, z_abs_err),
+        )
+    }
+
+    pub fn apply_vec_with_error(&self, v: Vec3f) -> (Vec3f, Vec3f) {
+        let x_abs_err = gamma(3)
+            * ((self.m[(0, 0)] * v.x).abs()
+                + (self.m[(0, 1)] * v.y).abs()
+                + (self.m[(0, 2)] * v.z).abs());
+        let y_abs_err = gamma(3)
+            * ((self.m[(1, 0)] * v.x).abs()
+                + (self.m[(1, 1)] * v.y).abs()
+                + (self.m[(1, 2)] * v.z).abs());
+        let z_abs_err = gamma(3)
+            * ((self.m[(2, 0)] * v.x).abs()
+                + (self.m[(2, 1)] * v.y).abs()
+                + (self.m[(2, 2)] * v.z).abs());
+        (self.apply(v), Vec3f::new(x_abs_err, y_abs_err, z_abs_err))
+    }
+
+    pub fn apply_ray_with_error(&self, ray: &Ray) -> (Ray, Vec3f, Vec3f) {
+        let (mut o, o_err) = self.apply_point_with_error(ray.o, Vec3f::default());
+        let (d, d_err) = self.apply_vec_with_error(ray.d);
+        let len_2 = d.length_squared();
+        if len_2 > 0.0 {
+            let dt = d.abs().dot(o_err) / len_2;
+            o += d * dt;
+        }
+
+        (
+            Ray {
+                o,
+                d,
+                t_max: ray.t_max,
+                time: ray.time,
+            },
+            o_err,
+            d_err,
         )
     }
 

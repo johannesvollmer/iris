@@ -20,9 +20,9 @@ impl Ray {
         }
     }
 
-    pub fn at(&self, t: Float) -> Point3f {
-        self.o + self.d * t
-    }
+    // pub fn at(&self, t: Float) -> Point3f {
+    //     self.o + self.d * t
+    // }
 
     pub fn as_local(&self) -> LocalRay {
         LocalRay {

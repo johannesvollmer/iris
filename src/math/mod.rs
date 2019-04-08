@@ -1,7 +1,7 @@
-#[cfg(not(feature = "use_f64"))]
+#[cfg(not(feature = "double_float"))]
 pub type Float = f32;
 
-#[cfg(feature = "use_f64")]
+#[cfg(feature = "double_float")]
 pub type Float = f64;
 
 #[macro_use]
@@ -52,6 +52,9 @@ pub mod transform;
 pub use transform::*;
 
 pub mod sample;
+
+pub mod efloat;
+pub use efloat::*;
 
 pub mod misc;
 pub use misc::*;

@@ -1,10 +1,13 @@
-use crate::bxdf::{bsdf::BSDF, fresnel, lambertian::Lambertian, microfacet_reflection::MicrofacetReflection, microfacet};
 use crate::bxdf::microfacet::trowbridge_reitz::TrowbridgeReitz;
+use crate::bxdf::{
+    bsdf::BSDF, fresnel, lambertian::Lambertian, microfacet,
+    microfacet_reflection::MicrofacetReflection,
+};
 use crate::film::spectrum::Spectrum;
 use crate::geometry::GlobalGeometry;
 use crate::material::Material;
-use crate::texture::Texture;
 use crate::math::*;
+use crate::texture::Texture;
 use bumpalo::Bump;
 use std::sync::Arc;
 

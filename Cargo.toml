@@ -23,5 +23,5 @@ png = { version = "0.14.0", optional = true }
 
 [features]
 default = []
-use_f64 = []
-use_png16 = ["byteorder", "png"]
+double_float = []
+rgb16 = ["byteorder", "png"]

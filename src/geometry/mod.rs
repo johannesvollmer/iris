@@ -74,7 +74,12 @@ pub trait LocalAABB {
 }
 
 pub trait Geometry: LocalAABB {
-    fn local_intersect(&self, ray: &LocalRay) -> Option<LocalGeometry>;
+    fn local_intersect(
+        &self,
+        ray: &LocalRay,
+        o_err: LocalVec3f,
+        d_err: LocalVec3f,
+    ) -> Option<LocalGeometry>;
 }
 
 pub trait AABB {

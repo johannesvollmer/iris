@@ -17,20 +17,56 @@ impl LocalAABB for Sphere {
 }
 
 impl Geometry for Sphere {
-    fn local_intersect(&self, ray: &LocalRay) -> Option<LocalGeometry> {
-        let ray_origin: LocalVec3f = ray.o.to_vec();
+    fn local_intersect(
+        &self,
+        ray: &LocalRay,
+        o_err: LocalVec3f,
+        d_err: LocalVec3f,
+    ) -> Option<LocalGeometry> {
+        let ox = EFloat::new(ray.o.x, o_err.x);
+        let oy = EFloat::new(ray.o.y, o_err.y);
+        let oz = EFloat::new(ray.o.z, o_err.z);
+        let dx = EFloat::new(ray.d.x, d_err.x);
+        let dy = EFloat::new(ray.d.y, d_err.y);
+        let dz = EFloat::new(ray.d.z, d_err.z);
 
-        let a = ray.d.length_squared();
-        let b = 2.0 * ray.d.dot(ray_origin);
-        let c = ray_origin.dot(ray_origin) - self.radius * self.radius;
+        let a = dx * dx + dy * dy + dz * dz;
+        let b = (dx * ox + dy * oy + dz * oz) * 2.0.into();
+        let c = (ox * ox + oy * oy + oz * oz) - self.radius.powi(2).into();
 
-        let (t0, _) = solve_quadratic(a, b, c)?;
+        let (t0, t1) = solve_efloat_quadratic(a, b, c)?;
 
-        if t0 > ray.t_max || t0 < 0.0 {
+        if t0.upper_bound() > ray.t_max || t1.lower_bound() < 0.0 {
             return None;
         }
 
-        let point = ray.at(t0);
+        let t_hit = if t0.lower_bound() <= 0.0 {
+            if t1.upper_bound() > ray.t_max {
+                return None;
+            }
+
+            t1
+        } else {
+            t0
+        };
+
+        let point = {
+            // Refine intersection
+            let raw_point = ray.at(t_hit.val());
+            let factor = self.radius / raw_point.distance(LocalPoint3f::default());
+            let mut p = LocalPoint3f::new(
+                raw_point.x * factor,
+                raw_point.y * factor,
+                raw_point.z * factor,
+            );
+
+            if p.x == 0.0 && p.y == 0.0 {
+                p.x = 1e-5 * self.radius;
+            }
+
+            p
+        };
+
         let normal = LocalNormal3f::new(point.x, point.y, point.z).normalized();
 
         let phi_max = 2.0 * Float::PI();
@@ -55,7 +91,7 @@ impl Geometry for Sphere {
         let u = phi / phi_max;
         let v = (theta - theta_min) / (theta_max - theta_min);
 
-        let point_error = LocalVec3f::new(0.0000001, 0.0000001, 0.0000001);
+        let point_error = point.to_vec().abs() * gamma(5);
 
         Some(LocalGeometry {
             point,
@@ -66,7 +102,7 @@ impl Geometry for Sphere {
             dpdu,
             dpdv,
             time: ray.time,
-            t: t0,
+            t: t_hit.val(),
         })
     }
 }

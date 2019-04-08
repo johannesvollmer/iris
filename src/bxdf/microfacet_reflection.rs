@@ -1,5 +1,5 @@
-use crate::bxdf::microfacet::MicrofacetDistribution;
 use crate::bxdf::fresnel::Fresnel;
+use crate::bxdf::microfacet::MicrofacetDistribution;
 use crate::bxdf::BxDF;
 use crate::bxdf::BxDFType;
 use crate::film::spectrum::Spectrum;
@@ -34,7 +34,11 @@ impl BxDF for MicrofacetReflection {
             / (4.0 * cos_theta_i * cos_theta_o)
     }
 
-    fn sample(&self, _wo: ShadingVec3f, _samples: (Float, Float)) -> (Spectrum, ShadingVec3f, Float) {
+    fn sample(
+        &self,
+        _wo: ShadingVec3f,
+        _samples: (Float, Float),
+    ) -> (Spectrum, ShadingVec3f, Float) {
         unimplemented!()
     }
 

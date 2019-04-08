@@ -26,14 +26,14 @@ pub struct FilmTile {
     pixels: Vec<FilmTilePixel>,
 }
 
-#[cfg(not(feature = "use_png16"))]
+#[cfg(not(feature = "rgb16"))]
 type ImgOut = u8;
-#[cfg(not(feature = "use_png16"))]
+#[cfg(not(feature = "rgb16"))]
 const PIXEL_RANGE: Float = 255.0;
 
-#[cfg(feature = "use_png16")]
+#[cfg(feature = "rgb16")]
 type ImgOut = u16;
-#[cfg(feature = "use_png16")]
+#[cfg(feature = "rgb16")]
 const PIXEL_RANGE: Float = 65535.0;
 
 impl FilmTile {
@@ -140,38 +140,41 @@ impl Film {
         self.write_imgbuf(imgbuf, filename)
     }
 
-    #[cfg(not(feature = "use_png16"))]
-    fn write_imgbuf<C>(&self, buf: image::ImageBuffer<image::Rgb<u8>, C>, filename: &str) -> std::io::Result<()>
+    #[cfg(not(feature = "rgb16"))]
+    fn write_imgbuf<C>(
+        &self,
+        buf: image::ImageBuffer<image::Rgb<u8>, C>,
+        filename: &str,
+    ) -> std::io::Result<()>
     where
         C: std::ops::Deref<Target = [u8]>,
     {
         buf.save(filename)
     }
 
-    #[cfg(feature = "use_png16")]
-    fn write_imgbuf<C>(&self, buf: image::ImageBuffer<image::Rgb<u16>, C>, filename: &str) -> std::io::Result<()>
+    #[cfg(feature = "rgb16")]
+    fn write_imgbuf<C>(
+        &self,
+        buf: image::ImageBuffer<image::Rgb<u16>, C>,
+        filename: &str,
+    ) -> std::io::Result<()>
     where
         C: std::ops::Deref<Target = [u16]>,
     {
-        // TODO: Do we need this?
-        use png::HasParameters;
-        use std::iter::once;
         use byteorder::{BigEndian, WriteBytesExt};
-
         let path = std::path::Path::new(filename);
-        let file = std::fs::File::create(path)?;
-        let mut w = std::io::BufWriter::new(file);
 
         let raw = buf.into_raw();
-        let mut u8vec: Vec<u8> = Vec::new();
-        raw.into_iter().for_each(|x| u8vec.write_u16::<BigEndian>(*x).unwrap());
+        let mut u8vec: Vec<u8> = Vec::with_capacity(raw.len() * 2);
+        raw.into_iter()
+            .for_each(|x| u8vec.write_u16::<BigEndian>(*x).unwrap());
 
-        let mut encoder = png::Encoder::new(w, self.full_resolution.x as u32, self.full_resolution.y as u32);
-        encoder.set(png::ColorType::RGB).set(png::BitDepth::Sixteen);
-
-        let mut writer = encoder.write_header().unwrap();
-        writer.write_image_data(&u8vec).unwrap(); // Save
-
-        Ok(())
+        image::save_buffer(
+            path,
+            &u8vec,
+            self.full_resolution.x as u32,
+            self.full_resolution.y as u32,
+            image::ColorType::RGB(16),
+        )
     }
 }

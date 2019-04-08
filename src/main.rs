@@ -148,7 +148,7 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
 fn test_scene() -> scene::Scene {
     use geometry::{primitive::Primitive, receiver::Receiver, sphere::Sphere};
     use light::emitter::Emitter;
-    use material::matte::Matte;
+    // use material::matte::Matte;
     use material::plastic::Plastic;
     use texture::constant::ConstantTexture;
 
@@ -169,7 +169,7 @@ fn test_scene() -> scene::Scene {
     )));
 
     geometry.push(Primitive::Emitter(Emitter::new_point(
-        Spectrum::from_rgb(0.0, 2.0, 0.0),
+        Spectrum::from_rgb(0.0, 0.0, 1.0),
         Transform::translate(Vec3f::new(0.5, 0.5, 0.0)),
     )));
 
