@@ -26,7 +26,6 @@ pub struct SurfaceInteraction<'a> {
     pub uv: Point2f,
     pub dpdu: Vec3f,
     pub dpdv: Vec3f,
-    pub ray_t: Float,
     pub bsdf: Option<&'a BSDF<'a>>,
     pub material: Option<&'a dyn Material>,
     pub geometry: Option<&'a (dyn Geometry + Send + Sync)>,

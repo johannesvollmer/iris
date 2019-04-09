@@ -1,13 +1,14 @@
 use crate::film::spectrum::Spectrum;
+use crate::geometry::Sampleable;
 use crate::geometry::{Hit, Interaction, SurfaceInteraction, AABB};
-use crate::light::{point, spot, Light, LightType, Visibility};
+use crate::light::{diffuse_area, point, spot, Light, LightType, Visibility};
 use crate::math::*;
 use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct Emitter {
-    light: Arc<dyn Light + Send + Sync>,
     light_type: LightType,
+    light: Arc<dyn Light + Send + Sync>,
 }
 
 impl Emitter {
@@ -39,28 +40,37 @@ impl Emitter {
         }
     }
 
-    pub fn sample(
+    #[allow(dead_code)]
+    pub fn new_area(
+        intensity: Spectrum,
+        transform: Transform,
+        geometry: Arc<dyn Sampleable + Send + Sync>,
+    ) -> Self {
+        Self {
+            light: Arc::new(diffuse_area::DiffuseArea::new(
+                intensity, transform, geometry,
+            )),
+            light_type: LightType::Area,
+        }
+    }
+
+    pub fn sample_incoming(
         &self,
         int: &Interaction,
         samples: (Float, Float),
     ) -> (Spectrum, Vec3f, Float, Visibility) {
-        let (radiance, sample_point_local, pdf) = self.light.sample(int.point, samples);
-
-        let sample_point = self
-            .light
-            .light_to_world()
-            .apply_point(sample_point_local.as_global());
-        let dir = sample_point - int.point;
-
-        let vis = Visibility::new(int, sample_point);
-
-        (radiance, dir.normalized(), pdf, vis)
+        let (radiance, dir, pdf) = self.light.sample_incoming(int, samples);
+        (
+            radiance,
+            dir.normalized(),
+            pdf,
+            Visibility::new(int, int.point + dir),
+        )
     }
 
-    // pub fn pdf(&self, _p: Point3f, _wi: Vec3f, _time: Float) -> Float {
-    //     match self.light {
-    //         LightType::Point(_) => unreachable!(),
-    //     }
+    // pub fn pdf(&self, int: &Interaction, wi: Vec3f) -> Float {
+    //     debug_assert!(self.light_type == LightType::Area);
+    //     self.light.pdf(int, wi)
     // }
 
     pub fn is_delta(&self) -> bool {
@@ -77,13 +87,13 @@ impl AABB for Emitter {
         match self.light_type {
             LightType::Point => unreachable!(),
             LightType::Spot => unreachable!(),
-            LightType::Area => unimplemented!(),
+            LightType::Area => self.light.aabb(),
         }
     }
 }
 
 impl Hit for Emitter {
-    fn intersect(&self, _ray: &Ray) -> Option<SurfaceInteraction> {
-        unimplemented!()
+    fn intersect(&self, ray: &Ray) -> Option<(SurfaceInteraction, Float)> {
+        self.light.intersect(ray)
     }
 }

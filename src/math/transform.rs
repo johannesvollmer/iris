@@ -9,6 +9,21 @@ pub struct Transform {
     m: Projective3<Float>,
 }
 
+#[derive(Debug, Copy, Clone)]
+pub struct TransformPair {
+    pub to_local: Transform,
+    pub to_global: Transform,
+}
+
+impl From<Transform> for TransformPair {
+    fn from(to_global: Transform) -> Self {
+        Self {
+            to_global,
+            to_local: to_global.inverse(),
+        }
+    }
+}
+
 impl Transform {
     pub fn inverse(&self) -> Self {
         Self {
@@ -43,14 +58,14 @@ impl Transform {
     pub fn apply_bounds(&self, bounds: Bounds3f) -> Bounds3f {
         let mut out = Bounds3f::default();
         for i in 0..3 {
-            out.min[i] = self.m[(3, i)];
-            out.max[i] = self.m[(3, i)];
+            out.min[i] = self.m[(i, 3)];
+            out.max[i] = self.m[(i, 3)];
         }
 
         for i in 0..3 {
             for j in 0..3 {
-                let x = self.m[(j, i)] * bounds.min[j];
-                let y = self.m[(j, i)] * bounds.max[j];
+                let x = self.m[(i, j)] * bounds.min[j];
+                let y = self.m[(i, j)] * bounds.max[j];
                 if x < y {
                     out.min[i] += x;
                     out.max[i] += y;

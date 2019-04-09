@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 use crate::film::spectrum::Spectrum;
+use crate::geometry::{Hit, Interaction, SurfaceInteraction, AABB};
 use crate::light::Light;
 use crate::math::*;
 use num::traits::FloatConst;
@@ -50,17 +51,17 @@ impl Spot {
 }
 
 impl Light for Spot {
-    fn sample(&self, to: Point3f, _samples: (Float, Float)) -> (Spectrum, LocalPoint3f, Float) {
-        let dir = self.world_pos - to;
+    fn sample_incoming(
+        &self,
+        int: &Interaction,
+        _samples: (Float, Float),
+    ) -> (Spectrum, Vec3f, Float) {
+        let dir = self.world_pos - int.point;
         (
             self.intensity * self.falloff(-dir) / dir.length_squared(),
-            LocalPoint3f::default(),
+            dir,
             1.0,
         )
-    }
-
-    fn light_to_world(&self) -> &Transform {
-        &self.light_to_world
     }
 
     fn power(&self) -> Spectrum {
@@ -68,5 +69,17 @@ impl Light for Spot {
             * 2.0
             * Float::PI()
             * (1.0 - 0.5 * (self.cos_falloff_start + self.cos_falloff_end))
+    }
+}
+
+impl AABB for Spot {
+    fn aabb(&self) -> Bounds3f {
+        unreachable!()
+    }
+}
+
+impl Hit for Spot {
+    fn intersect(&self, _ray: &Ray) -> Option<(SurfaceInteraction, Float)> {
+        unreachable!()
     }
 }

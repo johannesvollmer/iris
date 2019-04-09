@@ -1,15 +1,17 @@
 use crate::film::spectrum::Spectrum;
+use crate::geometry::Hit;
 use crate::geometry::Interaction;
+use crate::geometry::AABB;
 use crate::math::*;
 use crate::scene::Scene;
 
 pub mod emitter;
 
-pub mod area;
+pub mod diffuse_area;
 pub mod point;
 pub mod spot;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq)]
 #[allow(dead_code)]
 pub enum LightType {
     Point,
@@ -48,18 +50,18 @@ impl Visibility {
     }
 }
 
-pub trait Light {
-    fn sample(
+pub trait Light: AABB + Hit {
+    fn sample_incoming(
         &self,
-        world_point: Point3f,
+        int: &Interaction,
         samples: (Float, Float),
-    ) -> (Spectrum, LocalPoint3f, Float);
-
+    ) -> (Spectrum, Vec3f, Float);
     fn power(&self) -> Spectrum;
 
-    fn light_to_world(&self) -> &Transform;
-
-    fn pdf(&self, _p: LocalPoint3f, _wi: LocalVec3f) -> Float {
+    fn radiance(&self, _int: &Interaction, _w: Vec3f) -> Spectrum {
+        unimplemented!()
+    }
+    fn pdf_incoming(&self, _int: &Interaction, _wi: Vec3f) -> Float {
         unimplemented!()
     }
 }

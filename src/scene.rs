@@ -60,6 +60,7 @@ impl Scene {
 
         hits.iter()
             .filter_map(|hit| hit.intersect(ray))
-            .min_by_key(|isect| ordered_float::NotNan::new(isect.ray_t).unwrap())
+            .min_by_key(|(_, ray_t)| ordered_float::NotNan::new(*ray_t).unwrap())
+            .map(|(si, _)| si)
     }
 }

@@ -49,6 +49,18 @@ macro_rules! define_vec {
             pub fn normalized(self) -> Self {
                 self / self.length()
             }
+
+            #[allow(dead_code)]
+            pub fn spherical_direction(
+                sin_theta: Float,
+                cos_theta: Float,
+                phi: Float,
+                x: Self,
+                y: Self,
+                z: Self,
+            ) -> Self {
+                x * sin_theta * phi.cos() + y * sin_theta * phi.sin() + z * cos_theta
+            }
         }
 
         impl std::cmp::PartialEq for $vecbase {

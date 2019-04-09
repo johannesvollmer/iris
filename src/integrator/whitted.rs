@@ -37,7 +37,7 @@ impl Integrator for Whitted {
 
             // Evaluate contribution from lights
             for light in &scene.lights {
-                let (li, wi, pdf, vis) = light.sample(&hit.int, sample);
+                let (li, wi, pdf, vis) = light.sample_incoming(&hit.int, sample);
                 let f = bsdf.eval(wo, wi, BxDFType::ALL);
                 if !li.is_black() && !f.is_black() && vis.visible(scene) {
                     out += f * li * wi.dot_nrm(bsdf.ns).abs() / pdf;

@@ -1,4 +1,6 @@
 use super::{Geometry, LocalAABB, LocalGeometry};
+use crate::geometry::interaction::Interaction;
+use crate::geometry::Sampleable;
 use crate::math::*;
 use num::traits::FloatConst;
 
@@ -22,7 +24,7 @@ impl Geometry for Sphere {
         ray: &LocalRay,
         o_err: LocalVec3f,
         d_err: LocalVec3f,
-    ) -> Option<LocalGeometry> {
+    ) -> Option<(LocalGeometry, Float)> {
         let ox = EFloat::new(ray.o.x, o_err.x);
         let oy = EFloat::new(ray.o.y, o_err.y);
         let oz = EFloat::new(ray.o.z, o_err.z);
@@ -94,16 +96,82 @@ impl Geometry for Sphere {
 
         let point_error = point.to_vec().abs() * gamma(5);
 
-        Some(LocalGeometry {
-            point,
-            point_error,
-            ns: normal,
-            ng: normal,
-            uv: Point2f::new(u, v),
-            dpdu,
-            dpdv,
-            time: ray.time,
-            ray_t: t_hit.val(),
-        })
+        Some((
+            LocalGeometry {
+                point,
+                point_error,
+                ns: normal,
+                ng: normal,
+                uv: Point2f::new(u, v),
+                dpdu,
+                dpdv,
+                time: ray.time,
+            },
+            t_hit.val(),
+        ))
+    }
+}
+
+impl Sampleable for Sphere {
+    fn sample_shape(
+        &self,
+        int: &Interaction,
+        transform: &TransformPair,
+        samples: (Float, Float),
+    ) -> Point3f {
+        let center = transform.to_global.apply_point(Point3f::default());
+        let wc = (center - int.point).normalized();
+        let (wc_x, wc_y) = wc.coordinate_system();
+
+        let origin = offset_ray_origin(int.point, int.point_error, int.normal, center - int.point);
+        if origin.distance_squared(center) <= self.radius * self.radius {
+            // If inside, sample uniformly
+            unimplemented!();
+        }
+
+        // Compute theta, phi
+        let sin_theta_2_max = self.radius * self.radius / int.point.distance_squared(center);
+        let cos_theta_max = (1.0 - sin_theta_2_max).max(0.0).sqrt();
+        let cos_theta = (1.0 - samples.0) + samples.0 * cos_theta_max;
+        let sin_theta = (1.0 - cos_theta * cos_theta).max(0.0).sqrt();
+        let phi = samples.1 * 2.0 * Float::PI();
+
+        // Compute angle from sphere center to sampled point
+        let dc = int.point.distance(center);
+        let ds = dc * cos_theta
+            - (self.radius * self.radius - dc * dc * sin_theta * sin_theta)
+                .max(0.0)
+                .sqrt();
+        let cos_alpha = (dc * dc + self.radius * self.radius - ds * ds) / (2.0 * dc * self.radius);
+        let sin_alpha = (1.0 - cos_alpha * cos_alpha).max(0.0).sqrt();
+
+        let normal = Vec3f::spherical_direction(sin_alpha, cos_alpha, phi, -wc_x, -wc_y, -wc);
+        let point = Point3f::new(
+            normal.x * self.radius,
+            normal.y * self.radius,
+            normal.z * self.radius,
+        );
+
+        // Compute point error
+        let factor = self.radius / point.distance(Point3f::default());
+        let point = Point3f::new(factor * point.x, factor * point.y, factor * point.z);
+        let point_error = point.to_vec().abs() * gamma(5);
+
+        transform
+            .to_global
+            .apply_point_with_error(point, point_error)
+            .0 // TODO: Incorporate error from int.point_error
+    }
+
+    fn pdf(&self, int: &Interaction, transform: &TransformPair, _dir: Vec3f) -> Float {
+        let center = transform.to_global.apply_point(Point3f::default());
+        let origin = offset_ray_origin(int.point, int.point_error, int.normal, center - int.point);
+        if origin.distance_squared(center) <= self.radius * self.radius {
+            unimplemented!();
+        }
+
+        let sin_theta_2_max = self.radius * self.radius / int.point.distance_squared(center);
+        let cos_theta_max = (1.0 - sin_theta_2_max).max(0.0).sqrt();
+        sample::uniform_cone_pdf(cos_theta_max)
     }
 }

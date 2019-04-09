@@ -21,7 +21,7 @@ impl AABB for Primitive {
 }
 
 impl Hit for Primitive {
-    fn intersect(&self, ray: &Ray) -> Option<SurfaceInteraction> {
+    fn intersect(&self, ray: &Ray) -> Option<(SurfaceInteraction, Float)> {
         match self {
             Primitive::Emitter(e) => e.intersect(ray),
             Primitive::Receiver(r) => r.intersect(ray),
@@ -42,7 +42,7 @@ impl BVHPrimitive {
         }
     }
 
-    pub fn intersect(&self, ray: &Ray) -> Option<SurfaceInteraction> {
+    pub fn intersect(&self, ray: &Ray) -> Option<(SurfaceInteraction, Float)> {
         self.primitive.intersect(ray)
     }
 }

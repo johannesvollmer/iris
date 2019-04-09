@@ -24,3 +24,7 @@ pub fn cos_hemisphere(u: (Float, Float)) -> ShadingVec3f {
     let z = (1.0 - d.x * d.x - d.y * d.y).max(0.0).sqrt();
     ShadingVec3f::new(d.x, d.y, z)
 }
+
+pub fn uniform_cone_pdf(cos_theta_max: Float) -> Float {
+    1.0 / (2.0 * Float::PI() * (1.0 - cos_theta_max))
+}

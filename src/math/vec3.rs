@@ -10,6 +10,16 @@ impl Vec3f {
     pub fn dot_nrm(self, n: Normal3f) -> Float {
         self.dot(Self::new(n.x, n.y, n.z))
     }
+
+    pub fn coordinate_system(self) -> (Self, Self) {
+        let v2 = if self.x.abs() > self.y.abs() {
+            Vec3f::new(-self.z, 0.0, self.x) / (self.x * self.x + self.z * self.z)
+        } else {
+            Vec3f::new(0.0, self.z, -self.y) / (self.y * self.y + self.z * self.z)
+        };
+
+        (v2, self.cross(v2))
+    }
 }
 
 impl From<Point3f> for Vec3f {

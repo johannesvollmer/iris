@@ -168,10 +168,10 @@ fn test_scene() -> scene::Scene {
         Transform::translate(Vec3f::new(0.5, 0.5, 2.0)),
     )));
 
-    geometry.push(Primitive::Emitter(Emitter::new_point(
-        Spectrum::from_rgb(0.0, 0.0, 1.0),
-        Point3f::new(0.5, 0.5, 0.0),
-    )));
+    // geometry.push(Primitive::Emitter(Emitter::new_point(
+    //     Spectrum::from_rgb(0.0, 0.0, 1.0),
+    //     Point3f::new(0.5, 0.5, 0.0),
+    // )));
 
     // geometry.push(Primitive::Emitter(Emitter::new_spot(
     //     Spectrum::from_rgb(0.0, 0.0, 1.0),
@@ -180,6 +180,18 @@ fn test_scene() -> scene::Scene {
     //     3.0,
     //     5.0,
     // )));
+
+    geometry.push(Primitive::Emitter(Emitter::new_area(
+        Spectrum::from_rgb(0.0, 10.0, 0.0),
+        Transform::translate(Vec3f::new(-0.5, 0.5, 1.0)),
+        Arc::new(Sphere::new(0.1)),
+    )));
+
+    geometry.push(Primitive::Emitter(Emitter::new_area(
+        Spectrum::from_rgb(10.0, 0.0, 0.0),
+        Transform::translate(Vec3f::new(1.5, 0.5, 1.0)),
+        Arc::new(Sphere::new(0.1)),
+    )));
 
     scene::Scene::new(geometry)
 }

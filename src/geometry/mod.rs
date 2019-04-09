@@ -18,7 +18,6 @@ pub struct LocalGeometry {
     pub dpdu: LocalVec3f,
     pub dpdv: LocalVec3f,
     pub time: Float,
-    pub ray_t: Float,
 }
 
 impl LocalGeometry {
@@ -47,7 +46,6 @@ impl LocalGeometry {
                 dpdv: m.apply(self.dpdu.as_global()),
             },
             uv: self.uv,
-            ray_t: self.ray_t, /* This MIGHT mess up as we're transforming between coordinate spaces */
             dpdu: m.apply(self.dpdu.as_global()),
             dpdv: m.apply(self.dpdv.as_global()),
             bsdf: None,
@@ -67,7 +65,18 @@ pub trait Geometry: LocalAABB {
         ray: &LocalRay,
         o_err: LocalVec3f,
         d_err: LocalVec3f,
-    ) -> Option<LocalGeometry>;
+    ) -> Option<(LocalGeometry, Float)>;
+}
+
+pub trait Sampleable: Geometry {
+    fn sample_shape(
+        &self,
+        int: &Interaction,
+        transform: &TransformPair,
+        samples: (Float, Float),
+    ) -> Point3f;
+
+    fn pdf(&self, int: &Interaction, transform: &TransformPair, dir: Vec3f) -> Float;
 }
 
 pub trait AABB {
@@ -75,5 +84,5 @@ pub trait AABB {
 }
 
 pub trait Hit {
-    fn intersect(&self, ray: &Ray) -> Option<SurfaceInteraction>;
+    fn intersect(&self, ray: &Ray) -> Option<(SurfaceInteraction, Float)>;
 }

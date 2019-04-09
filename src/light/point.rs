@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 use crate::film::spectrum::Spectrum;
+use crate::geometry::{Hit, Interaction, SurfaceInteraction, AABB};
 use crate::light::Light;
 use crate::math::*;
 use num::traits::FloatConst;
@@ -23,20 +24,28 @@ impl Point {
 }
 
 impl Light for Point {
-    fn sample(&self, to: Point3f, _samples: (Float, Float)) -> (Spectrum, LocalPoint3f, Float) {
-        let dir = self.world_pos - to;
-        (
-            self.intensity / dir.length_squared(),
-            LocalPoint3f::default(),
-            1.0,
-        )
+    fn sample_incoming(
+        &self,
+        int: &Interaction,
+        _samples: (Float, Float),
+    ) -> (Spectrum, Vec3f, Float) {
+        let dir = self.world_pos - int.point;
+        (self.intensity / dir.length_squared(), dir, 1.0)
     }
 
     fn power(&self) -> Spectrum {
         self.intensity * 4.0 * Float::PI()
     }
+}
 
-    fn light_to_world(&self) -> &Transform {
-        &self.light_to_world
+impl AABB for Point {
+    fn aabb(&self) -> Bounds3f {
+        unreachable!()
+    }
+}
+
+impl Hit for Point {
+    fn intersect(&self, _ray: &Ray) -> Option<(SurfaceInteraction, Float)> {
+        unreachable!()
     }
 }
