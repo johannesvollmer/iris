@@ -131,6 +131,7 @@ impl Film {
 
             for (i, component) in pixel_in.rgb.iter().enumerate() {
                 let val = spectrum::gamma_correct(component * weight);
+                debug_assert!(val <= 1.0);
                 weighted[i] = (val * PIXEL_RANGE).max(0.0) as ImgOut;
             }
 

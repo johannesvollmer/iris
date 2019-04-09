@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 
+use crate::material::Material;
 use crate::film::spectrum::Spectrum;
 use crate::geometry::{Hit, Interaction, Sampleable, SurfaceInteraction, AABB};
 use crate::light::Light;
@@ -10,6 +11,7 @@ use std::sync::Arc;
 pub struct DiffuseArea {
     emission: Spectrum,
     geometry: Arc<dyn Sampleable + Send + Sync>,
+    material:  Arc<dyn Material + Send +  Sync>,
     transform: TransformPair,
 }
 
@@ -18,10 +20,12 @@ impl DiffuseArea {
         emission: Spectrum,
         transform: Transform,
         geometry: Arc<dyn Sampleable + Send + Sync>,
+        material: Arc<dyn Material + Send + Sync>,
     ) -> Self {
         Self {
             emission,
             geometry,
+            material,
             transform: TransformPair::from(transform),
         }
     }
@@ -60,14 +64,25 @@ impl Light for DiffuseArea {
 
 impl AABB for DiffuseArea {
     fn aabb(&self) -> Bounds3f {
-        dbg!(self.transform
+        self.transform
             .to_global
-            .apply_bounds(self.geometry.local_aabb()))
+            .apply_bounds(self.geometry.local_aabb())
     }
 }
 
 impl Hit for DiffuseArea {
-    fn intersect(&self, _ray: &Ray) -> Option<(SurfaceInteraction, Float)> {
-        None
+    fn intersect(&self, ray: &Ray) -> Option<(SurfaceInteraction, Float)> {
+        let (local_ray, o_err, d_err) = self.transform.to_local.apply_ray_with_error(ray);
+
+        let (lg, local_ray_t) = self.geometry.local_intersect(
+            &local_ray.as_local(),
+            o_err.as_local(),
+            d_err.as_local(),
+        )?;
+
+        let si =
+            lg.into_surface_interaction(&self.transform, ray, self.material.clone(), self.geometry.clone().into_geometry());
+
+        Some((si, local_ray.as_local().global_t(local_ray_t, ray)))
     }
 }

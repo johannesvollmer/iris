@@ -1,7 +1,9 @@
+use bumpalo::Bump;
 use super::Geometry;
 use crate::bxdf::bsdf::BSDF;
 use crate::material::Material;
 use crate::math::*;
+use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub struct Interaction {
@@ -27,12 +29,18 @@ pub struct SurfaceInteraction<'a> {
     pub dpdu: Vec3f,
     pub dpdv: Vec3f,
     pub bsdf: Option<&'a BSDF<'a>>,
-    pub material: Option<&'a dyn Material>,
-    pub geometry: Option<&'a (dyn Geometry + Send + Sync)>,
+    pub material: Option<Arc<dyn Material + Send + Sync>>,
+    pub geometry: Option<Arc<dyn Geometry + Send + Sync>>,
 }
 
 impl Interaction {
     pub fn spawn_ray(&self, dir: Vec3f) -> Ray {
         Ray::spawn(self.point, dir, self.point_error, self.normal, self.time)
+    }
+}
+
+impl<'a> SurfaceInteraction<'a> {
+    pub fn compute_bsdf(&'a self, alloc: &'a Bump) -> BSDF {
+        self.material.as_ref().expect("no material found").bsdf(self, alloc)
     }
 }

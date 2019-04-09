@@ -24,6 +24,10 @@ impl Material for Matte {
         if roughness == 0.0 {
             bsdf.push(alloc, Lambertian::new(diffuse));
         } else {
+            let b = OrenNayar::new(diffuse, roughness);
+            use crate::bxdf::BxDF;
+            dbg!(b.get_type().contains(crate::bxdf::BxDFType::SPECULAR));
+            //panic!();
             bsdf.push(alloc, OrenNayar::new(diffuse, roughness))
         }
 

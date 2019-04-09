@@ -7,8 +7,7 @@ use std::sync::Arc;
 pub struct Receiver {
     geometry: Arc<dyn Geometry + Send + Sync>,
     material: Arc<dyn Material + Send + Sync>,
-    obj_to_world: Transform,
-    world_to_obj: Transform,
+    transform: TransformPair,
 }
 
 impl Receiver {
@@ -20,21 +19,20 @@ impl Receiver {
         Self {
             geometry,
             material,
-            obj_to_world,
-            world_to_obj: obj_to_world.inverse(),
+            transform: TransformPair::from(obj_to_world),
         }
     }
 }
 
 impl AABB for Receiver {
     fn aabb(&self) -> Bounds3f {
-        self.obj_to_world.apply_bounds(self.geometry.local_aabb())
+        self.transform.to_global.apply_bounds(self.geometry.local_aabb())
     }
 }
 
 impl Hit for Receiver {
     fn intersect(&self, ray: &Ray) -> Option<(SurfaceInteraction, Float)> {
-        let (local_ray, o_err, d_err) = self.world_to_obj.apply_ray_with_error(ray);
+        let (local_ray, o_err, d_err) = self.transform.to_local.apply_ray_with_error(ray);
 
         let (lg, local_ray_t) = self.geometry.local_intersect(
             &local_ray.as_local(),
@@ -42,16 +40,9 @@ impl Hit for Receiver {
             d_err.as_local(),
         )?;
 
-        let mut si =
-            lg.into_surface_interaction(&self.obj_to_world, &self.world_to_obj, ray);
-        si.material = Some(&*self.material);
-        si.geometry = Some(&*self.geometry);
+        let si =
+            lg.into_surface_interaction(&self.transform, ray, self.material.clone(), self.geometry.clone());
 
-        let local_len = local_ray.d.length();
-        let global_len = ray.d.length();
-        let t_scale_factor = global_len / local_len;
-        let ray_t = local_ray_t / t_scale_factor;
-
-        Some((si, ray_t))
+        Some((si, local_ray.as_local().global_t(local_ray_t, ray)))
     }
 }

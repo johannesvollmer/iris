@@ -1,3 +1,5 @@
+use std::sync::Arc;
+use crate::material::Material;
 use crate::math::*;
 
 pub mod interaction;
@@ -23,34 +25,35 @@ pub struct LocalGeometry {
 impl LocalGeometry {
     pub fn into_surface_interaction<'a>(
         self,
-        m: &Transform,
-        m_inv: &Transform,
+        m: &TransformPair,
         ray: &Ray,
+        material: Arc<dyn Material + Send + Sync>,
+        geometry: Arc<dyn Geometry + Send + Sync>,
     ) -> SurfaceInteraction<'a> {
         let (p, err) =
-            m.apply_point_with_error(self.point.as_global(), self.point_error.as_global());
+            m.to_global.apply_point_with_error(self.point.as_global(), self.point_error.as_global());
 
         SurfaceInteraction {
             int: Interaction {
                 point: p,
                 point_error: err,
                 // TODO: Face forward correction
-                normal: m_inv.apply_normal(self.ng.as_global()).normalized(),
+                normal: m.to_local.apply_normal(self.ng.as_global()).normalized(),
                 wo: -ray.d,
                 time: self.time,
             },
             shading: Shading {
                 // TODO: Face forward correction
-                normal: m_inv.apply_normal(self.ns.as_global()).normalized(),
-                dpdu: m.apply(self.dpdu.as_global()),
-                dpdv: m.apply(self.dpdu.as_global()),
+                normal: m.to_local.apply_normal(self.ns.as_global()).normalized(),
+                dpdu: m.to_global.apply(self.dpdu.as_global()),
+                dpdv: m.to_global.apply(self.dpdu.as_global()),
             },
             uv: self.uv,
-            dpdu: m.apply(self.dpdu.as_global()),
-            dpdv: m.apply(self.dpdv.as_global()),
+            dpdu: m.to_global.apply(self.dpdu.as_global()),
+            dpdv: m.to_global.apply(self.dpdv.as_global()),
             bsdf: None,
-            material: None,
-            geometry: None,
+            material: Some(material),
+            geometry: Some(geometry),
         }
     }
 }
@@ -59,7 +62,7 @@ pub trait LocalAABB {
     fn local_aabb(&self) -> Bounds3f;
 }
 
-pub trait Geometry: LocalAABB {
+pub trait Geometry: LocalAABB + IntoGeometry {
     fn local_intersect(
         &self,
         ray: &LocalRay,
@@ -77,6 +80,14 @@ pub trait Sampleable: Geometry {
     ) -> Point3f;
 
     fn pdf(&self, int: &Interaction, transform: &TransformPair, dir: Vec3f) -> Float;
+}
+
+pub trait IntoGeometry {
+    fn into_geometry(self: Arc<Self>) -> Arc<dyn Geometry + Send + Sync>;
+}
+
+impl<T: Geometry + Send + Sync + 'static> IntoGeometry for T {
+    fn into_geometry(self: Arc<Self>) -> Arc<dyn Geometry + Send + Sync> { self }
 }
 
 pub trait AABB {

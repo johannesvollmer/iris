@@ -112,6 +112,23 @@ impl Geometry for Sphere {
     }
 }
 
+impl Sphere {
+    fn sample_uniform(&self, transform: &TransformPair, samples: (Float, Float)) -> Point3f {
+        let point = Point3f::default() + sample::uniform_sphere(samples) * self.radius;
+
+        // Compute point error
+        let factor = self.radius / point.distance(Point3f::default());
+        let point = Point3f::new(factor * point.x, factor * point.y, factor * point.z);
+        let _point_error = point.to_vec().abs() * gamma(5);
+
+        transform.to_global.apply_point(point)
+    }
+
+    fn area(&self) -> Float {
+            4.0 * Float::PI() * self.radius * self.radius
+    }
+}
+
 impl Sampleable for Sphere {
     fn sample_shape(
         &self,
@@ -126,7 +143,7 @@ impl Sampleable for Sphere {
         let origin = offset_ray_origin(int.point, int.point_error, int.normal, center - int.point);
         if origin.distance_squared(center) <= self.radius * self.radius {
             // If inside, sample uniformly
-            unimplemented!();
+            return self.sample_uniform(transform, samples);
         }
 
         // Compute theta, phi
@@ -167,7 +184,7 @@ impl Sampleable for Sphere {
         let center = transform.to_global.apply_point(Point3f::default());
         let origin = offset_ray_origin(int.point, int.point_error, int.normal, center - int.point);
         if origin.distance_squared(center) <= self.radius * self.radius {
-            unimplemented!();
+            return 1.0 / self.area();
         }
 
         let sin_theta_2_max = self.radius * self.radius / int.point.distance_squared(center);

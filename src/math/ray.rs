@@ -74,6 +74,13 @@ impl LocalRay {
     }
 }
 
+impl LocalRay {
+    pub fn global_t(&self, local_t: Float, global: &Ray) -> Float {
+        let t_scale_factor = global.d.length() / self.d.length();
+        local_t / t_scale_factor
+    }
+}
+
 #[derive(Debug)]
 pub struct RayDifferentialInfo {
     pub rx_origin: Point3f,

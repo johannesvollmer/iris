@@ -45,7 +45,7 @@ pub trait BxDF {
     fn eval(&self, wi: ShadingVec3f, wo: ShadingVec3f) -> Spectrum;
 
     fn sample(&self, wo: ShadingVec3f, samples: (Float, Float)) -> (Spectrum, ShadingVec3f, Float) {
-        let mut wi = sample::cos_hemisphere(samples);
+        let mut wi = sample::cos_hemisphere(samples).as_shading();
 
         if wo.z < 0.0 {
             wi.z *= -1.0;

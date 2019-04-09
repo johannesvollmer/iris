@@ -59,13 +59,13 @@ impl RGBSpectrum {
         Self::all(0.0)
     }
 
-    pub fn clamp(&self, min: Float, max: Float) -> Self {
-        Self {
-            r: num::clamp(self.r, min, max),
-            g: num::clamp(self.g, min, max),
-            b: num::clamp(self.b, min, max),
-        }
-    }
+    // pub fn clamp(&self, min: Float, max: Float) -> Self {
+    //     Self {
+    //         r: num::clamp(self.r, min, max),
+    //         g: num::clamp(self.g, min, max),
+    //         b: num::clamp(self.b, min, max),
+    //     }
+    // }
 
     pub fn to_rgb(&self) -> [Float; 3] {
         [self.r, self.g, self.b]

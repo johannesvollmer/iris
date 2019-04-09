@@ -24,10 +24,11 @@ impl Integrator for Whitted {
             return Spectrum::black();
         }
 
+
         let mut out = Spectrum::black();
 
         if let Some(hit) = scene.intersect(ray) {
-            let bsdf = hit.material.expect("no material found").bsdf(&hit, arena);
+            let bsdf = hit.compute_bsdf(arena);
 
             let wo = -ray.d;
             let sample = {
@@ -48,6 +49,6 @@ impl Integrator for Whitted {
             out += self.specular_reflection(ray, scene, sampler, arena, &bsdf, &hit, depth);
         }
 
-        out.clamp(0.0, 1.0)
+        out
     }
 }

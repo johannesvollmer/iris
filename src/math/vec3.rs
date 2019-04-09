@@ -1,10 +1,14 @@
-use super::{LocalVec3f, Normal3f, Point3f};
+use super::{LocalVec3f, ShadingVec3f, Normal3f, Point3f};
 
 define_vec!(Vec3f);
 
 impl Vec3f {
     pub fn as_local(self) -> LocalVec3f {
         LocalVec3f::new(self.x, self.y, self.z)
+    }
+
+    pub fn as_shading(self) -> ShadingVec3f {
+        ShadingVec3f::new(self.x, self.y, self.z)
     }
 
     pub fn dot_nrm(self, n: Normal3f) -> Float {

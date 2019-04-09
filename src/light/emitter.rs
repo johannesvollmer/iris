@@ -1,3 +1,4 @@
+use crate::material::Material;
 use crate::film::spectrum::Spectrum;
 use crate::geometry::Sampleable;
 use crate::geometry::{Hit, Interaction, SurfaceInteraction, AABB};
@@ -45,10 +46,11 @@ impl Emitter {
         intensity: Spectrum,
         transform: Transform,
         geometry: Arc<dyn Sampleable + Send + Sync>,
+        material: Arc<dyn Material + Send + Sync>,
     ) -> Self {
         Self {
             light: Arc::new(diffuse_area::DiffuseArea::new(
-                intensity, transform, geometry,
+                intensity, transform, geometry, material,
             )),
             light_type: LightType::Area,
         }

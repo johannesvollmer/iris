@@ -87,7 +87,7 @@ impl<'a> BSDF<'a> {
         }
 
         let wi = self.vec_from_shading(wi_local).normalized();
-        if !bxdf.matches(BxDFType::SPECULAR) {
+        if !bxdf.get_type().contains(BxDFType::SPECULAR) {
             if num_matching > 1 {
                 // Compute total PDF
                 pdf += self

@@ -1,4 +1,4 @@
-use super::{Float, ShadingVec3f, Vec2f};
+use super::{Float, Vec3f, Vec2f};
 use num::traits::FloatConst;
 
 pub fn concentric_disk(u: (Float, Float)) -> Vec2f {
@@ -19,10 +19,17 @@ pub fn concentric_disk(u: (Float, Float)) -> Vec2f {
     Vec2f::new(theta.cos(), theta.sin()) * r
 }
 
-pub fn cos_hemisphere(u: (Float, Float)) -> ShadingVec3f {
+pub fn cos_hemisphere(u: (Float, Float)) -> Vec3f {
     let d = concentric_disk(u);
     let z = (1.0 - d.x * d.x - d.y * d.y).max(0.0).sqrt();
-    ShadingVec3f::new(d.x, d.y, z)
+    Vec3f::new(d.x, d.y, z)
+}
+
+pub fn uniform_sphere(u: (Float, Float)) -> Vec3f {
+    let z = 1.0 - 2.0 * u.0;
+    let r = (1.0 - z * z).max(0.0).sqrt();
+    let phi = 2.0 * Float::PI() * u.1;
+    Vec3f::new(r * phi.cos(), r * phi.sin(), z)
 }
 
 pub fn uniform_cone_pdf(cos_theta_max: Float) -> Float {
