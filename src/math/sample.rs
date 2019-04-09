@@ -1,4 +1,4 @@
-use super::{Float, Vec3f, Vec2f};
+use super::{Float, Vec2f, Vec3f};
 use num::traits::FloatConst;
 
 pub fn concentric_disk(u: (Float, Float)) -> Vec2f {

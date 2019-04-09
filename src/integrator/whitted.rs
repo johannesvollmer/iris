@@ -24,7 +24,6 @@ impl Integrator for Whitted {
             return Spectrum::black();
         }
 
-
         let mut out = Spectrum::black();
 
         if let Some(hit) = scene.intersect(ray) {

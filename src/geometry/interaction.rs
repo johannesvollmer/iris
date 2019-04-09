@@ -1,8 +1,8 @@
-use bumpalo::Bump;
 use super::Geometry;
 use crate::bxdf::bsdf::BSDF;
 use crate::material::Material;
 use crate::math::*;
+use bumpalo::Bump;
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
@@ -41,6 +41,9 @@ impl Interaction {
 
 impl<'a> SurfaceInteraction<'a> {
     pub fn compute_bsdf(&'a self, alloc: &'a Bump) -> BSDF {
-        self.material.as_ref().expect("no material found").bsdf(self, alloc)
+        self.material
+            .as_ref()
+            .expect("no material found")
+            .bsdf(self, alloc)
     }
 }

@@ -125,7 +125,7 @@ impl Sphere {
     }
 
     fn area(&self) -> Float {
-            4.0 * Float::PI() * self.radius * self.radius
+        4.0 * Float::PI() * self.radius * self.radius
     }
 }
 

@@ -1,4 +1,4 @@
-use super::{LocalVec3f, ShadingVec3f, Normal3f, Point3f};
+use super::{LocalVec3f, Normal3f, Point3f, ShadingVec3f};
 
 define_vec!(Vec3f);
 

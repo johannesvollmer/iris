@@ -26,7 +26,9 @@ impl Receiver {
 
 impl AABB for Receiver {
     fn aabb(&self) -> Bounds3f {
-        self.transform.to_global.apply_bounds(self.geometry.local_aabb())
+        self.transform
+            .to_global
+            .apply_bounds(self.geometry.local_aabb())
     }
 }
 
@@ -40,8 +42,12 @@ impl Hit for Receiver {
             d_err.as_local(),
         )?;
 
-        let si =
-            lg.into_surface_interaction(&self.transform, ray, self.material.clone(), self.geometry.clone());
+        let si = lg.into_surface_interaction(
+            &self.transform,
+            ray,
+            self.material.clone(),
+            self.geometry.clone(),
+        );
 
         Some((si, local_ray.as_local().global_t(local_ray_t, ray)))
     }

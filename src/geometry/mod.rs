@@ -1,6 +1,6 @@
-use std::sync::Arc;
 use crate::material::Material;
 use crate::math::*;
+use std::sync::Arc;
 
 pub mod interaction;
 pub mod primitive;
@@ -30,8 +30,9 @@ impl LocalGeometry {
         material: Arc<dyn Material + Send + Sync>,
         geometry: Arc<dyn Geometry + Send + Sync>,
     ) -> SurfaceInteraction<'a> {
-        let (p, err) =
-            m.to_global.apply_point_with_error(self.point.as_global(), self.point_error.as_global());
+        let (p, err) = m
+            .to_global
+            .apply_point_with_error(self.point.as_global(), self.point_error.as_global());
 
         SurfaceInteraction {
             int: Interaction {
@@ -87,7 +88,9 @@ pub trait IntoGeometry {
 }
 
 impl<T: Geometry + Send + Sync + 'static> IntoGeometry for T {
-    fn into_geometry(self: Arc<Self>) -> Arc<dyn Geometry + Send + Sync> { self }
+    fn into_geometry(self: Arc<Self>) -> Arc<dyn Geometry + Send + Sync> {
+        self
+    }
 }
 
 pub trait AABB {

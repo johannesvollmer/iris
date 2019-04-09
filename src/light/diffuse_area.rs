@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 
-use crate::material::Material;
 use crate::film::spectrum::Spectrum;
 use crate::geometry::{Hit, Interaction, Sampleable, SurfaceInteraction, AABB};
 use crate::light::Light;
+use crate::material::Material;
 use crate::math::*;
 use std::sync::Arc;
 
@@ -11,7 +11,7 @@ use std::sync::Arc;
 pub struct DiffuseArea {
     emission: Spectrum,
     geometry: Arc<dyn Sampleable + Send + Sync>,
-    material:  Arc<dyn Material + Send +  Sync>,
+    material: Arc<dyn Material + Send + Sync>,
     transform: TransformPair,
 }
 
@@ -80,8 +80,12 @@ impl Hit for DiffuseArea {
             d_err.as_local(),
         )?;
 
-        let si =
-            lg.into_surface_interaction(&self.transform, ray, self.material.clone(), self.geometry.clone().into_geometry());
+        let si = lg.into_surface_interaction(
+            &self.transform,
+            ray,
+            self.material.clone(),
+            self.geometry.clone().into_geometry(),
+        );
 
         Some((si, local_ray.as_local().global_t(local_ray_t, ray)))
     }

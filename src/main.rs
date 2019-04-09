@@ -149,8 +149,8 @@ fn test_scene() -> scene::Scene {
     use geometry::{primitive::Primitive, receiver::Receiver, sphere::Sphere};
     use light::emitter::Emitter;
     use material::matte::Matte;
-    use material::plastic::Plastic;
     use material::mirror::Mirror;
+    use material::plastic::Plastic;
     use texture::constant::ConstantTexture;
 
     let mut geometry = Vec::new();
@@ -192,17 +192,17 @@ fn test_scene() -> scene::Scene {
         Arc::new(Matte::new(
             Arc::new(ConstantTexture::new(Spectrum::from_rgb(1.0, 1.0, 1.0))),
             Some(Arc::new(ConstantTexture::new(0.0))),
-        ))
+        )),
     )));
 
     geometry.push(Primitive::Emitter(Emitter::new_area(
         Spectrum::from_rgb(70.0, 0.0, 0.0),
-        Transform::translate(Vec3f::new(1.5, 0.5, 1.0)),
+        Transform::translate(Vec3f::new(1.5, 0.5, 0.5)),
         Arc::new(Sphere::new(0.1)),
         Arc::new(Matte::new(
             Arc::new(ConstantTexture::new(Spectrum::from_rgb(1.0, 1.0, 1.0))),
             Some(Arc::new(ConstantTexture::new(0.0))),
-        ))
+        )),
     )));
 
     scene::Scene::new(geometry)

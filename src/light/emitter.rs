@@ -1,8 +1,8 @@
-use crate::material::Material;
 use crate::film::spectrum::Spectrum;
 use crate::geometry::Sampleable;
 use crate::geometry::{Hit, Interaction, SurfaceInteraction, AABB};
 use crate::light::{diffuse_area, point, spot, Light, LightType, Visibility};
+use crate::material::Material;
 use crate::math::*;
 use std::sync::Arc;
 
