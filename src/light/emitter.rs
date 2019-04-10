@@ -25,7 +25,8 @@ impl Emitter {
     pub fn new_spot(
         intensity: Spectrum,
         pos: Point3f,
-        dir: Vec3f,
+        target: Point3f,
+        up: Vec3f,
         theta_start_deg: Float,
         theta_end_deg: Float,
     ) -> Self {
@@ -33,7 +34,8 @@ impl Emitter {
             light: Arc::new(spot::Spot::new(
                 intensity,
                 pos,
-                dir,
+                target - pos,
+                up,
                 theta_start_deg,
                 theta_end_deg,
             )),

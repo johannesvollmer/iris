@@ -1,8 +1,9 @@
 use crate::film::Film;
-use crate::math::{Float, Point2f, Ray, RayDifferential, RayDifferentialInfo, Transform};
+use crate::math::{Float, Point2f, Ray, Transform};
 use std::ops::Range;
 
 pub mod orthographic;
+pub mod perspective;
 
 #[derive(Copy, Clone)]
 pub struct CameraSample {
@@ -18,7 +19,7 @@ pub trait Camera {
 
     fn generate_ray(&self, sample: &CameraSample) -> Option<(Ray, Float)>;
 
-    fn generate_ray_differential(&self, sample: &CameraSample) -> Option<(RayDifferential, Float)> {
+    /*fn generate_ray_differential(&self, sample: &CameraSample) -> Option<(RayDifferential, Float)> {
         if let Some((ray, wt)) = self.generate_ray(sample) {
             let mut sample_shifted = *sample;
             sample_shifted.film.x += 1.0;
@@ -44,5 +45,5 @@ pub trait Camera {
         } else {
             None
         }
-    }
+    }*/
 }

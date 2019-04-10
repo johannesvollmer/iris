@@ -110,7 +110,12 @@ impl Geometry for Sphere {
             t_hit.val(),
         ))
     }
+
+    fn area(&self) -> Float {
+        4.0 * Float::PI() * self.radius * self.radius
+    }
 }
+
 
 impl Sphere {
     fn sample_uniform(&self, transform: &TransformPair, samples: (Float, Float)) -> Point3f {
@@ -122,10 +127,6 @@ impl Sphere {
         let _point_error = point.to_vec().abs() * gamma(5);
 
         transform.to_global.apply_point(point)
-    }
-
-    fn area(&self) -> Float {
-        4.0 * Float::PI() * self.radius * self.radius
     }
 }
 

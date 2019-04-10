@@ -7,6 +7,7 @@ pub mod primitive;
 pub mod receiver;
 
 pub mod sphere;
+pub mod disk;
 
 pub use interaction::{Interaction, Shading, SurfaceInteraction};
 
@@ -70,6 +71,8 @@ pub trait Geometry: LocalAABB + IntoGeometry {
         o_err: LocalVec3f,
         d_err: LocalVec3f,
     ) -> Option<(LocalGeometry, Float)>;
+
+    fn area(&self) -> Float;
 }
 
 pub trait Sampleable: Geometry {
@@ -80,16 +83,8 @@ pub trait Sampleable: Geometry {
         samples: (Float, Float),
     ) -> Point3f;
 
-    fn pdf(&self, int: &Interaction, transform: &TransformPair, dir: Vec3f) -> Float;
-}
-
-pub trait IntoGeometry {
-    fn into_geometry(self: Arc<Self>) -> Arc<dyn Geometry + Send + Sync>;
-}
-
-impl<T: Geometry + Send + Sync + 'static> IntoGeometry for T {
-    fn into_geometry(self: Arc<Self>) -> Arc<dyn Geometry + Send + Sync> {
-        self
+    fn pdf(&self, int: &Interaction, transform: &TransformPair, dir: Vec3f) -> Float {
+        1.0 / self.area()
     }
 }
 
@@ -99,4 +94,15 @@ pub trait AABB {
 
 pub trait Hit {
     fn intersect(&self, ray: &Ray) -> Option<(SurfaceInteraction, Float)>;
+}
+
+// Allows casting Arc<dyn Sampleable> -> Arc<dyn Geometry>, for example.
+pub trait IntoGeometry {
+    fn into_geometry(self: Arc<Self>) -> Arc<dyn Geometry + Send + Sync>;
+}
+
+impl<T: Geometry + Send + Sync + 'static> IntoGeometry for T {
+    fn into_geometry(self: Arc<Self>) -> Arc<dyn Geometry + Send + Sync> {
+        self
+    }
 }

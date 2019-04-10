@@ -21,10 +21,12 @@ impl Spot {
         intensity: Spectrum,
         pos: Point3f,
         dir: Vec3f,
+        up: Vec3f,
         theta_start_deg: Float,
         theta_end_deg: Float,
     ) -> Self {
-        let transform = Transform::look_at(pos, pos + dir, Vec3f::new(0.0, -1.0, 0.0));
+        let transform = Transform::look_at(pos, pos + dir, up);
+        assert!(theta_start_deg < theta_end_deg);
         Self {
             world_pos: pos,
             cos_falloff_end: theta_end_deg.to_radians().cos(),

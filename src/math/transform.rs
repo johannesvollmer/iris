@@ -2,7 +2,7 @@ use crate::math::bounds::Bounds3f;
 use crate::math::misc::gamma;
 use crate::math::normal::Normal3f;
 use crate::math::{Float, Point3f, Ray, Vec3f};
-use nalgebra::{Matrix4, Orthographic3, Projective3, Vector3};
+use nalgebra::{Matrix4, Orthographic3, Perspective3, Projective3, Vector3};
 
 #[derive(new, Debug, Copy, Clone)]
 pub struct Transform {
@@ -17,9 +17,12 @@ pub struct TransformPair {
 
 impl From<Transform> for TransformPair {
     fn from(to_global: Transform) -> Self {
+        let inv = to_global.inverse();
+        debug_assert!(Matrix4::determinant(to_global.m.matrix()).is_finite());        
+        debug_assert!(Matrix4::determinant(inv.m.matrix()).is_finite());        
         Self {
             to_global,
-            to_local: to_global.inverse(),
+            to_local: inv,
         }
     }
 }
@@ -159,6 +162,12 @@ impl Transform {
         }
     }
 
+    pub fn perspective(aspect: Float, fov: Float, z_near: Float, z_far: Float) -> Self {
+        Self {
+            m: Perspective3::new(aspect, fov, z_near, z_far).to_projective(),
+        }
+    }
+
     pub fn scale(x: Float, y: Float, z: Float) -> Self {
         Self {
             m: Projective3::from_matrix_unchecked(Matrix4::new_nonuniform_scaling(&Vector3::new(
@@ -172,6 +181,15 @@ impl Transform {
             m: Projective3::from_matrix_unchecked(Matrix4::new_translation(&Vector3::new(
                 v.x, v.y, v.z,
             ))),
+        }
+    }
+
+    pub fn rotation(axis: Vec3f, angle_deg: Float) -> Self {
+        let axis = axis.normalized();
+        Self {
+            m: Projective3::from_matrix_unchecked(Matrix4::from_scaled_axis(
+                &na::Vector3::new(axis.x, axis.y, axis.z) * angle_deg.to_radians(),
+            ))
         }
     }
 

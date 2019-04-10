@@ -35,7 +35,7 @@ fn main() {
     if cfg!(debug_assertions) {
         render(100, 100, "out.png", 1);
     } else {
-        render(500, 500, "out.png", 25);
+        render(500, 500, "out.png", 50);
     }
 }
 
@@ -63,11 +63,14 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
     let integrator = integrator::whitted::Whitted::new(10);
     // let integrator = integrator::normals::Normals::new();
 
+    // let camera = camera::perspective::PerspectiveCamera::new(
+    //     Transform::look_at(Point3f::new(0.5, 0.5, 0.0), Point3f::new(0.5, 0.5, 2.0), Vec3f::new(0.0, -1.0, 0.0)),
+    //     70.0,
+    //     film.clone(),
+    // );
+
     let camera = camera::orthographic::OrthographicCamera::new(
         Transform::new(na::Projective3::identity()),
-        Bounds2f::new(Point2f::new(0.0, 0.0), Point2f::new(1.0, 1.0)),
-        0.0,
-        0.0,
         film.clone(),
     );
 
@@ -103,12 +106,12 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
             while let Some(_) = sampler.next_sample() {
                 let camera_sample = sampler.get_camera_sample(pixel);
 
-                if let Some((mut ray_diff, _)) = camera.generate_ray_differential(&camera_sample) {
-                    ray_diff
-                        .scale_differentials(1.0 / (sampler.samples_per_pixel() as Float).sqrt());
+                if let Some((ray, _)) = camera.generate_ray(&camera_sample) {
+                    // ray_diff
+                    //     .scale_differentials(1.0 / (sampler.samples_per_pixel() as Float).sqrt());
 
                     let mut sample =
-                        integrator.radiance(&ray_diff.ray, &scene, sampler.as_mut(), &arena, 0);
+                        integrator.radiance(&ray, &scene, sampler.as_mut(), &arena, 0);
                     if cfg!(debug_assertions) {
                         if sample.has_nans() {
                             eprintln!("Sample at pixel {}, {} has NaNs", pixel.x, pixel.y);
@@ -146,10 +149,10 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
 }
 
 fn test_scene() -> scene::Scene {
-    use geometry::{primitive::Primitive, receiver::Receiver, sphere::Sphere};
+    use geometry::{primitive::Primitive, receiver::Receiver, sphere::Sphere, disk::Disk};
     use light::emitter::Emitter;
     use material::matte::Matte;
-    use material::mirror::Mirror;
+    // use material::mirror::Mirror;
     use material::plastic::Plastic;
     use texture::constant::ConstantTexture;
 
@@ -172,18 +175,28 @@ fn test_scene() -> scene::Scene {
         Transform::translate(Vec3f::new(0.5, 0.5, 2.0)),
     )));
 
+    geometry.push(Primitive::Receiver(Receiver::new(
+        Arc::new(Disk::new(2.0, 0.0)),
+        Arc::new(Matte::new(
+            Arc::new(ConstantTexture::new(Spectrum::from_rgb(0.8, 0.8, 0.8))),
+            Some(Arc::new(ConstantTexture::new(0.2))),
+        )),
+        Transform::translate(Vec3f::new(0.5, 1.2, 2.0)) * Transform::rotation(Vec3f::new(1.0, 0.0, 0.0), 360.0 - 70.0),
+    )));
+
     // geometry.push(Primitive::Emitter(Emitter::new_point(
     //     Spectrum::from_rgb(0.0, 0.0, 1.0),
     //     Point3f::new(0.5, 0.5, 0.0),
     // )));
 
-    // geometry.push(Primitive::Emitter(Emitter::new_spot(
-    //     Spectrum::from_rgb(0.0, 0.0, 1.0),
-    //     Point3f::new(0.5, 0.5, 0.0),
-    //     Vec3f::new(0.0, 0.0, 1.0),
-    //     3.0,
-    //     5.0,
-    // )));
+    geometry.push(Primitive::Emitter(Emitter::new_spot(
+        Spectrum::from_rgb(5.0, 5.0, 5.0),
+        Point3f::new(0.5, -0.5, 0.0),
+        Point3f::new(0.5, 0.5, 2.0),
+        Vec3f::new(0.0, 0.0, -1.0),
+        50.0,
+        53.0,
+    )));
 
     geometry.push(Primitive::Emitter(Emitter::new_area(
         Spectrum::from_rgb(0.0, 70.0, 0.0),
