@@ -4,7 +4,7 @@ use crate::geometry::Sampleable;
 use crate::math::*;
 use num::traits::FloatConst;
 
-#[derive(new, Copy, Clone)]
+#[derive(new, Clone)]
 pub struct Sphere {
     radius: Float,
 }
@@ -115,7 +115,6 @@ impl Geometry for Sphere {
         4.0 * Float::PI() * self.radius * self.radius
     }
 }
-
 
 impl Sphere {
     fn sample_uniform(&self, transform: &TransformPair, samples: (Float, Float)) -> Point3f {

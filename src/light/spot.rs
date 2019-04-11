@@ -12,8 +12,7 @@ pub struct Spot {
     cos_falloff_start: Float,
     cos_falloff_end: Float,
     intensity: Spectrum,
-    light_to_world: Transform,
-    world_to_light: Transform,
+    transform: TransformPair,
 }
 
 impl Spot {
@@ -25,20 +24,19 @@ impl Spot {
         theta_start_deg: Float,
         theta_end_deg: Float,
     ) -> Self {
-        let transform = Transform::look_at(pos, pos + dir, up);
+        let to_global = Transform::look_at(pos, pos + dir, up).inverse();
         assert!(theta_start_deg < theta_end_deg);
         Self {
             world_pos: pos,
             cos_falloff_end: theta_end_deg.to_radians().cos(),
             cos_falloff_start: theta_start_deg.to_radians().cos(),
             intensity,
-            light_to_world: transform,
-            world_to_light: transform.inverse(),
+            transform: TransformPair::from(to_global),
         }
     }
 
     fn falloff(&self, dir: Vec3f) -> Float {
-        let dir = self.world_to_light.apply(dir).normalized();
+        let dir = self.transform.to_local.apply(dir).normalized();
         let cos_theta = dir.z;
         // Remember that if theta_1 < theta_2, then cos_theta_1 > cos_theta_2
         if cos_theta < self.cos_falloff_end {

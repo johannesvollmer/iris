@@ -1,5 +1,5 @@
+use crate::geometry::{Geometry, Interaction, LocalAABB, LocalGeometry, Sampleable};
 use crate::math::*;
-use crate::geometry::{LocalAABB, Geometry, LocalGeometry, Sampleable, Interaction};
 use num::traits::FloatConst;
 
 #[derive(new, Debug, Clone)]
@@ -50,21 +50,29 @@ impl Geometry for Disk {
         let u = phi / (2.0 * Float::PI());
         let v = 1.0 - ((r_hit - self.inner_radius) / (self.radius - self.inner_radius));
 
-        let dpdu = LocalVec3f::new(-2.0 * Float::PI() * p_hit.y, 2.0 * Float::PI() * p_hit.x, 0.0);
-        let dpdv = LocalVec3f::new(p_hit.x, p_hit.y, 0.0) * (self.inner_radius - self.radius) / r_hit;
+        let dpdu = LocalVec3f::new(
+            -2.0 * Float::PI() * p_hit.y,
+            2.0 * Float::PI() * p_hit.x,
+            0.0,
+        );
+        let dpdv =
+            LocalVec3f::new(p_hit.x, p_hit.y, 0.0) * (self.inner_radius - self.radius) / r_hit;
 
         let normal = LocalNormal3f::new(0.0, 0.0, 1.0);
 
-        Some((LocalGeometry {
-            point: p_hit,
-            point_error: LocalVec3f::default(),
-            ns: normal,
-            ng: normal,
-            uv: Point2f::new(u, v),
-            dpdu,
-            dpdv,
-            time: ray.time,
-        }, t_hit))
+        Some((
+            LocalGeometry {
+                point: p_hit,
+                point_error: LocalVec3f::default(),
+                ns: normal,
+                ng: normal,
+                uv: Point2f::new(u, v),
+                dpdu,
+                dpdv,
+                time: ray.time,
+            },
+            t_hit,
+        ))
     }
 
     fn area(&self) -> Float {
@@ -75,7 +83,7 @@ impl Geometry for Disk {
 impl Sampleable for Disk {
     fn sample_shape(
         &self,
-        int: &Interaction,
+        _int: &Interaction,
         transform: &TransformPair,
         samples: (Float, Float),
     ) -> Point3f {

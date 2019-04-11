@@ -3,6 +3,7 @@ use num::{Float as _, FromPrimitive};
 
 pub use num::clamp;
 
+#[allow(dead_code)]
 pub fn lerp<T: num::Float>(param: T, min: T, max: T) -> T {
     min * (T::one() - param) + max * param
 }

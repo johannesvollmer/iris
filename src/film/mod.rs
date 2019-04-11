@@ -1,11 +1,11 @@
-pub mod filter;
-pub mod spectrum;
-
-use std::sync::Mutex;
-//use crate::film::color::Color4f;
 use crate::film::filter::Filter;
 use crate::film::spectrum::Spectrum;
 use crate::math::*;
+use std::sync::Mutex;
+
+pub mod camera;
+pub mod filter;
+pub mod spectrum;
 
 #[derive(Copy, Clone)]
 pub struct Pixel {
@@ -130,8 +130,7 @@ impl Film {
             let weight = 1.0 / pixel_in.filter_weight_sum;
 
             for (i, component) in pixel_in.rgb.iter().enumerate() {
-                let val = spectrum::gamma_correct(component * weight);
-                debug_assert!(val <= 1.0);
+                let val = num::clamp(spectrum::gamma_correct(component * weight), 0.0, 1.0);
                 weighted[i] = (val * PIXEL_RANGE).max(0.0) as ImgOut;
             }
 

@@ -1,4 +1,4 @@
-use crate::camera::CameraSample;
+use crate::film::camera::CameraSample;
 use crate::math::*;
 
 pub mod random;

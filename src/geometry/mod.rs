@@ -6,8 +6,8 @@ pub mod interaction;
 pub mod primitive;
 pub mod receiver;
 
-pub mod sphere;
 pub mod disk;
+pub mod sphere;
 
 pub use interaction::{Interaction, Shading, SurfaceInteraction};
 
@@ -83,7 +83,7 @@ pub trait Sampleable: Geometry {
         samples: (Float, Float),
     ) -> Point3f;
 
-    fn pdf(&self, int: &Interaction, transform: &TransformPair, dir: Vec3f) -> Float {
+    fn pdf(&self, _int: &Interaction, _transform: &TransformPair, _dir: Vec3f) -> Float {
         1.0 / self.area()
     }
 }

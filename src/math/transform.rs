@@ -2,7 +2,7 @@ use crate::math::bounds::Bounds3f;
 use crate::math::misc::gamma;
 use crate::math::normal::Normal3f;
 use crate::math::{Float, Point3f, Ray, Vec3f};
-use nalgebra::{Matrix4, Orthographic3, Perspective3, Projective3, Vector3};
+use nalgebra::{Matrix4, Projective3, Vector3};
 
 #[derive(new, Debug, Copy, Clone)]
 pub struct Transform {
@@ -18,8 +18,8 @@ pub struct TransformPair {
 impl From<Transform> for TransformPair {
     fn from(to_global: Transform) -> Self {
         let inv = to_global.inverse();
-        debug_assert!(Matrix4::determinant(to_global.m.matrix()).is_finite());        
-        debug_assert!(Matrix4::determinant(inv.m.matrix()).is_finite());        
+        debug_assert!(Matrix4::determinant(to_global.m.matrix()).is_finite());
+        debug_assert!(Matrix4::determinant(inv.m.matrix()).is_finite());
         Self {
             to_global,
             to_local: inv,
@@ -156,16 +156,34 @@ impl Transform {
         )
     }
 
-    pub fn orthographic(z_near: Float, z_far: Float) -> Self {
-        Self {
-            m: Orthographic3::new(-1.0, 1.0, -1.0, 1.0, z_near, z_far).to_projective(),
-        }
-    }
+    // pub fn orthographic(z_near: Float, z_far: Float) -> Self {
+    //     Self {
+    //         m: Orthographic3::new(-1.0, 1.0, -1.0, 1.0, z_near, z_far).to_projective(),
+    //     }
+    // }
 
-    pub fn perspective(aspect: Float, fov: Float, z_near: Float, z_far: Float) -> Self {
-        Self {
-            m: Perspective3::new(aspect, fov, z_near, z_far).to_projective(),
-        }
+    pub fn perspective(fov_deg: Float, z_near: Float, z_far: Float) -> Self {
+        let persp = Projective3::from_matrix_unchecked(Matrix4::new(
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            z_far / (z_far - z_near),
+            -z_far * z_near / (z_far - z_near),
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+        ));
+
+        let inv_tan_ang = 1.0 / (fov_deg.to_radians() / 2.0).tan();
+        Transform::scale(inv_tan_ang, inv_tan_ang, 1.0) * Self { m: persp }
     }
 
     pub fn scale(x: Float, y: Float, z: Float) -> Self {
@@ -188,8 +206,8 @@ impl Transform {
         let axis = axis.normalized();
         Self {
             m: Projective3::from_matrix_unchecked(Matrix4::from_scaled_axis(
-                &na::Vector3::new(axis.x, axis.y, axis.z) * angle_deg.to_radians(),
-            ))
+                na::Vector3::new(axis.x, axis.y, axis.z) * angle_deg.to_radians(),
+            )),
         }
     }
 
