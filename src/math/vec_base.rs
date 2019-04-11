@@ -61,6 +61,15 @@ macro_rules! define_vec {
             ) -> Self {
                 x * sin_theta * phi.cos() + y * sin_theta * phi.sin() + z * cos_theta
             }
+
+            #[allow(dead_code)]
+            pub fn face_forward(self, other: Self) -> Self {
+                if self.dot(other) < 0.0 {
+                    -self
+                } else {
+                    self
+                }
+            }
         }
 
         impl std::cmp::PartialEq for $vecbase {

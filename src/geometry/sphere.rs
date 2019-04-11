@@ -117,15 +117,24 @@ impl Geometry for Sphere {
 }
 
 impl Sphere {
-    fn sample_uniform(&self, transform: &TransformPair, samples: (Float, Float)) -> Point3f {
+    fn sample_uniform(&self, int: &Interaction, transform: &TransformPair, samples: (Float, Float)) -> Interaction {
         let point = Point3f::default() + sample::uniform_sphere(samples) * self.radius;
 
         // Compute point error
         let factor = self.radius / point.distance(Point3f::default());
         let point = Point3f::new(factor * point.x, factor * point.y, factor * point.z);
-        let _point_error = point.to_vec().abs() * gamma(5);
+        let point_error = point.to_vec().abs() * gamma(5);
 
-        transform.to_global.apply_point(point)
+        let world_point = transform.to_global.apply_point(point);
+        let world_normal = transform.to_local.apply_normal(Normal3f::from(point.to_vec()));
+
+        Interaction {
+            point: world_point,
+            normal: world_normal.normalized(),
+            point_error: point_error,
+            wo: Vec3f::default(),
+            time: int.time,
+        }
     }
 }
 
@@ -135,7 +144,7 @@ impl Sampleable for Sphere {
         int: &Interaction,
         transform: &TransformPair,
         samples: (Float, Float),
-    ) -> Point3f {
+    ) -> Interaction {
         let center = transform.to_global.apply_point(Point3f::default());
         let wc = (center - int.point).normalized();
         let (wc_x, wc_y) = wc.coordinate_system();
@@ -143,7 +152,7 @@ impl Sampleable for Sphere {
         let origin = offset_ray_origin(int.point, int.point_error, int.normal, center - int.point);
         if origin.distance_squared(center) <= self.radius * self.radius {
             // If inside, sample uniformly
-            return self.sample_uniform(transform, samples);
+            return self.sample_uniform(int, transform, samples);
         }
 
         // Compute theta, phi
@@ -174,10 +183,19 @@ impl Sampleable for Sphere {
         let point = Point3f::new(factor * point.x, factor * point.y, factor * point.z);
         let point_error = point.to_vec().abs() * gamma(5);
 
-        transform
+        let (world_point, point_error) = transform
             .to_global
-            .apply_point_with_error(point, point_error)
-            .0 // TODO: Incorporate error from int.point_error
+            .apply_point_with_error(point, point_error);
+
+        let world_normal = transform.to_local.apply_normal(Normal3f::from(normal));
+
+        Interaction {
+            point: world_point,
+            normal: world_normal.normalized(),
+            point_error: point_error,
+            wo: Vec3f::default(),
+            time: int.time,
+        }
     }
 
     fn pdf(&self, int: &Interaction, transform: &TransformPair, _dir: Vec3f) -> Float {

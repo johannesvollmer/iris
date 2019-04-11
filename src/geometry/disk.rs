@@ -83,12 +83,22 @@ impl Geometry for Disk {
 impl Sampleable for Disk {
     fn sample_shape(
         &self,
-        _int: &Interaction,
+        int: &Interaction,
         transform: &TransformPair,
         samples: (Float, Float),
-    ) -> Point3f {
+    ) -> Interaction {
         let point = sample::concentric_disk(samples);
         let point_obj = Point3f::new(point.x * self.radius, point.y * self.radius, 0.0);
-        transform.to_global.apply_point(point_obj)
+        let world_point = transform.to_global.apply_point(point_obj);
+
+        let world_normal = transform.to_local.apply_normal(LocalNormal3f::new(0.0, 0.0, 1.0).as_global()).normalized();
+
+        Interaction {
+            point: world_point,
+            normal: world_normal,
+            point_error: Vec3f::default(),
+            wo: Vec3f::default(),
+            time: int.time,
+        }
     }
 }

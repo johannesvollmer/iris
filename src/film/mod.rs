@@ -130,8 +130,11 @@ impl Film {
             let weight = 1.0 / pixel_in.filter_weight_sum;
 
             for (i, component) in pixel_in.rgb.iter().enumerate() {
-                let val = num::clamp(spectrum::gamma_correct(component * weight), 0.0, 1.0);
-                weighted[i] = (val * PIXEL_RANGE).max(0.0) as ImgOut;
+                let val = component * weight;
+                let tonemapped = val / (1.0 + val);
+                let gamma_corrected = spectrum::gamma_correct(tonemapped);
+                debug_assert!(gamma_corrected >= 0.0 && gamma_corrected <= 1.0);
+                weighted[i] = (gamma_corrected * PIXEL_RANGE).max(0.0) as ImgOut;
             }
 
             image::Rgb(weighted)

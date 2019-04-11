@@ -35,18 +35,19 @@ impl LocalGeometry {
             .to_global
             .apply_point_with_error(self.point.as_global(), self.point_error.as_global());
 
+        let ng = m.to_local.apply_normal(self.ng.as_global()).normalized();
+        let ns = m.to_local.apply_normal(self.ns.as_global()).normalized().face_forward(ng);
+
         SurfaceInteraction {
             int: Interaction {
                 point: p,
                 point_error: err,
-                // TODO: Face forward correction
-                normal: m.to_local.apply_normal(self.ng.as_global()).normalized(),
+                normal: ng,
                 wo: -ray.d,
                 time: self.time,
             },
             shading: Shading {
-                // TODO: Face forward correction
-                normal: m.to_local.apply_normal(self.ns.as_global()).normalized(),
+                normal: ns,
                 dpdu: m.to_global.apply(self.dpdu.as_global()),
                 dpdv: m.to_global.apply(self.dpdu.as_global()),
             },
@@ -81,7 +82,7 @@ pub trait Sampleable: Geometry {
         int: &Interaction,
         transform: &TransformPair,
         samples: (Float, Float),
-    ) -> Point3f;
+    ) -> Interaction;
 
     fn pdf(&self, _int: &Interaction, _transform: &TransformPair, _dir: Vec3f) -> Float {
         1.0 / self.area()

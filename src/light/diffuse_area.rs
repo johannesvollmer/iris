@@ -32,8 +32,8 @@ impl DiffuseArea {
 }
 
 impl Light for DiffuseArea {
-    fn radiance(&self, int: &Interaction, w: Vec3f) -> Spectrum {
-        if w.dot_nrm(int.normal) > 0.0 {
+    fn radiance(&self, light_int: &Interaction, w: Vec3f) -> Spectrum {
+        if w.dot_nrm(light_int.normal) > 0.0 {
             self.emission
         } else {
             Spectrum::all(0.0)
@@ -45,12 +45,12 @@ impl Light for DiffuseArea {
         int: &Interaction,
         samples: (Float, Float),
     ) -> (Spectrum, Vec3f, Float) {
-        let world_sample_point = self.geometry.sample_shape(int, &self.transform, samples);
+        let light_int = self.geometry.sample_shape(int, &self.transform, samples);
 
-        let dir = world_sample_point - int.point;
+        let dir = light_int.point - int.point;
         let pdf = self.geometry.pdf(int, &self.transform, dir);
 
-        (self.radiance(int, dir), dir, pdf)
+        (self.radiance(&light_int, -dir), dir, pdf)
     }
 
     fn power(&self) -> Spectrum {

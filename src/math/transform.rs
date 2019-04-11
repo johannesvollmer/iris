@@ -40,10 +40,12 @@ impl Transform {
         Vec3f::new(v.x, v.y, v.z)
     }
 
-    pub fn apply_normal(&self, normal: Normal3f) -> Normal3f {
-        let n = Projective3::from_matrix_unchecked(self.m.to_homogeneous().transpose())
-            * na::Point3::new(normal.x, normal.y, normal.z);
-        Normal3f::new(n.x, n.y, n.z)
+    pub fn apply_normal(&self, n: Normal3f) -> Normal3f {
+        Normal3f::new(
+            self.m[(0, 0)] * n.x + self.m[(1, 0)] * n.y + self.m[(2, 0)] * n.z,
+            self.m[(0, 1)] * n.x + self.m[(1, 1)] * n.y + self.m[(2, 1)] * n.z,
+            self.m[(0, 2)] * n.x + self.m[(1, 2)] * n.y + self.m[(2, 2)] * n.z,
+        )
     }
 
     pub fn apply_point(&self, point: Point3f) -> Point3f {
