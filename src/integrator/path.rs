@@ -9,6 +9,7 @@ use bumpalo::Bump;
 #[derive(new)]
 #[allow(dead_code)]
 pub struct Path {
+    min_depth: i32,
     max_depth: i32,
 }
 
@@ -29,43 +30,39 @@ impl Integrator for Path {
         for bounces in 0..self.max_depth {
             let opt_isect = scene.intersect(&ray);
 
-            if bounces == 0 || specular_bounce {
-                out += match &opt_isect {
-                    Some(isect) => {
-                        beta * isect
-                            .light
-                            .map(|l| l.radiance(&isect.int, -ray.d))
-                            .unwrap_or_default()
+            match &opt_isect {
+                Some(isect) => {
+                    if bounces == 0 || specular_bounce {
+                        out += beta * isect.light.map(|l| l.radiance(&isect.int, -ray.d)).unwrap_or_default();
                     }
-                    None => Spectrum::default(), // TODO: Background radiance
-                };
-            }
-            if opt_isect.is_none() || bounces >= self.max_depth {
-                break;
-            }
 
-            let hit = opt_isect.unwrap();
-            let bsdf = hit.compute_bsdf(arena);
-            // TODO: Account for things without BSDF
-            out += beta * self.uniform_sample_one(scene, sampler, &bsdf, &hit);
+                    let hit = opt_isect.unwrap();
+                    let bsdf = hit.compute_bsdf(arena);
+                    out += beta * self.uniform_sample_one(scene, sampler, &bsdf, &hit);
 
-            let wo = -ray.d;
-            let (f, wi, pdf, flags) = bsdf.sample(wo, BxDFType::ALL, sampler.get_2d());
-            if pdf == 0.0 || f.is_black() {
-                break;
-            }
+                    let wo = -ray.d;
+                    let (f, wi, pdf, flags) = bsdf.sample(wo, BxDFType::ALL, sampler.get_2d());
+                    if pdf == 0.0 || f.is_black() {
+                        break;
+                    }
 
-            beta *= f * wi.dot_nrm(hit.shading.normal).abs() / pdf;
-            specular_bounce = flags.contains(BxDFType::SPECULAR);
-            ray = hit.int.spawn_ray(wi);
+                    specular_bounce = flags.contains(BxDFType::SPECULAR);
+                    beta *= f * wi.dot_nrm(hit.shading.normal).abs() / pdf;
+                    ray = hit.int.spawn_ray(wi);
 
-            if bounces > 3 {
-                let q = (1.0 - beta.y()).max(0.05);
-                beta = beta / (1.0 - q);
-                if sampler.get_1d() < q {
-                    break;
+                    if bounces > self.min_depth {
+                        let q = (1.0 - beta.y()).max(0.05);
+                        beta = beta / (1.0 - q);
+                        if sampler.get_1d() < q {
+                            break;
+                        }
+                    }
+                }
+                None => {
+                    // TODO: Background radiance
                 }
             }
+
         }
 
         out

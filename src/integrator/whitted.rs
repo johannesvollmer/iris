@@ -32,6 +32,10 @@ impl Integrator for Whitted {
 
             let wo = -ray.d;
 
+            if let Some(e) = hit.light {
+                out += e.radiance(&hit.int, wo);
+            }
+
             // Evaluate contribution from lights
             for light in &scene.lights {
                 let (li, wi, pdf, vis) = light.sample_incoming(&hit.int, sampler.get_2d());

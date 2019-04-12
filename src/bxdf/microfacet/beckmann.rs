@@ -41,11 +41,11 @@ impl MicrofacetDistribution for Beckmann {
         }
     }
 
-    fn sample(&self, wo: ShadingVec3f, sample: (Float, Float)) -> ShadingVec3f {
+    fn sample(&self, _wo: ShadingVec3f, _sample: (Float, Float)) -> ShadingVec3f {
         unimplemented!()
     }
 
-    fn pdf(&self, wo: ShadingVec3f, wh: ShadingVec3f) -> Float {
+    fn pdf(&self, _wo: ShadingVec3f, _wh: ShadingVec3f) -> Float {
         unimplemented!()
     }
 }

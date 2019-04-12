@@ -1,4 +1,3 @@
-use crate::geometry::primitive::Primitive;
 use crate::light::Light;
 use crate::material::Material;
 use crate::math::*;

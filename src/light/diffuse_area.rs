@@ -47,7 +47,7 @@ impl Light for DiffuseArea {
     ) -> (Spectrum, Vec3f, Float) {
         let light_int = self.geometry.sample_shape(int, &self.transform, samples);
 
-        let dir = light_int.point - int.point;
+        let dir = (light_int.point - int.point).normalized();
         let pdf = self.geometry.pdf(int, &self.transform, dir);
 
         (self.radiance(&light_int, -dir), dir, pdf)

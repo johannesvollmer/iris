@@ -34,7 +34,7 @@ pub trait Integrator {
         hit: &SurfaceInteraction,
         depth: i32,
     ) -> Spectrum {
-        let ng = bsdf.ng.to_vec();
+        let ns = bsdf.ns.to_vec();
         let wo = -ray.d;
         let (f, wi, pdf, _types) = bsdf.sample(
             wo,
@@ -42,7 +42,7 @@ pub trait Integrator {
             sampler.get_2d(),
         );
 
-        let n_dot_wi = wi.dot(ng).abs();
+        let n_dot_wi = wi.dot(ns).abs();
 
         if pdf > 0.0 && !f.is_black() && n_dot_wi != 0.0 {
             let reflected_ray = hit.int.spawn_ray(wi);

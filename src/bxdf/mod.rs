@@ -62,6 +62,7 @@ pub trait BxDF {
         }
     }
 
+    #[allow(dead_code)]
     fn rho_dir(&self, w: ShadingVec3f, samples: &[(Float, Float)]) -> Spectrum {
         samples
             .iter()
@@ -77,6 +78,7 @@ pub trait BxDF {
             / samples.len() as Float
     }
 
+    #[allow(dead_code)]
     fn rho_hemisphere(
         &self,
         samples_a: &[(Float, Float)],
