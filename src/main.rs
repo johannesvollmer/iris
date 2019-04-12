@@ -58,7 +58,7 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
 
     let scene = test_scene();
 
-    let integrator = integrator::path::Path::new(1, 3);
+    let integrator = integrator::path::Path::new(4, 8);
     // let integrator = integrator::whitted::Whitted::new(10);
     // let integrator = integrator::normals::Normals::new();
 
@@ -192,7 +192,7 @@ fn test_scene() -> scene::Scene {
         Arc::new(Disk::new(10.0, 0.0)),
         Arc::new(Matte::new(
             Arc::new(ConstantTexture::new(Spectrum::from_rgb(0.8, 0.0, 0.0))),
-            Some(Arc::new(ConstantTexture::new(0.5))),
+            Some(Arc::new(ConstantTexture::new(1.0))),
         )),
         Transform::translate(Vec3f::new(-1.3, 0.0, 1.0))
             * Transform::rotation(Vec3f::new(0.0, 1.0, 0.0), 90.0),
@@ -203,7 +203,7 @@ fn test_scene() -> scene::Scene {
         Arc::new(Disk::new(10.0, 0.0)),
         Arc::new(Matte::new(
             Arc::new(ConstantTexture::new(Spectrum::from_rgb(0.0, 0.8, 0.0))),
-            Some(Arc::new(ConstantTexture::new(0.5))),
+            Some(Arc::new(ConstantTexture::new(1.0))),
         )),
         Transform::translate(Vec3f::new(1.3, 0.0, 1.0))
             * Transform::rotation(Vec3f::new(0.0, 1.0, 0.0), 360.0 - 90.0),
@@ -214,7 +214,7 @@ fn test_scene() -> scene::Scene {
         Arc::new(Disk::new(10.0, 0.0)),
         Arc::new(Matte::new(
             Arc::new(ConstantTexture::new(Spectrum::from_rgb(0.74, 0.74, 0.74))),
-            Some(Arc::new(ConstantTexture::new(0.5))),
+            Some(Arc::new(ConstantTexture::new(1.0))),
         )),
         Transform::translate(Vec3f::new(0.0, 0.0, 3.0)),
     )));
@@ -224,7 +224,7 @@ fn test_scene() -> scene::Scene {
         Arc::new(Disk::new(10.0, 0.0)),
         Arc::new(Matte::new(
             Arc::new(ConstantTexture::new(Spectrum::from_rgb(0.74, 0.74, 0.74))),
-            Some(Arc::new(ConstantTexture::new(0.5))),
+            Some(Arc::new(ConstantTexture::new(1.0))),
         )),
         Transform::translate(Vec3f::new(0.0, 2.0, 1.0))
             * Transform::rotation(Vec3f::new(1.0, 0.0, 0.0), 90.0),

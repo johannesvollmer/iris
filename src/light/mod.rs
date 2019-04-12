@@ -28,13 +28,13 @@ pub struct Visibility {
 }
 
 impl Visibility {
-    pub fn new(int: &Interaction, light_point: Point3f) -> Self {
+    pub fn new(surface_int: &Interaction, light_point: Point3f) -> Self {
         Self {
-            hit_point: int.point,
-            hit_err: int.point_error,
+            hit_point: surface_int.point,
+            hit_err: surface_int.point_error,
             light_point,
-            normal: int.normal,
-            time: int.time,
+            normal: surface_int.normal,
+            time: surface_int.time,
         }
     }
 

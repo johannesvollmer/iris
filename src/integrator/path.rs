@@ -52,10 +52,10 @@ impl Integrator for Path {
 
                     if bounces > self.min_depth {
                         let q = (1.0 - beta.y()).max(0.05);
-                        beta = beta / (1.0 - q);
                         if sampler.get_1d() < q {
                             break;
                         }
+                        beta = beta / (1.0 - q);
                     }
                 }
                 None => {
