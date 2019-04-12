@@ -7,6 +7,7 @@ use crate::scene::Scene;
 use bumpalo::Bump;
 
 #[derive(new)]
+#[allow(dead_code)]
 pub struct Whitted {
     max_depth: i32,
 }
@@ -30,14 +31,10 @@ impl Integrator for Whitted {
             let bsdf = hit.compute_bsdf(arena);
 
             let wo = -ray.d;
-            let sample = {
-                let v = sampler.get_2d();
-                (v.x, v.y)
-            };
 
             // Evaluate contribution from lights
             for light in &scene.lights {
-                let (li, wi, pdf, vis) = light.sample_incoming(&hit.int, sample);
+                let (li, wi, pdf, vis) = light.sample_incoming(&hit.int, sampler.get_2d());
                 let f = bsdf.eval(wo, wi, BxDFType::ALL);
                 if !li.is_black() && !f.is_black() && vis.visible(scene) {
                     out += f * li * wi.dot_nrm(bsdf.ns).abs() / pdf;

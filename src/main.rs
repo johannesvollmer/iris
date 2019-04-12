@@ -33,7 +33,7 @@ fn main() {
     if cfg!(debug_assertions) {
         render(100, 100, "out.png", 1);
     } else {
-        render(500, 500, "out.png", 50);
+        render(500, 500, "out.png", 500);
     }
 }
 
@@ -58,7 +58,8 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
 
     let scene = test_scene();
 
-    let integrator = integrator::whitted::Whitted::new(10);
+    let integrator = integrator::path::Path::new(100);
+    // let integrator = integrator::whitted::Whitted::new(10);
     // let integrator = integrator::normals::Normals::new();
 
     let camera = film::camera::PerspectiveCamera::new(
@@ -68,7 +69,6 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
             Vec3f::new(0.0, 1.0, 0.0),
         )
         .inverse(),
-        // 50.0,
         80.0,
         &*film,
     );
@@ -120,7 +120,13 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
                         } else if sample.has_negatives() {
                             eprintln!("Sample at pixel ({}, {}) has negatives", pixel.x, pixel.y);
                             sample = Spectrum::black();
-                        } // TODO: Check sample.y() < 0
+                        } else if sample.y() < -1e-3 {
+                            eprintln!(
+                                "Sample at pixel ({}. {}) has negative luminance",
+                                pixel.x, pixel.y
+                            );
+                            sample = Spectrum::black();
+                        }
                     }
 
                     film_tile.add_sample(camera_sample.film, &sample);
@@ -203,7 +209,7 @@ fn test_scene() -> scene::Scene {
             Some(Arc::new(ConstantTexture::new(1.0))),
         )),
         Transform::translate(Vec3f::new(1.7, 0.0, 1.0))
-            * Transform::rotation(Vec3f::new(0.0, 1.0, 0.0), 360.0 - 90.0)
+            * Transform::rotation(Vec3f::new(0.0, 1.0, 0.0), 360.0 - 90.0),
     )));
 
     // Back
@@ -213,7 +219,7 @@ fn test_scene() -> scene::Scene {
             Arc::new(ConstantTexture::new(Spectrum::from_rgb(0.74, 0.74, 0.74))),
             Some(Arc::new(ConstantTexture::new(1.0))),
         )),
-        Transform::translate(Vec3f::new(0.0, 0.0, 3.0))
+        Transform::translate(Vec3f::new(0.0, 0.0, 3.0)),
     )));
 
     // Ceiling
@@ -224,12 +230,12 @@ fn test_scene() -> scene::Scene {
             Some(Arc::new(ConstantTexture::new(1.0))),
         )),
         Transform::translate(Vec3f::new(0.0, 2.0, 1.0))
-            * Transform::rotation(Vec3f::new(1.0, 0.0, 0.0), 270.0)
+            * Transform::rotation(Vec3f::new(1.0, 0.0, 0.0), 270.0),
     )));
 
     // Ceiling light
     geometry.push(Primitive::Emitter(Emitter::new_area(
-        Spectrum::from_rgb(1.0, 1.0, 1.0) * 1.0,
+        Spectrum::from_rgb(1.0, 1.0, 1.0) * 2.0,
         Transform::translate(Vec3f::new(0.0, 1.98, 1.5))
             * Transform::rotation(Vec3f::new(1.0, 0.0, 0.0), 90.0),
         Arc::new(Disk::new(0.3, 0.0)),
@@ -237,37 +243,6 @@ fn test_scene() -> scene::Scene {
             Arc::new(ConstantTexture::new(Spectrum::from_rgb(1.0, 1.0, 1.0))),
             None,
         )),
-    )));
-
-    // Right light
-    geometry.push(Primitive::Emitter(Emitter::new_area(
-        Spectrum::from_rgb(1.0, 1.0, 1.0) * 1.0,
-        Transform::translate(Vec3f::new(1.7, 1.0, 2.5))
-            * Transform::rotation(Vec3f::new(0.0, 1.0, 0.0), 360.0 - 90.0),
-        Arc::new(Disk::new(0.3, 0.0)),
-        Arc::new(Matte::new(
-            Arc::new(ConstantTexture::new(Spectrum::from_rgb(1.0, 1.0, 1.0))),
-            None,
-        )),
-    )));
-
-    // Left light
-    geometry.push(Primitive::Emitter(Emitter::new_area(
-        Spectrum::from_rgb(1.0, 1.0, 1.0) * 1.0,
-        Transform::translate(Vec3f::new(-1.0, 1.00, 2.98)),
-        Arc::new(Disk::new(0.3, 0.0)),
-        Arc::new(Matte::new(
-            Arc::new(ConstantTexture::new(Spectrum::from_rgb(1.0, 1.0, 1.0))),
-            None,
-        )),
-    )));
-
-    // Left mirror
-    geometry.push(Primitive::Receiver(Receiver::new(
-        Arc::new(Disk::new(0.4, 0.0)),
-        Arc::new(Mirror::new(Arc::new(ConstantTexture::new(Spectrum::from_rgb(0.5, 0.8, 0.5))))),
-        Transform::translate(Vec3f::new(-1.3, 1.0, 2.0))
-            * Transform::rotation(Vec3f::new(0.0, 1.0, 0.0), 90.0 + 45.0),
     )));
 
     scene::Scene::new(geometry)

@@ -85,6 +85,7 @@ impl Hit for DiffuseArea {
             ray,
             self.material.clone(),
             self.geometry.clone().into_geometry(),
+            Some(self),
         );
 
         Some((si, local_ray.as_local().global_t(local_ray_t, ray)))

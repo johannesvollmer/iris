@@ -40,4 +40,12 @@ impl MicrofacetDistribution for Beckmann {
             (1.0 - 1.259 * a + 0.396 * a.powi(2)) / (3.535 * a + 2.181 * a.powi(2))
         }
     }
+
+    fn sample(&self, wo: ShadingVec3f, sample: (Float, Float)) -> ShadingVec3f {
+        unimplemented!()
+    }
+
+    fn pdf(&self, wo: ShadingVec3f, wh: ShadingVec3f) -> Float {
+        unimplemented!()
+    }
 }

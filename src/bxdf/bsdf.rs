@@ -130,4 +130,23 @@ impl<'a> BSDF<'a> {
             .map(|bxdf| bxdf.eval(wo_local, wi_local))
             .fold(Spectrum::all(0.0), |x, y| x + y)
     }
+
+    pub fn pdf(&self, wo: Vec3f, wi: Vec3f, flags: BxDFType) -> Float {
+        let wo_local = self.vec_to_shading(wo).normalized();
+        let wi_local = self.vec_to_shading(wi).normalized();
+
+        let (n_components, pdf) = self
+            .bxdfs
+            .iter()
+            .filter(|bxdf| bxdf.matches(flags))
+            .map(|bxdf| bxdf.pdf(wo_local, wi_local))
+            .enumerate()
+            .fold((0, 0.0), |(_, pdf_acc), (i, pdf)| (i, pdf_acc + pdf));
+
+        if n_components > 0 {
+            pdf / n_components as Float
+        } else {
+            0.0
+        }
+    }
 }

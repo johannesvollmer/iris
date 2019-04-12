@@ -34,15 +34,23 @@ impl BxDF for MicrofacetReflection {
             / (4.0 * cos_theta_i * cos_theta_o)
     }
 
-    fn sample(
-        &self,
-        _wo: ShadingVec3f,
-        _samples: (Float, Float),
-    ) -> (Spectrum, ShadingVec3f, Float) {
-        unimplemented!()
+    fn sample(&self, wo: ShadingVec3f, samples: (Float, Float)) -> (Spectrum, ShadingVec3f, Float) {
+        let wh = self.distribution.sample(wo, samples);
+        let wi = ShadingVec3f::reflect(wo, wo);
+        if !wo.same_hemisphere(wi) {
+            return (Spectrum::default(), ShadingVec3f::default(), 0.0);
+        }
+
+        let pdf = self.distribution.pdf(wo, wh) / (4.0 * wo.dot(wh));
+        (self.eval(wo, wi), wi, pdf)
     }
 
-    fn pdf(&self, _wi: ShadingVec3f, _wo: ShadingVec3f) -> Float {
-        unimplemented!()
+    fn pdf(&self, wi: ShadingVec3f, wo: ShadingVec3f) -> Float {
+        if !wo.same_hemisphere(wi) {
+            0.0
+        } else {
+            let wh = (wo + wi).normalized();
+            self.distribution.pdf(wo, wh) / (4.0 * wo.dot(wh))
+        }
     }
 }

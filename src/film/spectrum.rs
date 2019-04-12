@@ -71,6 +71,10 @@ impl RGBSpectrum {
         [self.r, self.g, self.b]
     }
 
+    pub fn y(&self) -> Float {
+        0.212_671 * self.r + 0.715_160 * self.g + 0.072_169 * self.b
+    }
+
     pub fn has_nans(&self) -> bool {
         self.r.is_nan() || self.g.is_nan() || self.b.is_nan()
     }
@@ -189,5 +193,27 @@ impl std::ops::Div for RGBSpectrum {
         };
         debug_assert!(out.is_valid());
         out
+    }
+}
+
+impl std::ops::MulAssign for RGBSpectrum {
+    fn mul_assign(&mut self, s: Self) {
+        self.r *= s.r;
+        self.g *= s.g;
+        self.b *= s.b;
+    }
+}
+
+impl std::ops::MulAssign<Float> for RGBSpectrum {
+    fn mul_assign(&mut self, f: Float) {
+        self.r *= f;
+        self.g *= f;
+        self.b *= f;
+    }
+}
+
+impl std::iter::Sum for RGBSpectrum {
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(Self::all(0.0), |sum, x| sum + x)
     }
 }

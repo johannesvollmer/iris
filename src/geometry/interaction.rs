@@ -1,5 +1,6 @@
 use super::Geometry;
 use crate::bxdf::bsdf::BSDF;
+use crate::light::Light;
 use crate::material::Material;
 use crate::math::*;
 use bumpalo::Bump;
@@ -31,6 +32,7 @@ pub struct SurfaceInteraction<'a> {
     pub bsdf: Option<&'a BSDF<'a>>,
     pub material: Option<Arc<dyn Material + Send + Sync>>,
     pub geometry: Option<Arc<dyn Geometry + Send + Sync>>,
+    pub light: Option<&'a (dyn Light + Send + Sync)>,
 }
 
 impl Interaction {

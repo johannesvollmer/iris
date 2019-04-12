@@ -91,7 +91,10 @@ impl Sampleable for Disk {
         let point_obj = Point3f::new(point.x * self.radius, point.y * self.radius, 0.0);
         let world_point = transform.to_global.apply_point(point_obj);
 
-        let world_normal = transform.to_local.apply_normal(LocalNormal3f::new(0.0, 0.0, 1.0).as_global()).normalized();
+        let world_normal = transform
+            .to_local
+            .apply_normal(LocalNormal3f::new(0.0, 0.0, 1.0).as_global())
+            .normalized();
 
         Interaction {
             point: world_point,

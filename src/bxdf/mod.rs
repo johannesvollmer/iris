@@ -61,4 +61,42 @@ pub trait BxDF {
             0.0
         }
     }
+
+    fn rho_dir(&self, w: ShadingVec3f, samples: &[(Float, Float)]) -> Spectrum {
+        samples
+            .iter()
+            .filter_map(|&sample| {
+                let (f, wi, pdf) = self.sample(w, sample);
+                if pdf > 0.0 {
+                    Some(f * wi.cos_theta().abs() / pdf)
+                } else {
+                    None
+                }
+            })
+            .sum::<Spectrum>()
+            / samples.len() as Float
+    }
+
+    fn rho_hemisphere(
+        &self,
+        samples_a: &[(Float, Float)],
+        samples_b: &[(Float, Float)],
+    ) -> Spectrum {
+        samples_a
+            .iter()
+            .zip(samples_b.iter())
+            .filter_map(|(&a, &b)| {
+                let wo = sample::uniform_hemisphere(a).as_shading();
+                let (f, wi, pdf) = self.sample(wo, b);
+                let numerator = f * (wi.cos_theta() * wo.cos_theta()).abs();
+                let denominator = pdf * sample::uniform_hemisphere_pdf();
+                if pdf > 0.0 {
+                    Some(numerator / denominator)
+                } else {
+                    None
+                }
+            })
+            .sum::<Spectrum>()
+            / (samples_a.len() as Float * Float::PI())
+    }
 }

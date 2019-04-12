@@ -11,15 +11,15 @@ pub trait Sampler {
     fn samples_per_pixel(&self) -> u32;
 
     fn get_1d(&mut self) -> Float;
-    fn get_2d(&mut self) -> Vec2f;
+    fn get_2d(&mut self) -> (Float, Float);
 
     fn get_camera_sample(&mut self, raster: Point2i) -> CameraSample {
         let lens_vec = self.get_2d();
 
         CameraSample {
-            film: Point2f::from(raster) + self.get_2d(),
+            film: Point2f::from(raster) + Vec2f::from(self.get_2d()),
             time: self.get_1d(),
-            lens: Point2f::new(lens_vec.x, lens_vec.y),
+            lens: Point2f::new(lens_vec.0, lens_vec.1),
         }
     }
 }

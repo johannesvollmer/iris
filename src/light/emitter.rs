@@ -9,7 +9,7 @@ use std::sync::Arc;
 #[derive(Clone)]
 pub struct Emitter {
     light_type: LightType,
-    light: Arc<dyn Light + Send + Sync>,
+    pub light: Arc<dyn Light + Send + Sync>,
 }
 
 impl Emitter {
@@ -72,10 +72,9 @@ impl Emitter {
         )
     }
 
-    // pub fn pdf(&self, int: &Interaction, wi: Vec3f) -> Float {
-    //     debug_assert!(self.light_type == LightType::Area);
-    //     self.light.pdf(int, wi)
-    // }
+    pub fn pdf_incoming(&self, int: &Interaction, wi: Vec3f) -> Float {
+        self.light.pdf_incoming(int, wi)
+    }
 
     pub fn is_delta(&self) -> bool {
         match self.light_type {

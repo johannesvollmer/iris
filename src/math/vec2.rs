@@ -86,3 +86,9 @@ where
         }
     }
 }
+
+impl From<(Float, Float)> for Vec2f {
+    fn from(t: (Float, Float)) -> Self {
+        Self { x: t.0, y: t.1 }
+    }
+}

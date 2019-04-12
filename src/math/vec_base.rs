@@ -70,6 +70,11 @@ macro_rules! define_vec {
                     self
                 }
             }
+
+            #[allow(dead_code)]
+            pub fn reflect(wo: Self, n: Self) -> Self {
+                -wo + n * 2.0 * wo.dot(n)
+            }
         }
 
         impl std::cmp::PartialEq for $vecbase {

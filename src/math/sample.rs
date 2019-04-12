@@ -25,6 +25,16 @@ pub fn cos_hemisphere(u: (Float, Float)) -> Vec3f {
     Vec3f::new(d.x, d.y, z)
 }
 
+pub fn uniform_hemisphere(u: (Float, Float)) -> Vec3f {
+    let r = (1.0 - u.0 * u.0).max(0.0).sqrt();
+    let phi = 2.0 * Float::PI() * u.1;
+    Vec3f::new(r * phi.cos(), r * phi.sin(), u.0)
+}
+
+pub fn uniform_hemisphere_pdf() -> Float {
+    Float::FRAC_1_PI() * 0.5
+}
+
 pub fn uniform_sphere(u: (Float, Float)) -> Vec3f {
     let z = 1.0 - 2.0 * u.0;
     let r = (1.0 - z * z).max(0.0).sqrt();

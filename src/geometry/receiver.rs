@@ -47,6 +47,7 @@ impl Hit for Receiver {
             ray,
             self.material.clone(),
             self.geometry.clone(),
+            None,
         );
 
         Some((si, local_ray.as_local().global_t(local_ray_t, ray)))

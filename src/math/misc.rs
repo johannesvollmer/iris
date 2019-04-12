@@ -9,6 +9,12 @@ pub fn lerp<T: num::Float>(param: T, min: T, max: T) -> T {
 }
 
 #[allow(dead_code)]
+pub fn power_heuristic(nf: i32, f_pdf: Float, ng: i32, g_pdf: Float) -> Float {
+    let (f, g) = (nf as Float * f_pdf, ng as Float * g_pdf);
+    (f * f) / (f * f + g * g)
+}
+
+#[allow(dead_code)]
 pub fn solve_quadratic(a: Float, b: Float, c: Float) -> Option<(Float, Float)> {
     let (a, b, c) = (f64::from(a), f64::from(b), f64::from(c));
 

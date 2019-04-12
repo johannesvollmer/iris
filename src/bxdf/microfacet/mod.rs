@@ -15,6 +15,10 @@ pub trait MicrofacetDistribution {
     fn g(&self, wo: ShadingVec3f, wi: ShadingVec3f) -> Float {
         1.0 / (1.0 + self.lambda(wo) + self.lambda(wi))
     }
+
+    fn sample(&self, wo: ShadingVec3f, sample: (Float, Float)) -> ShadingVec3f;
+
+    fn pdf(&self, wo: ShadingVec3f, wh: ShadingVec3f) -> Float;
 }
 
 pub fn roughness_to_alpha(r: Float) -> Float {

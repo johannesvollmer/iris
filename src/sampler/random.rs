@@ -50,8 +50,8 @@ impl Sampler for RandomSampler {
         self.rng.gen()
     }
 
-    fn get_2d(&mut self) -> Vec2f {
-        Vec2f::new(self.rng.gen(), self.rng.gen())
+    fn get_2d(&mut self) -> (Float, Float) {
+        (self.rng.gen(), self.rng.gen())
     }
 
     fn next_sample(&mut self) -> Option<Float> {

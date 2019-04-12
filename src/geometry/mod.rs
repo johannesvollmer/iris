@@ -1,3 +1,5 @@
+use crate::geometry::primitive::Primitive;
+use crate::light::Light;
 use crate::material::Material;
 use crate::math::*;
 use std::sync::Arc;
@@ -30,13 +32,18 @@ impl LocalGeometry {
         ray: &Ray,
         material: Arc<dyn Material + Send + Sync>,
         geometry: Arc<dyn Geometry + Send + Sync>,
+        light: Option<&'a (dyn Light + Send + Sync)>,
     ) -> SurfaceInteraction<'a> {
         let (p, err) = m
             .to_global
             .apply_point_with_error(self.point.as_global(), self.point_error.as_global());
 
         let ng = m.to_local.apply_normal(self.ng.as_global()).normalized();
-        let ns = m.to_local.apply_normal(self.ns.as_global()).normalized().face_forward(ng);
+        let ns = m
+            .to_local
+            .apply_normal(self.ns.as_global())
+            .normalized()
+            .face_forward(ng);
 
         SurfaceInteraction {
             int: Interaction {
@@ -57,6 +64,7 @@ impl LocalGeometry {
             bsdf: None,
             material: Some(material),
             geometry: Some(geometry),
+            light,
         }
     }
 }

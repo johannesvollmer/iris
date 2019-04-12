@@ -117,7 +117,12 @@ impl Geometry for Sphere {
 }
 
 impl Sphere {
-    fn sample_uniform(&self, int: &Interaction, transform: &TransformPair, samples: (Float, Float)) -> Interaction {
+    fn sample_uniform(
+        &self,
+        int: &Interaction,
+        transform: &TransformPair,
+        samples: (Float, Float),
+    ) -> Interaction {
         let point = Point3f::default() + sample::uniform_sphere(samples) * self.radius;
 
         // Compute point error
@@ -126,7 +131,9 @@ impl Sphere {
         let point_error = point.to_vec().abs() * gamma(5);
 
         let world_point = transform.to_global.apply_point(point);
-        let world_normal = transform.to_local.apply_normal(Normal3f::from(point.to_vec()));
+        let world_normal = transform
+            .to_local
+            .apply_normal(Normal3f::from(point.to_vec()));
 
         Interaction {
             point: world_point,
