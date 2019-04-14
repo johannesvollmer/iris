@@ -17,7 +17,7 @@ impl Material for Mirror {
         let mut bsdf = BSDF::new(hit);
 
         let r = self.kr.eval(hit);
-        let fresnel = Arc::new(fresnel::NoOp::new());
+        let fresnel = alloc.alloc(fresnel::NoOp::new());
         bsdf.push(alloc, SpecularReflection::new(r, fresnel));
 
         bsdf

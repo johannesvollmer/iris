@@ -3,15 +3,14 @@ use crate::bxdf::BxDF;
 use crate::bxdf::BxDFType;
 use crate::film::spectrum::Spectrum;
 use crate::math::*;
-use std::sync::Arc;
 
 #[derive(new)]
-pub struct SpecularReflection {
+pub struct SpecularReflection<'a> {
     pub r: Spectrum,
-    pub fresnel: Arc<dyn Fresnel>,
+    pub fresnel: &'a dyn Fresnel,
 }
 
-impl BxDF for SpecularReflection {
+impl BxDF for SpecularReflection<'_> {
     fn get_type(&self) -> BxDFType {
         BxDFType::REFLECTION | BxDFType::SPECULAR
     }

@@ -28,8 +28,8 @@ impl Material for Plastic {
 
         let ks = self.ks.eval(hit);
         let roughness = microfacet::roughness_to_alpha(self.roughness.eval(hit));
-        let distrib = Arc::new(TrowbridgeReitz::new(roughness, roughness));
-        let fresnel = Arc::new(fresnel::Dielectric::new(1.5, 1.0));
+        let distrib = alloc.alloc(TrowbridgeReitz::new(roughness, roughness));
+        let fresnel = alloc.alloc(fresnel::Dielectric::new(1.5, 1.0));
         bsdf.push(alloc, MicrofacetReflection::new(ks, distrib, fresnel));
 
         bsdf

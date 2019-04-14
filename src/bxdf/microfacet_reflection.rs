@@ -4,16 +4,15 @@ use crate::bxdf::BxDF;
 use crate::bxdf::BxDFType;
 use crate::film::spectrum::Spectrum;
 use crate::math::*;
-use std::sync::Arc;
 
 #[derive(new)]
-pub struct MicrofacetReflection {
+pub struct MicrofacetReflection<'a> {
     r: Spectrum,
-    distribution: Arc<dyn MicrofacetDistribution + Send + Sync>,
-    fresnel: Arc<dyn Fresnel + Send + Sync>,
+    distribution: &'a dyn MicrofacetDistribution,
+    fresnel: &'a dyn Fresnel,
 }
 
-impl BxDF for MicrofacetReflection {
+impl BxDF for MicrofacetReflection<'_> {
     fn get_type(&self) -> BxDFType {
         BxDFType::REFLECTION | BxDFType::GLOSSY
     }
