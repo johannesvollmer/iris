@@ -108,7 +108,7 @@ impl<'a> BSDF<'a> {
                 .iter()
                 .filter(|bxdf| bxdf.matches(flags))
                 .map(|bxdf| bxdf.eval(wo_local, wi_local))
-                .fold(Spectrum::all(0.0), |x, y| x + y);
+                .sum()
         }
 
         if num_matching > 1 {
@@ -123,12 +123,13 @@ impl<'a> BSDF<'a> {
         let wi_local = self.vec_to_shading(wi).normalized();
 
         let flags = flags.for_hemisphere(wo_local, wi_local);
+        // dbg!(wi_local.cos_theta());
 
         self.bxdfs
             .iter()
             .filter(|bxdf| bxdf.matches(flags))
             .map(|bxdf| bxdf.eval(wo_local, wi_local))
-            .fold(Spectrum::all(0.0), |x, y| x + y)
+            .sum()
     }
 
     pub fn pdf(&self, wo: Vec3f, wi: Vec3f, flags: BxDFType) -> Float {

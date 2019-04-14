@@ -31,14 +31,16 @@ impl Integrator for Path {
             let opt_isect = scene.intersect(&ray);
 
             match &opt_isect {
-                Some(isect) => {
+                Some(hit) => {
+                    assert!(out.y() >= 0.0);
                     if bounces == 0 || specular_bounce {
-                        out += beta * isect.light.map(|l| l.radiance(&isect.int, -ray.d)).unwrap_or_default();
+                        out += beta * hit.light.map(|l| l.radiance(&hit.int, -ray.d)).unwrap_or_default();
+                        assert!(out.y() >= 0.0);
                     }
 
-                    let hit = opt_isect.unwrap();
                     let bsdf = hit.compute_bsdf(arena);
                     out += beta * self.uniform_sample_one(scene, sampler, &bsdf, &hit);
+                    assert!(out.y() >= 0.0);
 
                     let wo = -ray.d;
                     let (f, wi, pdf, flags) = bsdf.sample(wo, BxDFType::ALL, sampler.get_2d());

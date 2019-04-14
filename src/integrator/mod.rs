@@ -100,36 +100,36 @@ pub trait Integrator {
         hit: &SurfaceInteraction,
     ) -> Spectrum {
         let mut out = Spectrum::default();
-        let flags = BxDFType::ALL & !BxDFType::SPECULAR;
+        let flags = BxDFType::ALL & !BxDFType::SPECULAR; // Does this make sense?
 
         let (li, wi, mut light_pdf, vis) = light.sample_incoming(&hit.int, sampler.get_2d());
 
         if light_pdf > 0.0 && !li.is_black() {
-            let f = bsdf.eval(hit.int.wo, wi, flags) * wi.dot_nrm(hit.shading.normal).abs();
+            let f = bsdf.eval(hit.int.wo, wi, flags);
             let scattering_pdf = bsdf.pdf(hit.int.wo, wi, flags);
-            if !f.is_black() && vis.visible(scene) {
+            // TODO: Why is n dot l sometimes negative?
+            if !f.is_black() && wi.dot_nrm(hit.shading.normal) >= 0.0 && vis.visible(scene) {
                 let weight = if light.is_delta() {
                     1.0
                 } else {
                     power_heuristic(1, light_pdf, 1, scattering_pdf)
                 };
-                out += f * li * weight / light_pdf;
+                out += f * li * wi.dot_nrm(bsdf.ns) * weight / light_pdf;
             }
         }
 
         if !light.is_delta() {
-            let (mut f, wi, scattering_pdf, sampled_flags) =
+            let (f, wi, scattering_pdf, sampled_flags) =
                 bsdf.sample(hit.int.wo, flags, sampler.get_2d()); // TODO: Flags?
-            f *= wi.dot_nrm(hit.shading.normal);
             let sampled_specular = sampled_flags.contains(BxDFType::SPECULAR);
 
-            if f.is_black() || scattering_pdf <= 0.0 {
+            if f.is_black() || scattering_pdf <= 0.0 || wi.dot_nrm(bsdf.ns) == 0.0 {
                 return out;
             }
 
             let mut weight = 1.0;
             if sampled_specular {
-                light_pdf = light.pdf_incoming(&hit.int, wi);
+                light_pdf = light.pdf_incoming(&hit.int, wi); // Does this make sense?
                 if light_pdf == 0.0 {
                     return out;
                 }
@@ -152,7 +152,7 @@ pub trait Integrator {
             };
 
             if !li.is_black() {
-                out += f * li * weight / scattering_pdf;
+                out += f * li * wi.dot_nrm(bsdf.ns).abs() * weight / scattering_pdf;
             }
         }
 

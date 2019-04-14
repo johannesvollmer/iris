@@ -91,8 +91,17 @@ pub trait Sampleable: Geometry {
         samples: (Float, Float),
     ) -> Interaction;
 
-    fn pdf(&self, _int: &Interaction, _transform: &TransformPair, _dir: Vec3f) -> Float {
-        1.0 / self.area()
+    fn pdf(&self, int: &Interaction, transform: &TransformPair, dir: Vec3f) -> Float {
+        let ray = int.spawn_ray(dir);
+        let (local_ray, o_err, d_err) = transform.to_local.apply_ray_with_error(&ray);
+        match self.local_intersect(&local_ray.as_local(), o_err.as_local(), d_err.as_local()) {
+            Some((lg, _)) => {
+                let hit_point = transform.to_global.apply_point(lg.point.as_global());
+                let hit_normal = transform.to_local.apply_normal(lg.ng.as_global());
+                int.point.distance_squared(hit_point) / ((-dir).dot_nrm(hit_normal) * self.area())
+            },
+            None => 0.0
+        }
     }
 }
 
