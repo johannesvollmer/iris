@@ -117,7 +117,7 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
                         } else if sample.has_negatives() {
                             eprintln!("Sample at pixel ({}, {}) has negatives", pixel.x, pixel.y);
                             sample = Spectrum::black();
-                        } else if sample.y() < -1e-3 {
+                        } else if sample.y() < 0.0 {
                             eprintln!(
                                 "Sample at pixel ({}. {}) has negative luminance",
                                 pixel.x, pixel.y
@@ -217,7 +217,7 @@ fn test_scene() -> scene::Scene {
             None,
         )),
         Transform::translate(Vec3f::new(0.0, 0.0, 3.0))
-            * Transform::rotation(Vec3f::new(1.0, 0.0, 0.0), 180.0)
+            * Transform::rotation(Vec3f::new(1.0, 0.0, 0.0), 180.0),
     )));
 
     // Ceiling
@@ -233,7 +233,7 @@ fn test_scene() -> scene::Scene {
 
     // Ceiling light
     geometry.push(Primitive::Emitter(Emitter::new_area(
-        Spectrum::from_rgb(1.0, 1.0, 1.0) * 5.0,
+        Spectrum::from_rgb(1.0, 1.0, 1.0) * 20.0,
         Transform::translate(Vec3f::new(0.0, 1.99, 2.3))
             * Transform::rotation(Vec3f::new(1.0, 0.0, 0.0), 90.0),
         Arc::new(Disk::new(0.3, 0.0)),

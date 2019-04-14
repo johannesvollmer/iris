@@ -37,65 +37,51 @@ impl MicrofacetDistribution for TrowbridgeReitz {
         (-1.0 + (1.0 + alpha_2_tan_2_theta).sqrt()) / 2.0
     }
 
+    // Sampling method from http://jcgt.org/published/0007/04/01/paper.pdf#page=10
+    // vec3 sampleGGXVNDF(vec3 Ve, float alpha_x, float alpha_y, float U1, float U2)
     fn sample(&self, wo: ShadingVec3f, samples: (Float, Float)) -> ShadingVec3f {
-        let flip = wo.z < 0.0;
-        if flip {
-            -ggx_sample(-wo, self.alpha_x, self.alpha_y, samples)
+        let (ax, ay) = (self.alpha_x, self.alpha_y);
+
+        // Section 3.2: transforming the view direction to the hemisphere configuration
+        // vec3 Vh = normalize(vec3(alpha_x * Ve.x, alpha_y * Ve.y, Ve.z));
+        let vh = ShadingVec3f::new(ax * wo.x, ay * wo.y, wo.z).normalized();
+
+        // Section 4.1: orthonormal basis
+        // vec3 T1 = (Vh.z < 0.9999) ? normalize(cross(vec3(0, 0, 1), Vh)) : vec3(1, 0, 0);
+        let t1_v = if vh.z < 0.9999 {
+            ShadingVec3f::new(0.0, 0.0, 0.1).cross(vh).normalized()
         } else {
-            ggx_sample(wo, self.alpha_x, self.alpha_y, samples)
-        }
+            ShadingVec3f::new(1.0, 0.0, 0.0)
+        };
+        // vec3 T2 = cross(Vh, T1);
+        let t2_v = wo.cross(t1_v);
+
+        // Section 4.2: parameterization of the projected area
+        // float r = sqrt(U1);
+        let r = samples.0.sqrt();
+        // float phi = 2.0 * M_PI * U2;
+        let phi = 2.0 * Float::PI() * samples.1;
+        // float t1 = r * cos(phi);
+        let t1 = r * phi.cos();
+        // float t2 = r * sin(phi);
+        let t2 = r * phi.sin();
+        // float s = 0.5 * (1.0 + Vh.z);
+        let s = 0.5 * (1.0 + vh.z);
+        // t2 = (1.0 - s)*sqrt(1.0 - t1*t1) + s*t2;
+        let t2 = (1.0 - s) * (1.0 - t1 * t1).sqrt() + s * t2;
+
+        // Section 4.3: reprojection onto hemisphere
+        // vec3 Nh = t1*T1 + t2*T2 + sqrt(max(0.0, 1.0 - t1*t1 - t2*t2))*Vh;
+        let nh = t1_v * t1 + t2_v * t2 + vh * (1.0 - t1 * t1 - t2 * t2).max(0.0).sqrt();
+
+        // Section 3.4: transforming the normal back to the ellipsoid configuration
+        // vec3 Ne = normalize(vec3(alpha_x * Nh.x, alpha_y * Nh.y, std::max<float>(0.0, Nh.z)));
+        let ne = ShadingVec3f::new(ax * nh.x, ay * nh.y, nh.z.max(0.0)).normalized();
+        // return Ne;
+        ne
     }
 
     fn pdf(&self, wo: ShadingVec3f, wh: ShadingVec3f) -> Float {
         self.distribution(wh) * self.g1(wo) * wo.dot(wh).abs() / wo.cos_theta().abs()
     }
-}
-
-fn ggx_sample_l1(cos_theta: Float, samples: (Float, Float)) -> (Float, Float) {
-    if cos_theta > 0.9999 {
-        let r = (samples.0 / (1.0 - samples.0)).sqrt();
-        let phi = 2.0 * Float::PI() * samples.1;
-        return (r * phi.cos(), r * phi.sin());
-    }
-
-    let sin_theta = (1.0 - cos_theta * cos_theta).max(0.0).sqrt();
-    let tan_theta = sin_theta / cos_theta;
-    let a = 1.0 / tan_theta;
-    let g1 = 2.0 / (1.0 + (1.0 + 1.0 / (a * a)).sqrt());
-
-    let a = 2.0 * samples.0 / g1 - 1.0;
-    let b = tan_theta;
-    let tmp = (1.0 / (a * a - 1.0)).min(1e10);
-    let d = (b * b * tmp * tmp - (a * a - b * b) * tmp).max(0.0).sqrt();
-
-    let slope_x = if a < 0.0 || (b * tmp + d) > 1.0 / tan_theta {
-        b * tmp - d
-    } else {
-        b * tmp + d
-    };
-
-    let (s, new_u2) = if samples.1 > 0.5 {
-        (1.0, 2.0 * samples.1 - 1.0)
-    } else {
-        (-1.0, 1.0 - 2.0 * samples.1)
-    };
-
-    let z = (new_u2 * (new_u2 * (new_u2 * 0.027385 - 0.073369) + 0.46341))
-        / (new_u2 * (new_u2 * (new_u2 * 0.093073 + 0.309420) - 1.0) + 0.597999);
-    let slope_y = s * z * (1.0 + slope_x * slope_x).sqrt();
-
-    debug_assert!(slope_y.is_finite());
-    (slope_x, slope_y)
-}
-
-fn ggx_sample(wi: ShadingVec3f, ax: Float, ay: Float, samples: (Float, Float)) -> ShadingVec3f {
-    let wi_stretched = ShadingVec3f::new(ax * wi.x, ay * wi.y, wi.z).normalized();
-
-    let (slope_x, slope_y) = ggx_sample_l1(wi_stretched.cos_theta(), samples);
-
-    let tmp = wi_stretched.cos_phi() * slope_x - wi_stretched.sin_phi() * slope_y;
-    let slope_y = wi_stretched.sin_phi() * slope_x + wi_stretched.cos_phi() * slope_y;
-    let slope_x = tmp;
-
-    ShadingVec3f::new(-slope_x * ax, -slope_y * ay, 1.0)
 }

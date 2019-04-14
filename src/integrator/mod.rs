@@ -127,21 +127,22 @@ pub trait Integrator {
                 return out;
             }
 
-            let mut weight = 1.0;
-            if sampled_specular {
-                light_pdf = light.pdf_incoming(&hit.int, wi); // Does this make sense?
+            let weight = if sampled_specular {
+                light_pdf = light.pdf_incoming(&hit.int, wi);
                 if light_pdf == 0.0 {
                     return out;
                 }
-                weight = power_heuristic(1, scattering_pdf, 1, light_pdf);
-            }
+                power_heuristic(1, scattering_pdf, 1, light_pdf)
+            } else {
+                1.0
+            };
 
             let ray = hit.int.spawn_ray(wi);
             let li = match scene.intersect(&ray) {
                 Some(isect) => {
                     let mut li = Spectrum::default();
-                    // TODO: This is a hack, please fix
                     if let Some(e) = isect.light {
+                        // Bit of a hack
                         if e as *const Light == &*light.light as *const Light {
                             li = e.radiance(&isect.int, -wi);
                         }

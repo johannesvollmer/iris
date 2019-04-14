@@ -24,7 +24,7 @@ impl Integrator for Path {
     ) -> Spectrum {
         let mut out = Spectrum::default();
         let mut beta = Spectrum::all(1.0);
-        let mut ray = ray.clone();
+        let mut ray = *ray;
         let mut specular_bounce = false;
 
         for bounces in 0..self.max_depth {
@@ -34,7 +34,11 @@ impl Integrator for Path {
                 Some(hit) => {
                     assert!(out.y() >= 0.0);
                     if bounces == 0 || specular_bounce {
-                        out += beta * hit.light.map(|l| l.radiance(&hit.int, -ray.d)).unwrap_or_default();
+                        out += beta
+                            * hit
+                                .light
+                                .map(|l| l.radiance(&hit.int, -ray.d))
+                                .unwrap_or_default();
                         assert!(out.y() >= 0.0);
                     }
 
@@ -64,7 +68,6 @@ impl Integrator for Path {
                     // TODO: Background radiance
                 }
             }
-
         }
 
         out

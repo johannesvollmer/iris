@@ -30,6 +30,7 @@ fn xyz_to_rgb(x: Float, y: Float, z: Float) -> [Float; 3] {
 }
 
 #[inline(always)]
+#[allow(dead_code)]
 pub fn gamma_correct(value: Float) -> Float {
     if value <= 0.003_130_8 {
         value * 12.92

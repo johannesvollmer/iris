@@ -138,7 +138,7 @@ impl Sphere {
         Interaction {
             point: world_point,
             normal: world_normal.normalized(),
-            point_error: point_error,
+            point_error,
             wo: Vec3f::default(),
             time: int.time,
         }
@@ -199,7 +199,7 @@ impl Sampleable for Sphere {
         Interaction {
             point: world_point,
             normal: world_normal.normalized(),
-            point_error: point_error,
+            point_error,
             wo: Vec3f::default(),
             time: int.time,
         }

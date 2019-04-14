@@ -99,8 +99,8 @@ pub trait Sampleable: Geometry {
                 let hit_point = transform.to_global.apply_point(lg.point.as_global());
                 let hit_normal = transform.to_local.apply_normal(lg.ng.as_global());
                 int.point.distance_squared(hit_point) / ((-dir).dot_nrm(hit_normal) * self.area())
-            },
-            None => 0.0
+            }
+            None => 0.0,
         }
     }
 }
