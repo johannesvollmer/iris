@@ -40,7 +40,9 @@ fn main() {
 fn render(width: i32, height: i32, filename: &str, spp: i32) {
     let start = std::time::SystemTime::now();
 
-    let film = Arc::new(film::Film::new(width, height));
+    let filter = Box::new(film::filter::Mitchell::new(4.0, 1.0 / 3.0, 1.0 / 3.0));
+    //let filter = Box::new(film::filter::Triangle::new(4.0));
+    let film = Arc::new(film::Film::new(width, height, filter));
 
     let resolution = Bounds2i::new(
         Point2i::new(0, 0),
@@ -85,6 +87,7 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
     let thread_work = |tile_idx: i32| {
         let horizontal = tile_idx % tile_dims.x;
         let vertical = tile_idx / tile_dims.x;
+        // TODO: Generate samples outside bounds
         let bounds = Bounds2i::new(
             Point2i::new(horizontal * TILE_SIZE, vertical * TILE_SIZE),
             Point2i::new(
@@ -93,7 +96,7 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
             ),
         );
 
-        let mut film_tile = film::Film::get_film_tile(bounds);
+        let mut film_tile = film.get_film_tile(bounds);
 
         let mut sampler = sampler.clone_seed(tile_idx as u64);
 
@@ -153,7 +156,6 @@ fn test_scene() -> scene::Scene {
     use geometry::{disk::Disk, primitive::Primitive, receiver::Receiver, sphere::Sphere};
     use light::emitter::Emitter;
     use material::matte::Matte;
-    // use material::mirror::Mirror;
     use material::plastic::Plastic;
     use texture::constant::ConstantTexture;
 
@@ -163,7 +165,7 @@ fn test_scene() -> scene::Scene {
         Arc::new(Sphere::new(0.5)),
         Arc::new(Plastic::new(
             Arc::new(ConstantTexture::new(Spectrum::from_rgb(0.8, 0.8, 0.8))),
-            Arc::new(ConstantTexture::new(Spectrum::from_rgb(0.2, 0.2, 0.2))),
+            Arc::new(ConstantTexture::new(Spectrum::from_rgb(0.0, 0.0, 0.0))),
             Arc::new(ConstantTexture::new(0.20)),
         )),
         // Arc::new(Mirror::new(
@@ -233,7 +235,7 @@ fn test_scene() -> scene::Scene {
 
     // Ceiling light
     geometry.push(Primitive::Emitter(Emitter::new_area(
-        Spectrum::from_rgb(1.0, 1.0, 1.0) * 20.0,
+        Spectrum::from_rgb(1.0, 1.0, 1.0) * 25.0,
         Transform::translate(Vec3f::new(0.0, 1.99, 2.3))
             * Transform::rotation(Vec3f::new(1.0, 0.0, 0.0), 90.0),
         Arc::new(Disk::new(0.3, 0.0)),
@@ -242,11 +244,6 @@ fn test_scene() -> scene::Scene {
             None,
         )),
     )));
-
-    // geometry.push(Primitive::Emitter(Emitter::new_point(
-    //     Spectrum::all(1.0) * 0.2,
-    //     Point3f::new(0.0, 1.99, 2.3),
-    // )));
 
     scene::Scene::new(geometry)
 }

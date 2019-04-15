@@ -1,7 +1,7 @@
 use crate::film::filter::Filter;
 use crate::film::spectrum::Spectrum;
 use crate::math::*;
-use std::sync::Mutex;
+use std::sync::{Mutex, Arc};
 
 pub mod camera;
 pub mod filter;
@@ -21,7 +21,7 @@ pub struct FilmTilePixel {
 
 pub struct FilmTile {
     bounds: Bounds2i,
-    filter: Box<dyn Filter>,
+    filter: Arc<dyn Filter>,
     filter_width: Float,
     pixels: Vec<FilmTilePixel>,
 }
@@ -37,7 +37,7 @@ type ImgOut = u16;
 const PIXEL_RANGE: Float = 65535.0;
 
 impl FilmTile {
-    pub fn new(bounds: Bounds2i, filter: Box<Filter>) -> FilmTile {
+    pub fn new(bounds: Bounds2i, filter: Arc<dyn Filter>) -> FilmTile {
         Self {
             bounds,
             filter_width: filter.width(),
@@ -59,6 +59,7 @@ impl FilmTile {
     }
 
     pub fn add_sample(&mut self, point: Point2f, sample: &Spectrum) {
+        // TODO: Check NaNs etc
         let discrete = point - Vec2f::new(0.5, 0.5);
         let mut p_min: Point2i = (discrete - self.filter_width).ceil().into();
         let mut p_max: Point2i =
@@ -75,7 +76,7 @@ impl FilmTile {
         for point in bounds {
             let weight = self
                 .filter
-                .evaluate(point.x as Float - discrete.x, point.y as Float - discrete.y);
+                .evaluate((point.x as Float - discrete.x).abs(), (point.y as Float - discrete.y).abs());
             let pixel = self.get_pixel_mut(point);
             pixel.contrib_sum += *sample * weight;
             pixel.filter_weight_sum += weight;
@@ -85,11 +86,12 @@ impl FilmTile {
 
 pub struct Film {
     pub full_resolution: Point2i,
+    pub filter: Arc<dyn Filter + Send + Sync>,
     pixels: Mutex<Vec<Pixel>>,
 }
 
 impl Film {
-    pub fn new(width: i32, height: i32) -> Self {
+    pub fn new(width: i32, height: i32, filter: Box<dyn Filter + Send + Sync>,) -> Self {
         Self {
             full_resolution: Point2i::new(width, height),
             pixels: Mutex::new(vec![
@@ -99,11 +101,12 @@ impl Film {
                 };
                 (width * height) as usize
             ]),
+            filter: filter.into(),
         }
     }
 
-    pub fn get_film_tile(bounds: Bounds2i) -> FilmTile {
-        FilmTile::new(bounds, Box::new(filter::Triangle::new(4.0)))
+    pub fn get_film_tile(&self, bounds: Bounds2i) -> FilmTile {
+        FilmTile::new(bounds, self.filter.clone())
     }
 
     pub fn merge_tile(&self, mut tile: FilmTile) {
@@ -130,11 +133,9 @@ impl Film {
             let weight = 1.0 / pixel_in.filter_weight_sum;
 
             for (i, component) in pixel_in.rgb.iter().enumerate() {
-                let val = component * weight;
-                // let tonemapped = 1.0 - (-val * 5.0).exp();
-                let tonemapped = num::clamp(val, 0.0, 1.0);
+                // Some filters (eg Mitchell) have negative lobes, so don't allow values below 0
+                let tonemapped = spectrum::tonemap((component * weight).max(0.0));
                 // let gamma_corrected = spectrum::gamma_correct(tonemapped);
-                // debug_assert!(gamma_corrected >= 0.0 && gamma_corrected <= 1.0);
                 weighted[i] = (tonemapped * PIXEL_RANGE) as ImgOut;
             }
 

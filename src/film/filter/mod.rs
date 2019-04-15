@@ -7,3 +7,6 @@ pub trait Filter {
 
 mod triangle;
 pub use triangle::Triangle;
+
+mod mitchell;
+pub use mitchell::Mitchell;

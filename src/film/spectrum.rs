@@ -39,6 +39,16 @@ pub fn gamma_correct(value: Float) -> Float {
     }
 }
 
+#[inline(always)]
+#[allow(dead_code)]
+pub fn tonemap(value: Float) -> Float {
+    // Simple reinhard tonemapping
+    // TODO: Use exposure tonemapping?
+    let out = value / (1.0 + value);
+    debug_assert!(out >= 0.0 && out <= 1.0);
+    out
+}
+
 impl RGBSpectrum {
     pub fn from_rgb(r: Float, g: Float, b: Float) -> Self {
         let out = Self { r, g, b };
