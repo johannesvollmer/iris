@@ -105,6 +105,15 @@ where
     }
 }
 
+impl std::default::Default for Point2i {
+    fn default() -> Self {
+        Self {
+            x: 0,
+            y: 0,
+        }
+    }
+}
+
 impl From<Point2f> for Point2i {
     fn from(p: Point2f) -> Point2i {
         Point2i {

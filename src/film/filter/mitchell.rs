@@ -25,8 +25,8 @@ impl Filter for Mitchell {
         mitchell_1d(x * self.inv_radius, self.b, self.c) * mitchell_1d(y * self.inv_radius, self.b, self.c)
     }
 
-    fn width(&self) -> Float {
-        self.radius * 2.0
+    fn radius(&self) -> Float {
+        self.radius
     }
 }
 

@@ -23,7 +23,7 @@ fn rgb_to_xyz(r: Float, g: Float, b: Float) -> [Float; 3] {
 #[allow(dead_code)]
 fn xyz_to_rgb(x: Float, y: Float, z: Float) -> [Float; 3] {
     [
-        3.240_479 * x - 1.537_15 * y - 0.4985_35 * z,
+        3.240_479 * x - 1.537_15 * y - 0.498_535 * z,
         -0.212_671 * x + 1.875_991 * y + 0.041_556 * z,
         0.055_648 * x - 0.204_043 * y + 1.057_311 * z,
     ]
@@ -42,11 +42,17 @@ pub fn gamma_correct(value: Float) -> Float {
 #[inline(always)]
 #[allow(dead_code)]
 pub fn tonemap(value: Float) -> Float {
-    // Simple reinhard tonemapping
-    // TODO: Use exposure tonemapping?
-    let out = value / (1.0 + value);
+    // TODO: Implement camera tone mapping
+    let l = value * 6.0;
+    let out = l / (1.0 + l);
     debug_assert!(out >= 0.0 && out <= 1.0);
     out
+}
+
+#[inline(always)]
+#[allow(dead_code)]
+pub fn rgb_to_luminance(r: Float, g: Float, b: Float) -> Float {
+    rgb_to_xyz(r, g, b)[1]
 }
 
 impl RGBSpectrum {
@@ -80,6 +86,10 @@ impl RGBSpectrum {
 
     pub fn to_rgb(&self) -> [Float; 3] {
         [self.r, self.g, self.b]
+    }
+
+    pub fn to_rgb_spectrum(&self) -> Self {
+        *self
     }
 
     pub fn y(&self) -> Float {

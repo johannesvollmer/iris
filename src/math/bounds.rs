@@ -1,4 +1,4 @@
-use super::{Float, Point2, Point2i, Point3f, Vec2};
+use super::{Float, Point2, Point2i, Point2f, Point3f, Vec2};
 use bvh::aabb::AABB;
 use num::traits::ToPrimitive;
 
@@ -17,6 +17,14 @@ pub struct Bounds2<T> {
 pub type Bounds2f = Bounds2<Float>;
 pub type Bounds2i = Bounds2<i32>;
 
+macro_rules! max {
+    ($a:expr, $b:expr) => { if $a > $b { $a } else { $b } };
+}
+
+macro_rules! min {
+    ($a:expr, $b:expr) => { if $a < $b { $a } else { $b } };
+}
+
 impl<T> Bounds2<T> {
     pub fn diagonal(&self) -> Vec2<T>
     where
@@ -31,6 +39,21 @@ impl<T> Bounds2<T> {
     {
         let diagonal = self.diagonal();
         diagonal.x * diagonal.y
+    }
+
+    pub fn intersection(&self, other: Self) -> Self
+    where
+        T: PartialOrd + Copy
+    {
+        let min = Point2::new(
+            max!(self.min.x, other.min.x),
+            max!(self.min.y, other.min.y),
+        );
+        let max = Point2::new(
+            min!(self.max.x, other.max.x),
+            min!(self.max.y, other.max.y),
+        );
+        Self::new(min, max)
     }
 
     /*pub fn contains(&self, point: Point2<T>) -> bool
@@ -97,5 +120,23 @@ impl Bounds3f {
                 self.max.z.to_f32().unwrap(),
             ),
         )
+    }
+}
+
+impl From<Bounds2f> for Bounds2i {
+    fn from(other: Bounds2f) -> Self {
+        Self {
+            min: Point2i::from(other.min),
+            max: Point2i::from(other.max),
+        }
+    }
+}
+
+impl From<Bounds2i> for Bounds2f {
+    fn from(other: Bounds2i) -> Self {
+        Self {
+            min: Point2f::from(other.min),
+            max: Point2f::from(other.max),
+        }
     }
 }

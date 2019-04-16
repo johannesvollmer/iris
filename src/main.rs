@@ -40,21 +40,9 @@ fn main() {
 fn render(width: i32, height: i32, filename: &str, spp: i32) {
     let start = std::time::SystemTime::now();
 
-    let filter = Box::new(film::filter::Mitchell::new(4.0, 1.0 / 3.0, 1.0 / 3.0));
-    //let filter = Box::new(film::filter::Triangle::new(4.0));
-    let film = Arc::new(film::Film::new(width, height, filter));
-
-    let resolution = Bounds2i::new(
-        Point2i::new(0, 0),
-        Point2i::new(width as i32, height as i32),
-    );
-
-    let tile_dims = Vec2i::new(
-        (resolution.max.x + TILE_SIZE - 1) / TILE_SIZE,
-        (resolution.max.y + TILE_SIZE - 1) / TILE_SIZE,
-    );
-
-    let ntiles = tile_dims.x * tile_dims.y;
+    let filter = Box::new(film::filter::Mitchell::new(2.0, 1.0 / 3.0, 1.0 / 3.0));
+    // let filter = Box::new(film::filter::Triangle::new(2.0));
+    let film = Arc::new(film::Film::new(width, height, TILE_SIZE, filter));
 
     let sampler = sampler::random::RandomSampler::new(spp as u32);
 
@@ -75,7 +63,7 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
         &*film,
     );
 
-    let progress_bar = indicatif::ProgressBar::new(ntiles as u64);
+    let progress_bar = indicatif::ProgressBar::new(film.ntiles as u64);
 
     progress_bar.set_style(
         indicatif::ProgressStyle::default_bar()
@@ -85,24 +73,13 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
     progress_bar.tick();
 
     let thread_work = |tile_idx: i32| {
-        let horizontal = tile_idx % tile_dims.x;
-        let vertical = tile_idx / tile_dims.x;
-        // TODO: Generate samples outside bounds
-        let bounds = Bounds2i::new(
-            Point2i::new(horizontal * TILE_SIZE, vertical * TILE_SIZE),
-            Point2i::new(
-                ((horizontal + 1) * TILE_SIZE).min(resolution.max.x),
-                ((vertical + 1) * TILE_SIZE).min(resolution.max.y),
-            ),
-        );
-
-        let mut film_tile = film.get_film_tile(bounds);
+        let mut film_tile = film.get_film_tile(tile_idx);
 
         let mut sampler = sampler.clone_seed(tile_idx as u64);
 
         let arena = Bump::new();
 
-        for pixel in bounds {
+        for pixel in film_tile.sample_bounds {
             sampler.start_pixel(pixel);
 
             while let Some(_) = sampler.next_sample() {
@@ -139,8 +116,8 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
     };
 
     match std::env::var("THREADS") {
-        Ok(_) => (0..ntiles).for_each(thread_work),
-        Err(_) => (0..ntiles).into_par_iter().for_each(thread_work),
+        Ok(_) => (0..film.ntiles).for_each(thread_work),
+        Err(_) => (0..film.ntiles).into_par_iter().for_each(thread_work),
     }
 
     film.write_to_file(filename).unwrap();

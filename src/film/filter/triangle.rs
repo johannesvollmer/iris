@@ -4,7 +4,7 @@ use crate::math::Float;
 #[derive(new, Copy, Clone)]
 #[allow(dead_code)]
 pub struct Triangle {
-    width: Float,
+    radius: Float,
 }
 
 impl Filter for Triangle {
@@ -12,7 +12,7 @@ impl Filter for Triangle {
         Float::max(0.0, 1.0 - x) * Float::max(0.0, 1.0 - y)
     }
 
-    fn width(&self) -> Float {
-        self.width
+    fn radius(&self) -> Float {
+        self.radius
     }
 }
