@@ -39,22 +39,6 @@ pub fn gamma_correct(value: Float) -> Float {
     }
 }
 
-#[inline(always)]
-#[allow(dead_code)]
-pub fn tonemap(value: Float) -> Float {
-    // TODO: Implement camera tone mapping
-    let l = value * 6.0;
-    let out = l / (1.0 + l);
-    debug_assert!(out >= 0.0 && out <= 1.0);
-    out
-}
-
-#[inline(always)]
-#[allow(dead_code)]
-pub fn rgb_to_luminance(r: Float, g: Float, b: Float) -> Float {
-    rgb_to_xyz(r, g, b)[1]
-}
-
 impl RGBSpectrum {
     pub fn from_rgb(r: Float, g: Float, b: Float) -> Self {
         let out = Self { r, g, b };
@@ -114,6 +98,19 @@ impl RGBSpectrum {
 
     pub fn is_black(&self) -> bool {
         self.r == 0.0 && self.g == 0.0 && self.b == 0.0
+    }
+
+    pub fn to_xyz(&self) -> [Float; 3] {
+        rgb_to_xyz(self.r, self.g, self.b)
+    }
+
+    pub fn from_xyz(x: Float, y: Float, z: Float) -> Self {
+        let rgb = xyz_to_rgb(x, y, z);
+        Self {
+            r: rgb[0],
+            g: rgb[1],
+            b: rgb[2],
+        }
     }
 }
 

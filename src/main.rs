@@ -31,9 +31,9 @@ const TILE_SIZE: i32 = 16;
 
 fn main() {
     if cfg!(debug_assertions) {
-        render(100, 100, "out.png", 1);
+        render(100, 100, "out.exr", 1);
     } else {
-        render(500, 500, "out.png", 25);
+        render(500, 500, "out.exr", 25);
     }
 }
 
@@ -41,7 +41,6 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
     let start = std::time::SystemTime::now();
 
     let filter = Box::new(film::filter::Mitchell::new(2.0, 1.0 / 3.0, 1.0 / 3.0));
-    // let filter = Box::new(film::filter::Triangle::new(2.0));
     let film = Arc::new(film::Film::new(width, height, TILE_SIZE, filter));
 
     let sampler = sampler::random::RandomSampler::new(spp as u32);

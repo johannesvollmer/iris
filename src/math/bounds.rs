@@ -1,4 +1,4 @@
-use super::{Float, Point2, Point2i, Point2f, Point3f, Vec2};
+use super::{Float, Point2, Point2f, Point2i, Point3f, Vec2};
 use bvh::aabb::AABB;
 use num::traits::ToPrimitive;
 
@@ -18,11 +18,23 @@ pub type Bounds2f = Bounds2<Float>;
 pub type Bounds2i = Bounds2<i32>;
 
 macro_rules! max {
-    ($a:expr, $b:expr) => { if $a > $b { $a } else { $b } };
+    ($a:expr, $b:expr) => {
+        if $a > $b {
+            $a
+        } else {
+            $b
+        }
+    };
 }
 
 macro_rules! min {
-    ($a:expr, $b:expr) => { if $a < $b { $a } else { $b } };
+    ($a:expr, $b:expr) => {
+        if $a < $b {
+            $a
+        } else {
+            $b
+        }
+    };
 }
 
 impl<T> Bounds2<T> {
@@ -43,16 +55,10 @@ impl<T> Bounds2<T> {
 
     pub fn intersection(&self, other: Self) -> Self
     where
-        T: PartialOrd + Copy
+        T: PartialOrd + Copy,
     {
-        let min = Point2::new(
-            max!(self.min.x, other.min.x),
-            max!(self.min.y, other.min.y),
-        );
-        let max = Point2::new(
-            min!(self.max.x, other.max.x),
-            min!(self.max.y, other.max.y),
-        );
+        let min = Point2::new(max!(self.min.x, other.min.x), max!(self.min.y, other.min.y));
+        let max = Point2::new(min!(self.max.x, other.max.x), min!(self.max.y, other.max.y));
         Self::new(min, max)
     }
 

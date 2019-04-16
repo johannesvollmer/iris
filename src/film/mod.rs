@@ -1,8 +1,8 @@
 use crate::film::filter::Filter;
-use crate::film::spectrum::{Spectrum, RGBSpectrum};
+use crate::film::spectrum::{RGBSpectrum, Spectrum};
 use crate::math::*;
 use image::Pixel as _;
-use std::sync::{Mutex, Arc};
+use std::sync::{Arc, Mutex};
 
 pub mod camera;
 pub mod filter;
@@ -39,16 +39,17 @@ type ImgOut = u16;
 const PIXEL_RANGE: Float = 65535.99;
 
 impl FilmTile {
-    pub fn new(sample_bounds: Bounds2i, pixel_bounds: Bounds2i, filter: Arc<dyn Filter>) -> FilmTile {
+    pub fn new(
+        sample_bounds: Bounds2i,
+        pixel_bounds: Bounds2i,
+        filter: Arc<dyn Filter>,
+    ) -> FilmTile {
         Self {
             pixel_bounds,
             sample_bounds,
             filter_radius: filter.radius(),
             filter,
-            pixels: vec![
-                FilmTilePixel::default();
-                pixel_bounds.area() as usize
-            ],
+            pixels: vec![FilmTilePixel::default(); pixel_bounds.area() as usize],
         }
     }
 
@@ -65,7 +66,8 @@ impl FilmTile {
         let p_min = Point2f::from((discrete - self.filter_radius).ceil());
         let p_max = Point2f::from((discrete + self.filter_radius).floor() + Vec2f::new(1.0, 1.0));
 
-        let bounds = Bounds2i::from(Bounds2f::new(p_min, p_max).intersection(self.pixel_bounds.into()));
+        let bounds =
+            Bounds2i::from(Bounds2f::new(p_min, p_max).intersection(self.pixel_bounds.into()));
         debug_assert!(bounds.max.x >= bounds.min.x && bounds.max.y >= bounds.min.y);
 
         if bounds.area() > 0 {
@@ -74,9 +76,7 @@ impl FilmTile {
                 debug_assert!(relative.x.abs() <= self.filter_radius);
                 debug_assert!(relative.y.abs() <= self.filter_radius);
 
-                let weight = self
-                    .filter
-                    .evaluate(relative.x.abs(), relative.y.abs());
+                let weight = self.filter.evaluate(relative.x.abs(), relative.y.abs());
 
                 let pixel = self.get_pixel_mut(point);
                 pixel.contrib_sum += *sample * weight;
@@ -98,7 +98,12 @@ pub struct Film {
 }
 
 impl Film {
-    pub fn new(width: i32, height: i32, tile_size: i32, filter: Box<dyn Filter + Send + Sync>) -> Self {
+    pub fn new(
+        width: i32,
+        height: i32,
+        tile_size: i32,
+        filter: Box<dyn Filter + Send + Sync>,
+    ) -> Self {
         let tile_dims = Point2i::new(
             (width + tile_size - 1) / tile_size,
             (height + tile_size - 1) / tile_size,
@@ -139,10 +144,7 @@ impl Film {
         let x_max = (x_min + self.tile_size).min(self.sample_bounds.max.x);
         let y_max = (y_min + self.tile_size).min(self.sample_bounds.max.y);
 
-        let bounds = Bounds2i::new(
-            Point2i::new(x_min, y_min),
-            Point2i::new(x_max, y_max)
-        );
+        let bounds = Bounds2i::new(Point2i::new(x_min, y_min), Point2i::new(x_max, y_max));
 
         // let sample_bounds = bounds.intersection(self.sample_bounds);
         let sample_bounds = bounds;
@@ -151,8 +153,10 @@ impl Film {
             let half = Vec2f::new(0.5, 0.5);
             let float_bounds = Bounds2f::from(sample_bounds);
             let p_min = Point2i::from((float_bounds.min - half - self.filter_radius).ceil());
-            let p_max = Point2i::from((float_bounds.max - half + self.filter_radius).ceil()) + Vec2i::new(1, 1);
-            Bounds2i::new(p_min, p_max).intersection(Bounds2i::new(Point2i::default(), self.full_resolution))
+            let p_max = Point2i::from((float_bounds.max - half + self.filter_radius).ceil())
+                + Vec2i::new(1, 1);
+            Bounds2i::new(p_min, p_max)
+                .intersection(Bounds2i::new(Point2i::default(), self.full_resolution))
         };
 
         FilmTile::new(sample_bounds, pixel_bounds, self.filter.clone())
@@ -179,22 +183,39 @@ impl Film {
             for y in 0..resy {
                 let pixel_in = pixels[(y * resx + x) as usize];
                 let rgb = pixel_in.rgb / pixel_in.filter_weight_sum;
-                hdr_buffer.push(rgb);
+                hdr_buffer.push(rgb.to_rgb());
             }
         }
 
-        // Compute log average luminance
-        let log_average = (hdr_buffer.iter().map(|px| {
-            let rgb = px.to_rgb();
-            spectrum::rgb_to_luminance(rgb[0], rgb[1], rgb[2]).max(0.001).ln()
-        }).sum::<Float>() / (resx * resy) as Float).exp();
+        self.write_openexr(hdr_buffer, filename);
 
-        let alpha_over_log_average = 0.18 / log_average;
-        let tonemapped_buffer: Vec<RGBSpectrum> = hdr_buffer.into_iter().map(|px| {
-            // Apply Reinhard tonemapping
-            let scaled = px * alpha_over_log_average;
-            scaled / (scaled + 1.0)
-        }).collect();
+        Ok(())
+
+
+        // Compute log average and max luminance
+        /*let mut max_luminance = 0.0;
+        let log_average = (hdr_buffer
+            .iter()
+            .map(|px| {
+                let l = px.y();
+                max_luminance = l.max(max_luminance);
+                l.max(0.001).ln()
+            })
+            .sum::<Float>()
+            / (resx * resy) as Float)
+            .exp();
+
+        let alpha_over_log_average = 0.50 / log_average;
+        let tonemapped_buffer: Vec<RGBSpectrum> = hdr_buffer
+            .into_iter()
+            .map(|px| {
+                // Apply Reinhard tonemapping
+                let y_scaled = px.y() * alpha_over_log_average;
+                let y_out =
+                    y_scaled * (1.0 + (y_scaled / max_luminance.powi(2))) / (1.0 + y_scaled);
+                px * (y_out / px.y())
+            })
+            .collect();
 
         // X and Y need to be swapped for some reason
         let imgbuf = image::ImageBuffer::from_fn(resx, resy, |y, x| {
@@ -203,14 +224,35 @@ impl Film {
             let px = tonemapped_buffer[(y * resx + x) as usize].to_rgb();
             for (i, component) in px.iter().enumerate() {
                 // debug_assert!(*component >= 0.0 && *component <= 1.0);
-                scaled[i] = (component.max(0.0) * PIXEL_RANGE) as ImgOut;
+                scaled[i] = (num::clamp(spectrum::gamma_correct(*component), 0.0, 1.0) * PIXEL_RANGE) as ImgOut;
             }
 
             image::Rgb(scaled)
         });
 
         // Write the image buffer out to file
-        self.write_imgbuf(imgbuf, filename)
+        self.write_imgbuf(imgbuf, filename)*/
+    }
+
+    fn write_openexr(
+        &self,
+        buf: Vec<[f32; 3]>,
+        filename: &str
+    ) {
+        use openexr::{ScanlineOutputFile, FrameBuffer, Header, PixelType};
+        let mut file = std::fs::File::create("output_file.exr").unwrap();
+        let mut output_file = ScanlineOutputFile::new(
+            &mut file,
+            Header::new()
+                .set_resolution(self.full_resolution.x as u32, self.full_resolution.y as u32)
+                .add_channel("R", PixelType::FLOAT)
+                .add_channel("G", PixelType::FLOAT)
+                .add_channel("B", PixelType::FLOAT)).unwrap();
+
+        let mut fb = FrameBuffer::new(self.full_resolution.x as u32, self.full_resolution.y as u32);
+        fb.insert_channels(&["R", "G", "B"], &buf);
+
+        output_file.write_pixels(&fb).unwrap();
     }
 
     #[cfg(not(feature = "rgb16"))]

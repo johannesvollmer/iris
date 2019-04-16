@@ -1,6 +1,6 @@
 /target
 /.vscode
 **/*.rs.bk
-out.png
+out*
 callgrind.*
 massif.*

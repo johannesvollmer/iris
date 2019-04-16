@@ -107,10 +107,7 @@ where
 
 impl std::default::Default for Point2i {
     fn default() -> Self {
-        Self {
-            x: 0,
-            y: 0,
-        }
+        Self { x: 0, y: 0 }
     }
 }
 
