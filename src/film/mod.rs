@@ -183,7 +183,7 @@ impl Film {
         let image = image::Image::new(hdr_buffer, resx, resy, path);
 
         #[cfg(not(feature = "hdr"))]
-        image.write_ldr(0.0, image::Tonemap::Reinhard);
+        image.write_ldr(0.0, image::Tonemap::HableFilmic);
 
         #[cfg(feature = "hdr")]
         image.write_hdr();

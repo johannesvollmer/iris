@@ -107,6 +107,14 @@ impl RGBSpectrum {
             b: self.b.max(val),
         }
     }
+
+    pub fn reciprocal(&self) -> Self {
+        Self {
+            r: 1.0 / self.r,
+            g: 1.0 / self.g,
+            b: 1.0 / self.b,
+        }
+    }
 }
 
 impl std::ops::AddAssign for RGBSpectrum {
@@ -177,6 +185,18 @@ impl std::ops::Sub for RGBSpectrum {
             r: self.r - other.r,
             g: self.g - other.g,
             b: self.b - other.b,
+        }
+    }
+}
+
+impl std::ops::Sub<Float> for RGBSpectrum {
+    type Output = RGBSpectrum;
+
+    fn sub(self, other: Float) -> Self::Output {
+        Self::Output {
+            r: self.r - other,
+            g: self.g - other,
+            b: self.b - other,
         }
     }
 }

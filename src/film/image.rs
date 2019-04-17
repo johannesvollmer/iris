@@ -2,7 +2,6 @@
 
 use super::spectrum::RGBSpectrum;
 use crate::math::*;
-use num::traits::Float as _;
 
 #[cfg(not(feature = "rgb16"))]
 type ImgOut = u8;
@@ -18,7 +17,7 @@ pub enum Tonemap {
     Reinhard,
     ReinhardBurn(Float),
     // ReinhardBurnMax,
-    // HableFilmic,
+    HableFilmic,
     // TODO: Implement more camera response functions from http://www.cs.columbia.edu/CAVE/software/softlib/dorf.php
 }
 
@@ -33,15 +32,18 @@ pub struct Image {
 impl Image {
     #[cfg(not(feature = "hdr"))]
     pub fn write_ldr(mut self, exposure: Float, tonemap: Tonemap) {
+        use num::traits::Float as _;
+
         // Apply exposure
         for pixel in &mut self.hdr_buffer {
             *pixel *= 2.0.powf(exposure);
         }
 
-        // Apply tonemapping
+        // Apply tonemapping and gamma correction
         match tonemap {
             Tonemap::Reinhard => self.apply_reinhard(Float::infinity()),
             Tonemap::ReinhardBurn(max_luminance) => self.apply_reinhard(max_luminance),
+            Tonemap::HableFilmic => self.apply_uncharted(),
         }
 
         let imgbuf = image::ImageBuffer::from_fn(self.resx, self.resy, |x, y| {
@@ -49,7 +51,6 @@ impl Image {
 
             let px = self.hdr_buffer[(y * self.resx + x) as usize].to_rgb();
             for (i, component) in px.iter().enumerate() {
-                debug_assert!(*component >= 0.0 && *component <= 1.0);
                 scaled[i] = (num::clamp(*component, 0.0, 1.0) * PIXEL_RANGE) as ImgOut;
             }
 
@@ -122,6 +123,17 @@ impl Image {
             };
 
             *pixel = remap_color(*pixel, l_in, l_out);
+        }
+    }
+
+    fn apply_uncharted(&mut self) {
+        let (a, b, c, d, e, f, w) = (0.15, 0.5, 0.1, 0.2, 0.02, 0.3, 11.2);
+        let tonemap = |x| ((x * (x * a + c * b) + d * e) / (x * (x * a + b) + d * f)) - (e / f);
+
+        for pixel in &mut self.hdr_buffer {
+            let curr = tonemap(*pixel * 2.0);
+            let white_scale = tonemap(RGBSpectrum::from_rgb(w, w, w)).reciprocal();
+            *pixel = curr * white_scale;
         }
     }
 }
