@@ -100,16 +100,11 @@ impl RGBSpectrum {
         self.r == 0.0 && self.g == 0.0 && self.b == 0.0
     }
 
-    pub fn to_xyz(&self) -> [Float; 3] {
-        rgb_to_xyz(self.r, self.g, self.b)
-    }
-
-    pub fn from_xyz(x: Float, y: Float, z: Float) -> Self {
-        let rgb = xyz_to_rgb(x, y, z);
+    pub fn max(&self, val: Float) -> Self {
         Self {
-            r: rgb[0],
-            g: rgb[1],
-            b: rgb[2],
+            r: self.r.max(val),
+            g: self.g.max(val),
+            b: self.b.max(val),
         }
     }
 }

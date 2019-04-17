@@ -75,10 +75,8 @@ impl MicrofacetDistribution for TrowbridgeReitz {
         let nh = t1_v * t1 + t2_v * t2 + vh * (1.0 - t1 * t1 - t2 * t2).max(0.0).sqrt();
 
         // Section 3.4: transforming the normal back to the ellipsoid configuration
-        // vec3 Ne = normalize(vec3(alpha_x * Nh.x, alpha_y * Nh.y, std::max<float>(0.0, Nh.z)));
-        let ne = ShadingVec3f::new(ax * nh.x, ay * nh.y, nh.z.max(0.0)).normalized();
-        // return Ne;
-        ne
+        // return normalize(vec3(alpha_x * Nh.x, alpha_y * Nh.y, std::max<float>(0.0, Nh.z)));
+        ShadingVec3f::new(ax * nh.x, ay * nh.y, nh.z.max(0.0)).normalized()
     }
 
     fn pdf(&self, wo: ShadingVec3f, wh: ShadingVec3f) -> Float {

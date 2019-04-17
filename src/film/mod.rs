@@ -1,11 +1,11 @@
 use crate::film::filter::Filter;
 use crate::film::spectrum::{RGBSpectrum, Spectrum};
 use crate::math::*;
-use image::Pixel as _;
 use std::sync::{Arc, Mutex};
 
 pub mod camera;
 pub mod filter;
+pub mod image;
 pub mod spectrum;
 
 #[derive(Copy, Clone)]
@@ -27,16 +27,6 @@ pub struct FilmTile {
     filter_radius: Float,
     pixels: Vec<FilmTilePixel>,
 }
-
-#[cfg(not(feature = "rgb16"))]
-type ImgOut = u8;
-#[cfg(not(feature = "rgb16"))]
-const PIXEL_RANGE: Float = 255.99;
-
-#[cfg(feature = "rgb16")]
-type ImgOut = u16;
-#[cfg(feature = "rgb16")]
-const PIXEL_RANGE: Float = 65535.99;
 
 impl FilmTile {
     pub fn new(
@@ -173,123 +163,29 @@ impl Film {
         }
     }
 
-    pub fn write_to_file(&self, filename: &str) -> std::io::Result<()> {
+    pub fn write_to_file(&self, filename: &str) {
         let pixels = self.pixels.lock().unwrap();
         let (resx, resy) = (self.full_resolution.x as u32, self.full_resolution.y as u32);
 
         let mut hdr_buffer = Vec::with_capacity((resx * resy) as usize);
 
-        for x in 0..resx {
-            for y in 0..resy {
+        for y in 0..resy {
+            for x in 0..resx {
                 let pixel_in = pixels[(y * resx + x) as usize];
                 let rgb = pixel_in.rgb / pixel_in.filter_weight_sum;
-                hdr_buffer.push(rgb.to_rgb());
+
+                // Some filters have negative lobes. Clamp at zero
+                hdr_buffer.push(rgb.max(0.0));
             }
         }
 
-        self.write_openexr(hdr_buffer, filename);
+        let path = std::path::PathBuf::from(filename);
+        let image = image::Image::new(hdr_buffer, resx, resy, path);
 
-        Ok(())
+        #[cfg(not(feature = "hdr"))]
+        image.write_ldr(0.0, image::Tonemap::Reinhard);
 
-
-        // Compute log average and max luminance
-        /*let mut max_luminance = 0.0;
-        let log_average = (hdr_buffer
-            .iter()
-            .map(|px| {
-                let l = px.y();
-                max_luminance = l.max(max_luminance);
-                l.max(0.001).ln()
-            })
-            .sum::<Float>()
-            / (resx * resy) as Float)
-            .exp();
-
-        let alpha_over_log_average = 0.50 / log_average;
-        let tonemapped_buffer: Vec<RGBSpectrum> = hdr_buffer
-            .into_iter()
-            .map(|px| {
-                // Apply Reinhard tonemapping
-                let y_scaled = px.y() * alpha_over_log_average;
-                let y_out =
-                    y_scaled * (1.0 + (y_scaled / max_luminance.powi(2))) / (1.0 + y_scaled);
-                px * (y_out / px.y())
-            })
-            .collect();
-
-        // X and Y need to be swapped for some reason
-        let imgbuf = image::ImageBuffer::from_fn(resx, resy, |y, x| {
-            let mut scaled = [0, 0, 0];
-
-            let px = tonemapped_buffer[(y * resx + x) as usize].to_rgb();
-            for (i, component) in px.iter().enumerate() {
-                // debug_assert!(*component >= 0.0 && *component <= 1.0);
-                scaled[i] = (num::clamp(spectrum::gamma_correct(*component), 0.0, 1.0) * PIXEL_RANGE) as ImgOut;
-            }
-
-            image::Rgb(scaled)
-        });
-
-        // Write the image buffer out to file
-        self.write_imgbuf(imgbuf, filename)*/
-    }
-
-    fn write_openexr(
-        &self,
-        buf: Vec<[f32; 3]>,
-        filename: &str
-    ) {
-        use openexr::{ScanlineOutputFile, FrameBuffer, Header, PixelType};
-        let mut file = std::fs::File::create("output_file.exr").unwrap();
-        let mut output_file = ScanlineOutputFile::new(
-            &mut file,
-            Header::new()
-                .set_resolution(self.full_resolution.x as u32, self.full_resolution.y as u32)
-                .add_channel("R", PixelType::FLOAT)
-                .add_channel("G", PixelType::FLOAT)
-                .add_channel("B", PixelType::FLOAT)).unwrap();
-
-        let mut fb = FrameBuffer::new(self.full_resolution.x as u32, self.full_resolution.y as u32);
-        fb.insert_channels(&["R", "G", "B"], &buf);
-
-        output_file.write_pixels(&fb).unwrap();
-    }
-
-    #[cfg(not(feature = "rgb16"))]
-    fn write_imgbuf<C>(
-        &self,
-        buf: image::ImageBuffer<image::Rgb<u8>, C>,
-        filename: &str,
-    ) -> std::io::Result<()>
-    where
-        C: std::ops::Deref<Target = [u8]>,
-    {
-        buf.save(filename)
-    }
-
-    #[cfg(feature = "rgb16")]
-    fn write_imgbuf<C>(
-        &self,
-        buf: image::ImageBuffer<image::Rgb<u16>, C>,
-        filename: &str,
-    ) -> std::io::Result<()>
-    where
-        C: std::ops::Deref<Target = [u16]>,
-    {
-        use byteorder::{BigEndian, WriteBytesExt};
-        let path = std::path::Path::new(filename);
-
-        let raw = buf.into_raw();
-        let mut u8vec: Vec<u8> = Vec::with_capacity(raw.len() * 2);
-        raw.into_iter()
-            .for_each(|x| u8vec.write_u16::<BigEndian>(*x).unwrap());
-
-        image::save_buffer(
-            path,
-            &u8vec,
-            self.full_resolution.x as u32,
-            self.full_resolution.y as u32,
-            image::ColorType::RGB(16),
-        )
+        #[cfg(feature = "hdr")]
+        image.write_hdr();
     }
 }

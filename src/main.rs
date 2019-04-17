@@ -31,15 +31,16 @@ const TILE_SIZE: i32 = 16;
 
 fn main() {
     if cfg!(debug_assertions) {
-        render(100, 100, "out.exr", 1);
+        render(100, 100, "out", 1);
     } else {
-        render(500, 500, "out.exr", 25);
+        render(500, 500, "out", 25);
     }
 }
 
 fn render(width: i32, height: i32, filename: &str, spp: i32) {
     let start = std::time::SystemTime::now();
 
+    // let filter = Box::new(film::filter::Triangle::new(2.0));
     let filter = Box::new(film::filter::Mitchell::new(2.0, 1.0 / 3.0, 1.0 / 3.0));
     let film = Arc::new(film::Film::new(width, height, TILE_SIZE, filter));
 
@@ -47,8 +48,8 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
 
     let scene = test_scene();
 
-    let integrator = integrator::path::Path::new(4, 8);
-    // let integrator = integrator::whitted::Whitted::new(10);
+    // let integrator = integrator::path::Path::new(4, 8);
+    let integrator = integrator::whitted::Whitted::new(10);
     // let integrator = integrator::normals::Normals::new();
 
     let camera = film::camera::PerspectiveCamera::new(
@@ -119,9 +120,9 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
         Err(_) => (0..film.ntiles).into_par_iter().for_each(thread_work),
     }
 
-    film.write_to_file(filename).unwrap();
-
     progress_bar.finish_and_clear();
+
+    film.write_to_file(filename);
 
     let end = std::time::SystemTime::now();
     let duration = end.duration_since(start).unwrap();
