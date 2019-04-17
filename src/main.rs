@@ -48,8 +48,8 @@ fn render(width: i32, height: i32, filename: &str, spp: i32) {
 
     let scene = test_scene();
 
-    // let integrator = integrator::path::Path::new(4, 8);
-    let integrator = integrator::whitted::Whitted::new(10);
+    let integrator = integrator::path::Path::new(4, 8);
+    // let integrator = integrator::whitted::Whitted::new(10);
     // let integrator = integrator::normals::Normals::new();
 
     let camera = film::camera::PerspectiveCamera::new(

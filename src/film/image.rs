@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use super::spectrum::RGBSpectrum;
 use crate::math::*;
 use num::traits::Float as _;
@@ -87,7 +89,7 @@ impl Image {
             .hdr_buffer
             .into_iter()
             .map(|pixel| pixel.to_rgb())
-            .collect();
+            .collect::<Vec<[f32; 3]>>();
 
         self.path.set_extension("exr");
 
