@@ -4,6 +4,8 @@ Rust CPU ray tracer
 
 My attempt at following [PBRT](http://pbr-book.org) in Rust. Heavily inspired by [tray_rust](https://github.com/Twinklebear/tray_rust), please check it out!
 
+![Cornell Box Sphere](https://raw.githubusercontent.com/64/iris/master/renders/cornell_sphere.png)
+
 # Features
 * Unbiased Monte Carlo Path Tracing
 * Russian roulette
